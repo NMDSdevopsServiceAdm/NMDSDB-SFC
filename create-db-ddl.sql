@@ -873,23 +873,40 @@ insert into cqc.services (id, name, category, iscqcregistered, ismain) values (3
 
 
 ----Insert From Warren
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (1, 7, 1, 'Number of people receiving care on the completion date');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (2, 9, 1, 'How many beds do you currently have?');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (3, 9, 2, 'How many of those beds are currently used?');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (4, 10, 1, 'How many places do you currently have?');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (5, 10, 2, 'Number of people using the service on the completion date');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (6, 11, 1, 'Number of people receiving care on the completion date');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (7, 12, 1, 'Number of people receiving care on the completion date');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (8, 20, 1, 'How many places do you currently have?');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (9, 20, 2, 'Number of people using the service on the completion date');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (1, 7, 1, 'Number of people receiving care on the completion date');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (2, 9, 1, 'How many beds do you currently have?');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (3, 9, 2, 'How many of those beds are currently used?');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (4, 10, 1, 'How many places do you currently have?');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (5, 10, 2, 'Number of people using the service on the completion date');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (6, 11, 1, 'Number of people receiving care on the completion date');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (7, 12, 1, 'Number of people receiving care on the completion date');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (8, 20, 1, 'How many places do you currently have?');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (9, 20, 2, 'Number of people using the service on the completion date');
 
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (10, 21, 1, 'Number of people using the service on the completion date');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (11, 22, 1, 'Number of people receiving care on the completion date');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (12, 24, 1, 'How many beds do you currently have?');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (13, 24, 2, 'How many of those beds are currently used?');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (14, 25, 1, 'How many beds do you currently have?');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (15, 25, 2, 'How many of those beds are currently used?');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (16, 35, 1, 'Number of people receiving care on the completion date');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (10, 21, 1, 'Number of people using the service on the completion date');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (11, 22, 1, 'Number of people receiving care on the completion date');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (12, 24, 1, 'How many beds do you currently have?');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (13, 24, 2, 'How many of those beds are currently used?');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (14, 25, 1, 'How many beds do you currently have?');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (15, 25, 2, 'How many of those beds are currently used?');
+-- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (16, 35, 1, 'Number of people receiving care on the completion date');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (1, 24, 1, 'How many beds do you currently have?');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (2, 24, 2, 'How many of those beds are currently used?');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (3, 25, 1, 'How many beds do you currently have?');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (4, 25, 2, 'How many of those beds are currently used?');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (5, 13, 1, 'Number of people receiving care on the completion date');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (6, 12, 1, 'How many beds do you currently have?');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (7, 12, 2, 'How many of those beds are currently used?');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (8, 9, 1, 'How many places do you currently have?');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (9, 9, 2, 'Number of people using the service on the completion date');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (10, 10, 1, 'How many places do you currently have?');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (11, 10, 2, 'Number of people using the service on the completion date');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (12, 20, 2, 'Number of people using the service on the completion date');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (13, 22, 1, 'Number of people receiving care on the completion date');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (14, 35, 1, 'Number of people receiving care on the completion date');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (15, 11, 1, 'Number of people receiving care on the completion date');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (16, 18, 1, 'Number of people receiving care on the completion date');
+
 ---------------------
 
 insert into cqc."Job" ("JobID", "JobName") values (1, 'Senior Care Worker');
