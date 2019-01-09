@@ -294,12 +294,10 @@ CREATE TABLE IF NOT EXISTS cqc."Login" (
     "ID" integer NOT NULL,
     "RegistrationID" integer NOT NULL,
     "Username" character varying(120) NOT NULL,
-    "Password" character varying(120) NOT NULL,
     "SecurityQuestion" character varying(255) NOT NULL,
     "SecurityQuestionAnswer" character varying(255) NOT NULL,
     "Active" boolean NOT NULL,
     "InvalidAttempt" integer NOT NULL,
-    "Salt" character varying(255),
     "Hash" character varying(255),
     "FirstLogin" timestamp(4) without time zone
 );
