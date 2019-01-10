@@ -969,7 +969,7 @@ insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") va
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2004, 'KINGSTON UPON HULL');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2114, 'ISLE OF WIGHT');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2280, 'MEDWAY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2335, 'Lancashire');
+insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2335, 'LANCASHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2372, 'BLACKBURN WITH DARWEN');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2373, 'BLACKPOOL');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2465, 'LEICESTER');
@@ -987,7 +987,7 @@ insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") va
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3430, 'SOUTH STAFFORDSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3530, 'SUFFOLK COASTAL');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3640, 'SURREY HEATH');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3725, 'WARWICKshire');
+insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3725, 'WARWICKSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3940, 'WILTSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4205, 'BOLTON');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4210, 'BURY');
