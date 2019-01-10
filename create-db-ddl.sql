@@ -974,13 +974,13 @@ insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") va
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2373, 'BLACKPOOL');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2465, 'LEICESTER');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2470, 'RUTLAND');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2515, 'LINCOLNshire');
+insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2515, 'LINCOLNSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2635, 'KINGS LYNN AND WEST NORFOLK');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2741, 'YORK');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2830, 'SOUTH NORTHAMPTONSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2935, 'NORTHUMBERLAND');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3060, 'NOTTINGHAM');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3110, 'OXFORDshire');
+insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3110, 'OXFORDSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3240, 'TELFORD AND WREKIN');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3245, 'SHROPSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3320, 'WEST SOMERSET');
