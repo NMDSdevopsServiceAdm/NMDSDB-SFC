@@ -54,20 +54,6 @@ ALTER TYPE cqc.job_type OWNER TO sfcadmin;
 
 SET default_with_oids = false;
 
---
--- Name: CqcLog; Type: TABLE; Schema: cqc; Owner: postgres; Tablespace: sfcdevtbs_logins
---
-
-CREATE TABLE IF NOT EXISTS cqc."CqcLog" (
-    id integer NOT NULL,
-    success boolean,
-    message character varying(255),
-    createdat timestamp with time zone NOT NULL,
-    "lastUpdatedAt" text
-);
-
-
-ALTER TABLE cqc."CqcLog" OWNER TO sfcadmin;
 
 --
 -- Name: Establishment; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
@@ -385,27 +371,6 @@ ALTER TABLE cqc."User_RegistrationID_seq" OWNER TO sfcadmin;
 ALTER SEQUENCE IF EXISTS cqc."User_RegistrationID_seq" OWNED BY cqc."User"."RegistrationID";
 
 
---
--- Name: cqclog_id_seq; Type: SEQUENCE; Schema: cqc; Owner: postgres
---
-
-CREATE SEQUENCE cqc.cqclog_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE cqc.cqclog_id_seq OWNER TO sfcadmin;
-
---
--- Name: cqclog_id_seq; Type: SEQUENCE OWNED BY; Schema: cqc; Owner: postgres
---
-
-ALTER SEQUENCE cqc.cqclog_id_seq OWNED BY cqc."CqcLog".id;
-
 
 --
 -- Name: location_cqcid_seq; Type: SEQUENCE; Schema: cqc; Owner: sfcadmin
@@ -501,12 +466,6 @@ ALTER TABLE cqc.services_id_seq OWNER TO sfcadmin;
 ALTER SEQUENCE IF EXISTS cqc.services_id_seq OWNED BY cqc.services.id;
 
 
---
--- Name: CqcLog id; Type: DEFAULT; Schema: cqc; Owner: postgres
---
-
-ALTER TABLE ONLY cqc."CqcLog" ALTER COLUMN id SET DEFAULT nextval('cqc.cqclog_id_seq'::regclass);
-
 
 --
 -- Name: Establishment EstablishmentID; Type: DEFAULT; Schema: cqc; Owner: sfcadmin
@@ -552,13 +511,6 @@ ALTER TABLE ONLY cqc."User" ALTER COLUMN "RegistrationID" SET DEFAULT nextval('c
 
 
 SET default_tablespace = '';
-
---
--- Name: CqcLog CQCLog_pkey; Type: CONSTRAINT; Schema: cqc; Owner: postgres
---
-
-ALTER TABLE ONLY cqc."CqcLog"
-    ADD CONSTRAINT "CQCLog_pkey" PRIMARY KEY (id);
 
 
 --
@@ -782,19 +734,6 @@ ALTER TABLE ONLY cqc."Establishment"
 ALTER TABLE ONLY cqc."User"
     ADD CONSTRAINT user_establishment_fk FOREIGN KEY ("EstablishmentID") REFERENCES cqc."Establishment"("EstablishmentID");
 
-
---
--- Name: TABLE "CqcLog"; Type: ACL; Schema: cqc; Owner: postgres
---
-
-GRANT ALL ON TABLE cqc."CqcLog" TO sfcadmin;
-
-
---
--- Name: SEQUENCE cqclog_id_seq; Type: ACL; Schema: cqc; Owner: postgres
---
-
-GRANT SELECT,USAGE ON SEQUENCE cqc.cqclog_id_seq TO sfcadmin;
 
 
 --
