@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"Contract" cqc."WorkerContract" NOT NULL,
 	"MainJobFK" INTEGER NOT NULL,
 	"ApprovedMentalHealthProfessional" cqc."WorkerApprovedMentalHealthWorker" NULL,
+	"MainJobStartDate" DATE NULL,		-- Just date component, no time.
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
     CONSTRAINT "Worker_Establishment_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
