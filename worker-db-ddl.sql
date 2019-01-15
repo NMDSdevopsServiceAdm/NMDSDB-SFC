@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"NameOrID" varchar(50) NOT NULL,
 	"Contract" cqc."WorkerContract" NOT NULL,
 	"MainJobFK" INTEGER NOT NULL,
-	"ApprovedMentalHealthProfessional" cqc."WorkerApprovedMentalHealthWorker" NULL,
+	"ApprovedMentalHealthWorker" cqc."WorkerApprovedMentalHealthWorker" NULL,
 	"MainJobStartDate" DATE NULL,		-- Just date component, no time.
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
@@ -39,5 +39,3 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 
 CREATE UNIQUE INDEX "Worker_WorkerUID" on cqc."Worker" ("WorkerUID");
 CREATE INDEX "Worker_EstablishmentFK" on cqc."Worker" ("EstablishmentFK");
-
-
