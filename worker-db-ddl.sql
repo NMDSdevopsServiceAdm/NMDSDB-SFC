@@ -3,6 +3,7 @@
 -- DROP/CLEAN SCHEMA
 DROP TABLE IF EXISTS cqc."Worker";
 DROP TYPE IF EXISTS cqc."WorkerContract";
+DROP TYPE IF EXISTS cqc."WorkerApprovedMentalHealthWorker";
 
 -- CREATE/RE-CREATE SCHEMA
 CREATE TYPE cqc."WorkerContract" AS ENUM (
@@ -13,6 +14,12 @@ CREATE TYPE cqc."WorkerContract" AS ENUM (
 	'Other'
 );
 
+CREATE TYPE cqc."WorkerApprovedMentalHealthWorker" AS ENUM (
+	'Yes',
+	'No',
+	'Don''t know'
+);
+
 
 CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"ID" serial NOT NULL PRIMARY KEY,
@@ -21,6 +28,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"NameOrID" varchar(50) NOT NULL,
 	"Contract" cqc."WorkerContract" NOT NULL,
 	"MainJobFK" INTEGER NOT NULL,
+	"ApprovedMentalHealthProfessional" cqc."WorkerApprovedMentalHealthWorker" NULL,
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
     CONSTRAINT "Worker_Establishment_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
