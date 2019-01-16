@@ -22,14 +22,17 @@ CREATE TYPE cqc."WorkerApprovedMentalHealthWorker" AS ENUM (
 
 
 CREATE TABLE IF NOT EXISTS cqc."Worker" (
-	"ID" serial NOT NULL PRIMARY KEY,
-	"WorkerUID" uuid NOT NULL,
-	"EstablishmentFK" integer NOT NULL,
-	"NameOrID" varchar(50) NOT NULL,
+	"ID" SERIALl NOT NULL PRIMARY KEY,
+	"WorkerUID" UUID NOT NULL,
+	"EstablishmentFK" INTEGER NOT NULL,
+	"NameOrID" VARCHAR(50) NOT NULL,
 	"Contract" cqc."WorkerContract" NOT NULL,
 	"MainJobFK" INTEGER NOT NULL,
 	"ApprovedMentalHealthWorker" cqc."WorkerApprovedMentalHealthWorker" NULL,
 	"MainJobStartDate" DATE NULL,		-- Just date component, no time.
+	"NationalInsuranceNumber" VARCHAR(13) NULL,
+	"DateOfBirth" DATE NULL,
+	"Postcode" VARCHAR(8) NULL,
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
     CONSTRAINT "Worker_Establishment_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
