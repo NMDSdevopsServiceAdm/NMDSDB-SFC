@@ -280,12 +280,10 @@ CREATE TABLE IF NOT EXISTS cqc."Login" (
     "ID" integer NOT NULL,
     "RegistrationID" integer NOT NULL,
     "Username" character varying(120) NOT NULL,
-    "Password" character varying(120) NOT NULL,
     "SecurityQuestion" character varying(255) NOT NULL,
     "SecurityQuestionAnswer" character varying(255) NOT NULL,
     "Active" boolean NOT NULL,
     "InvalidAttempt" integer NOT NULL,
-    "Salt" character varying(255),
     "Hash" character varying(255),
     "FirstLogin" timestamp(4) without time zone
 );
@@ -772,6 +770,7 @@ ALTER TABLE cqc."Feedback"
 -- PostgreSQL database dump complete
 --
 
+---- Services
 insert into cqc.services (id, name, category, iscqcregistered, ismain) values (1, 'Carers support', 'Adult community care', 'f', 't');
 insert into cqc.services (id, name, category, iscqcregistered, ismain) values (2, 'Community support and outreach', 'Adult community care', 'f', 't');
 insert into cqc.services (id, name, category, iscqcregistered, ismain) values (3, 'Disability adaptations / assistive technology services', 'Adult community care', 'f', 't');
@@ -811,24 +810,7 @@ insert into cqc.services (id, name, category, iscqcregistered, ismain) values (3
 
 
 
-----Insert From Warren
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (1, 7, 1, 'Number of people receiving care on the completion date');
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (2, 9, 1, 'How many beds do you currently have?');
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (3, 9, 2, 'How many of those beds are currently used?');
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (4, 10, 1, 'How many places do you currently have?');
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (5, 10, 2, 'Number of people using the service on the completion date');
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (6, 11, 1, 'Number of people receiving care on the completion date');
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (7, 12, 1, 'Number of people receiving care on the completion date');
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (8, 20, 1, 'How many places do you currently have?');
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (9, 20, 2, 'Number of people using the service on the completion date');
-
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (10, 21, 1, 'Number of people using the service on the completion date');
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (11, 22, 1, 'Number of people receiving care on the completion date');
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (12, 24, 1, 'How many beds do you currently have?');
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (13, 24, 2, 'How many of those beds are currently used?');
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (14, 25, 1, 'How many beds do you currently have?');
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (15, 25, 2, 'How many of those beds are currently used?');
--- INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (16, 35, 1, 'Number of people receiving care on the completion date');
+----Service Capacities
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (1, 24, 1, 'How many beds do you currently have?');
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (2, 24, 2, 'How many of those beds are currently used?');
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (3, 25, 1, 'How many beds do you currently have?');
@@ -846,31 +828,40 @@ INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence"
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (15, 11, 1, 'Number of people receiving care on the completion date');
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (16, 18, 1, 'Number of people receiving care on the completion date');
 
----------------------
+----Jobs
 
-insert into cqc."Job" ("JobID", "JobName") values (1, 'Senior Care Worker');
-insert into cqc."Job" ("JobID", "JobName") values (2, 'Care Worker');
-insert into cqc."Job" ("JobID", "JobName") values (3, 'Community Support and Outreach Work');
-insert into cqc."Job" ("JobID", "JobName") values (4, 'Advice Guidance and Advocacy');
-insert into cqc."Job" ("JobID", "JobName") values (5, 'Other care-providing job role');
-insert into cqc."Job" ("JobID", "JobName") values (6, 'Senior Management');
-insert into cqc."Job" ("JobID", "JobName") values (7, 'Middle Management');
-insert into cqc."Job" ("JobID", "JobName") values (8, 'First Line Manager');
-insert into cqc."Job" ("JobID", "JobName") values (9, 'Registered Manager');
-insert into cqc."Job" ("JobID", "JobName") values (10, 'Supervisor');
-insert into cqc."Job" ("JobID", "JobName") values (11, 'Managers and staff in care-related but not care-providing roles');
-insert into cqc."Job" ("JobID", "JobName") values (12, 'Social Worker');
-insert into cqc."Job" ("JobID", "JobName") values (13, 'Occupational Therapist');
-insert into cqc."Job" ("JobID", "JobName") values (14, 'Registered Nurse');
-insert into cqc."Job" ("JobID", "JobName") values (15, 'Allied Health Professional');
-insert into cqc."Job" ("JobID", "JobName") values (16, 'Safeguarding and reviewing officer');
-insert into cqc."Job" ("JobID", "JobName") values (17, 'Administrative or office staff not care-providing');
-insert into cqc."Job" ("JobID", "JobName") values (18, 'Ancillary staff not care-providing');
-insert into cqc."Job" ("JobID", "JobName") values (19, 'Activities worker or co-ordinator');
-insert into cqc."Job" ("JobID", "JobName") values (20, 'Occupational therapist assistant');
-insert into cqc."Job" ("JobID", "JobName") values (21, 'Other non-care-providing job roles');
+insert into cqc."Job" ("JobID", "JobName") values (1, 'Activities worker or co-ordinator');
+insert into cqc."Job" ("JobID", "JobName") values (2, 'Administrative / office staff not care-providing');
+insert into cqc."Job" ("JobID", "JobName") values (3, 'Advice, Guidance and Advocacy');
+insert into cqc."Job" ("JobID", "JobName") values (4, 'Allied Health Professional (not Occupational Therapist)');
+insert into cqc."Job" ("JobID", "JobName") values (5, 'Ancillary staff not care-providing');
+insert into cqc."Job" ("JobID", "JobName") values (6, 'Any childrens / young people''s job role');
+insert into cqc."Job" ("JobID", "JobName") values (7, 'Assessment Officer');
+insert into cqc."Job" ("JobID", "JobName") values (8, 'Care Coordinator');
+insert into cqc."Job" ("JobID", "JobName") values (9, 'Care Navigator');
+insert into cqc."Job" ("JobID", "JobName") values (10, 'Care Worker');
+insert into cqc."Job" ("JobID", "JobName") values (11, 'Community, Support and Outreach Work');
+insert into cqc."Job" ("JobID", "JobName") values (12, 'Employment Support');
+insert into cqc."Job" ("JobID", "JobName") values (13, 'First Line Manager');
+insert into cqc."Job" ("JobID", "JobName") values (14, 'Managers and staff care-related but not care-providing');
+insert into cqc."Job" ("JobID", "JobName") values (15, 'Middle Management');
+insert into cqc."Job" ("JobID", "JobName") values (16, 'Nursing Assistant');
+insert into cqc."Job" ("JobID", "JobName") values (17, 'Nursing Associate');
+insert into cqc."Job" ("JobID", "JobName") values (18, 'Occupational Therapist');
+insert into cqc."Job" ("JobID", "JobName") values (19, 'Occupational Therapist Assistant');
+insert into cqc."Job" ("JobID", "JobName") values (20, 'Other job roles directly involved in providing care');
+insert into cqc."Job" ("JobID", "JobName") values (21, 'Other job roles not directly involved in providing care');
+insert into cqc."Job" ("JobID", "JobName") values (22, 'Registered Manager');
+insert into cqc."Job" ("JobID", "JobName") values (23, 'Registered Nurse');
+insert into cqc."Job" ("JobID", "JobName") values (24, 'Safeguarding & Reviewing Officer');
+insert into cqc."Job" ("JobID", "JobName") values (25, 'Senior Care Worker');
+insert into cqc."Job" ("JobID", "JobName") values (26, 'Senior Management');
+insert into cqc."Job" ("JobID", "JobName") values (27, 'Social Worker');
+insert into cqc."Job" ("JobID", "JobName") values (28, 'Supervisor');
+insert into cqc."Job" ("JobID", "JobName") values (29, 'Technician');
 
 
+---- Local Authorities
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(119, 'SOUTH GLOUCESTERSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(121, 'NORTH SOMERSET');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(230, 'LUTON');
@@ -915,25 +906,25 @@ insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") va
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2004, 'KINGSTON UPON HULL');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2114, 'ISLE OF WIGHT');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2280, 'MEDWAY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2335, 'Lancashire');
+insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2335, 'LANCASHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2372, 'BLACKBURN WITH DARWEN');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2373, 'BLACKPOOL');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2465, 'LEICESTER');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2470, 'RUTLAND');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2515, 'LINCOLNshire');
+insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2515, 'LINCOLNSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2635, 'KINGS LYNN AND WEST NORFOLK');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2741, 'YORK');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2830, 'SOUTH NORTHAMPTONSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2935, 'NORTHUMBERLAND');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3060, 'NOTTINGHAM');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3110, 'OXFORDshire');
+insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3110, 'OXFORDSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3240, 'TELFORD AND WREKIN');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3245, 'SHROPSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3320, 'WEST SOMERSET');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3430, 'SOUTH STAFFORDSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3530, 'SUFFOLK COASTAL');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3640, 'SURREY HEATH');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3725, 'WARWICKshire');
+insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3725, 'WARWICKSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3940, 'WILTSHIRE');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4205, 'BOLTON');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4210, 'BURY');
