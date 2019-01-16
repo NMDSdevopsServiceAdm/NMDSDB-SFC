@@ -1412,7 +1412,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA cqctsttst REVOKE ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA cqctsttst GRANT ALL ON TABLES  TO sfcadmin;
 
 
--- CqcLocation Table Column update
+-- CqcLocation Table Column update for check
 ALTER TABLE cqc.location
     RENAME cqcid TO "EstablishmentID";
 --
