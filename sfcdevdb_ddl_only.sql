@@ -1412,9 +1412,16 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA cqctsttst REVOKE ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA cqctsttst GRANT ALL ON TABLES  TO sfcadmin;
 
 
--- CqcLocation Table Column update
-ALTER TABLE cqc.location
-    RENAME cqcid TO "EstablishmentID";
+-- CqcLocation table Column ccqid drop and locationid changed to primary key with unique constraint
+
+ALTER TABLE cqc.location DROP CONSTRAINT location_pkey;
+ALTER TABLE cqc.location DROP COLUMN cqcid ;
+
+ALTER TABLE cqc.location  add constraint locationid_PK PRIMARY KEY (locationid);
+ALTER TABLE cqc.location  add constraint locationid_Unq UNIQUE  (locationid);
+
+
+
 --
 -- PostgreSQL database dump complete
 --
