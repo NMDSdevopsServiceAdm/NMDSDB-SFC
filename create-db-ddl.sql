@@ -995,3 +995,11 @@ insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") va
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5930, 'WALTHAM FOREST');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5960, 'WANDSWORTH');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5990, 'CITY OF WESTMINSTER');
+
+
+-- removing the unnecessary location.cqcid and promoting location.locationid as primary key
+ALTER TABLE cqc.location DROP CONSTRAINT location_pkey;
+ALTER TABLE cqc.location DROP COLUMN cqcid ;
+
+ALTER TABLE cqc.location  add constraint locationid_PK PRIMARY KEY (locationid);
+ALTER TABLE cqc.location  add constraint locationid_Unq UNIQUE  (locationid);
