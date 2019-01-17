@@ -4,6 +4,8 @@
 DROP TABLE IF EXISTS cqc."Worker";
 DROP TYPE IF EXISTS cqc."WorkerContract";
 DROP TYPE IF EXISTS cqc."WorkerApprovedMentalHealthWorker";
+DROP TYPE IF EXISTS cqc."WorkerGender";
+DROP TYPE IF EXISTS cqc."WorkerDisability";
 
 -- CREATE/RE-CREATE SCHEMA
 CREATE TYPE cqc."WorkerContract" AS ENUM (
@@ -17,6 +19,20 @@ CREATE TYPE cqc."WorkerContract" AS ENUM (
 CREATE TYPE cqc."WorkerApprovedMentalHealthWorker" AS ENUM (
 	'Yes',
 	'No',
+	'Don''t know'
+);
+
+CREATE TYPE cqc."WorkerGender" AS ENUM (
+	'Female',
+	'Male',
+	'Other',
+	'Don''t know'
+);
+
+CREATE TYPE cqc."WorkerDisability" AS ENUM (
+	'Yes',
+	'No',
+	'Undisclosed',
 	'Don''t know'
 );
 
@@ -42,3 +58,6 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 
 CREATE UNIQUE INDEX "Worker_WorkerUID" on cqc."Worker" ("WorkerUID");
 CREATE INDEX "Worker_EstablishmentFK" on cqc."Worker" ("EstablishmentFK");
+
+ALTER TABLE cqc."Worker" ADD COLUMN "Gender" cqc."WorkerGender" NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "Disability" cqc."WorkerDisability" NULL;
