@@ -58,7 +58,11 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"MainJobFKChangedAt" TIMESTAMP NULL,
 	"MainJobFKSavedBy" VARCHAR(120) NULL,
 	"MainJobFKChangedBy" VARCHAR(120) NULL,
-	"ApprovedMentalHealthWorker" cqc."WorkerApprovedMentalHealthWorker" NULL,
+	"ApprovedMentalHealthWorkerValue" cqc."WorkerApprovedMentalHealthWorker" NULL,
+	"ApprovedMentalHealthWorkerSavedAt" TIMESTAMP NULL,
+	"ApprovedMentalHealthWorkerChangedAt" TIMESTAMP NULL,
+	"ApprovedMentalHealthWorkerSavedBy" VARCHAR(120) NULL,
+	"ApprovedMentalHealthWorkerChangedBy" VARCHAR(120) NULL,
 	"MainJobStartDateValue" DATE NULL,		-- Just date component, no time.
 	"MainJobStartDateSavedAt" TIMESTAMP NULL,
 	"MainJobStartDateChangedAt" TIMESTAMP NULL,
@@ -97,8 +101,8 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	CONSTRAINT "Worker_WorkerUID_unq" UNIQUE ("WorkerUID")
 );
 
-CREATE UNIQUE INDEX "Worker_WorkerUID" on cqc."Worker" ("WorkerUID") USING btree;
-CREATE INDEX "Worker_EstablishmentFK" on cqc."Worker" ("EstablishmentFK") USING btree;
+CREATE UNIQUE INDEX "Worker_WorkerUID" on cqc."Worker" ("WorkerUID");
+CREATE INDEX "Worker_EstablishmentFK" on cqc."Worker" ("EstablishmentFK");
 
 -- change auditting
 CREATE TYPE cqc."AuditChangeType" AS ENUM (
@@ -117,4 +121,4 @@ CREATE TABLE IF NOT EXISTS cqc."WorkerAudit" (
 	"ChangeEvents" JSONB NULL,
 	CONSTRAINT "WorkerAudit_Worker_fk" FOREIGN KEY ("WorkerFK") REFERENCES cqc."Worker" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
 );
-CREATE INDEX "WorkerAudit_WorkerFK" on cqc."WorkerAudit" ("WorkerFK") USING btree;
+CREATE INDEX "WorkerAudit_WorkerFK" on cqc."WorkerAudit" ("WorkerFK");
