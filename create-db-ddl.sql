@@ -1003,3 +1003,13 @@ ALTER TABLE cqc.location DROP COLUMN cqcid ;
 
 ALTER TABLE cqc.location  add constraint locationid_PK PRIMARY KEY (locationid);
 ALTER TABLE cqc.location  add constraint locationid_Unq UNIQUE  (locationid);
+
+CREATE TYPE cqc.job_declaration AS ENUM (
+    'None',
+    'Don''t know',
+	'With Jobs'
+);
+
+ALTER TABLE cqc."Establishment" add column "Vacancies" cqc.job_declaration NULL;
+ALTER TABLE cqc."Establishment" add column "Starters" cqc.job_declaration NULL;
+ALTER TABLE cqc."Establishment" add column "Leavers" cqc.job_declaration NULL;
