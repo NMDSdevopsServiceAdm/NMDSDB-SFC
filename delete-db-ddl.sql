@@ -2,6 +2,7 @@
 DROP TABLE IF EXISTS cqc."Feedback";
 
 -- workers
+DROP TABLE IF EXISTS cqc."WorkerAudit";
 DROP TABLE IF EXISTS cqc."Worker";
 
 -- establishments
