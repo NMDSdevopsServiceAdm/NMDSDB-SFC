@@ -743,39 +743,3 @@ CREATE TABLE IF NOT EXISTS cqc."WorkerAudit" (
 	CONSTRAINT "WorkerAudit_Worker_fk" FOREIGN KEY ("WorkerFK") REFERENCES cqc."Worker" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 CREATE INDEX "WorkerAudit_WorkerFK" on cqc."WorkerAudit" ("WorkerFK");
-
-
--- update Worker table for additional referenced based/lookup columns
-ALTER TABLE cqc."Worker" ADD COLUMN "GenderValue" cqc."WorkerGender" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "GenderSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "GenderChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "GenderSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "GenderChangedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "EthnicityFKValue" INTEGER NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "EthnicityFKSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "EthnicityFKChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "EthnicityFKSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "EthnicityFKChangedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "NationalityValue" cqc."WorkerNationality" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "NationalityOtherFK" INTEGER NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "NationalitySavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "NationalityChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "NationalitySavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "NationalityChangedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "CountryOfBirthValue" cqc."WorkerCountryOfBirth" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "CountryOfBirthOtherFK" INTEGER NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "CountryOfBirthSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "CountryOfBirthChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "CountryOfBirthSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "CountryOfBirthChangedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "QualificationFKValue" INTEGER NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "QualificationFKSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "QualificationFKChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "QualificationFKSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "QualificationFKChangedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "RecruitedFromValue" cqc."WorkerRecruitedFrom" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "RecruitedFromOtherFK" INTEGER NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "RecruitedFromSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "RecruitedFromChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "RecruitedFromSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "RecruitedFromChangedBy" VARCHAR(120) NULL;
