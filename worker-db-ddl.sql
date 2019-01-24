@@ -1,18 +1,22 @@
 -- DDL for Workers
 
 -- DROP/CLEAN SCHEMA
+DROP TABLE IF EXISTS cqc."WorkerAudit";
+DROP TABLE IF EXISTS cqc."Worker";
 DROP TABLE IF EXISTS cqc."Ethnicity";
 DROP TABLE IF EXISTS cqc."Nationality";
 DROP TABLE IF EXISTS cqc."Country";
 DROP TABLE IF EXISTS cqc."RecruitedFrom";
 DROP TABLE IF EXISTS cqc."Qualification";
-DROP TABLE IF EXISTS cqc."WorkerAudit";
-DROP TABLE IF EXISTS cqc."Worker";
+DROP TYPE IF EXISTS cqc."AuditChangeType";
 DROP TYPE IF EXISTS cqc."WorkerContract";
 DROP TYPE IF EXISTS cqc."WorkerApprovedMentalHealthWorker";
 DROP TYPE IF EXISTS cqc."WorkerGender";
 DROP TYPE IF EXISTS cqc."WorkerDisability";
-DROP TYPE IF EXISTS cqc."AuditChangeType";
+DROP TYPE IF EXISTS cqc."WorkerDisability";
+DROP TYPE IF EXISTS cqc."WorkerNationality";
+DROP TYPE IF EXISTS cqc."WorkerCountryOfBirth";
+DROP TYPE IF EXISTS cqc."WorkerRecruitedFrom";
 
 -- CREATE/RE-CREATE SCHEMA
 CREATE TYPE cqc."WorkerContract" AS ENUM (
@@ -43,91 +47,22 @@ CREATE TYPE cqc."WorkerDisability" AS ENUM (
 	'Don''t know'
 );
 
-
-CREATE TABLE IF NOT EXISTS cqc."Worker" (
-	"ID" SERIAL NOT NULL PRIMARY KEY,
-	"WorkerUID" UUID NOT NULL,
-	"EstablishmentFK" INTEGER NOT NULL,
-	"NameOrIdValue" VARCHAR(50) NOT NULL,
-	"NameOrIdSavedAt" TIMESTAMP NULL,
-	"NameOrIdChangedAt" TIMESTAMP NULL,
-	"NameOrIdSavedBy" VARCHAR(120) NULL,
-	"NameOrIdChangedBy" VARCHAR(120) NULL,
-	"ContractValue" cqc."WorkerContract" NOT NULL,
-	"ContractSavedAt" TIMESTAMP NULL,
-	"ContractChangedAt" TIMESTAMP NULL,
-	"ContractSavedBy" VARCHAR(120) NULL,
-	"ContractChangedBy" VARCHAR(120) NULL,
-	"MainJobFKValue" INTEGER NOT NULL,
-	"MainJobFKSavedAt" TIMESTAMP NULL,
-	"MainJobFKChangedAt" TIMESTAMP NULL,
-	"MainJobFKSavedBy" VARCHAR(120) NULL,
-	"MainJobFKChangedBy" VARCHAR(120) NULL,
-	"ApprovedMentalHealthWorkerValue" cqc."WorkerApprovedMentalHealthWorker" NULL,
-	"ApprovedMentalHealthWorkerSavedAt" TIMESTAMP NULL,
-	"ApprovedMentalHealthWorkerChangedAt" TIMESTAMP NULL,
-	"ApprovedMentalHealthWorkerSavedBy" VARCHAR(120) NULL,
-	"ApprovedMentalHealthWorkerChangedBy" VARCHAR(120) NULL,
-	"MainJobStartDateValue" DATE NULL,		-- Just date component, no time.
-	"MainJobStartDateSavedAt" TIMESTAMP NULL,
-	"MainJobStartDateChangedAt" TIMESTAMP NULL,
-	"MainJobStartDateSavedBy" VARCHAR(120) NULL,
-	"MainJobStartDateChangedBy" VARCHAR(120) NULL,
-	"NationalInsuranceNumberValue" VARCHAR(13) NULL,
-	"NationalInsuranceNumberSavedAt" TIMESTAMP NULL,
-	"NationalInsuranceNumberChangedAt" TIMESTAMP NULL,
-	"NationalInsuranceNumberSavedBy" VARCHAR(120) NULL,
-	"NationalInsuranceNumberChangedBy" VARCHAR(120) NULL,
-	"DateOfBirthValue" DATE NULL,
-	"DateOfBirthSavedAt" TIMESTAMP NULL,
-	"DateOfBirthChangedAt" TIMESTAMP NULL,
-	"DateOfBirthSavedBy" VARCHAR(120) NULL,
-	"DateOfBirthChangedBy" VARCHAR(120) NULL,
-	"PostcodeValue" VARCHAR(8) NULL,
-	"PostcodeSavedAt" TIMESTAMP NULL,
-	"PostcodeChangedAt" TIMESTAMP NULL,
-	"PostcodeSavedBy" VARCHAR(120) NULL,
-	"PostcodeChangedBy" VARCHAR(120) NULL,
-	"DisabilityValue" cqc."WorkerDisability" NULL,
-	"DisabilitySavedAt" TIMESTAMP NULL,
-	"DisabilityChangedAt" TIMESTAMP NULL,
-	"DisabilitySavedBy" VARCHAR(120) NULL,
-	"DisabilityChangedBy" VARCHAR(120) NULL,
-	"GenderValue" cqc."WorkerGender" NULL,
-	"GenderSavedAt" TIMESTAMP NULL,
-	"GenderChangedAt" TIMESTAMP NULL,
-	"GenderSavedBy" VARCHAR(120) NULL,
-	"GenderChangedBy" VARCHAR(120) NULL,
-	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
-	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
-	updatedby VARCHAR(120) NOT NULL,
-    CONSTRAINT "Worker_Establishment_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
-	CONSTRAINT "Worker_Job_mainjob_fk" FOREIGN KEY ("MainJobFKValue") REFERENCES cqc."Job" ("JobID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
-	CONSTRAINT "Worker_WorkerUID_unq" UNIQUE ("WorkerUID")
+CREATE TYPE cqc."WorkerNationality" AS ENUM (
+	'British',
+	'Other',
+	'Don''t know'
 );
 
-CREATE UNIQUE INDEX "Worker_WorkerUID" on cqc."Worker" ("WorkerUID");
-CREATE INDEX "Worker_EstablishmentFK" on cqc."Worker" ("EstablishmentFK");
-
--- change auditting
-CREATE TYPE cqc."AuditChangeType" AS ENUM (
-	'created',
-	'updated',
-	'saved',
-	'changed'
+CREATE TYPE cqc."WorkerCountryOfBirth" AS ENUM (
+	'United Kingdom',
+	'Other',
+	'Don''t know'
 );
-CREATE TABLE IF NOT EXISTS cqc."WorkerAudit" (
-	"ID" SERIAL NOT NULL PRIMARY KEY,
-	"WorkerFK" INTEGER NOT NULL,
-	"Username" VARCHAR(120) NOT NULL,
-	"When" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
-	"EventType" cqc."AuditChangeType" NOT NULL,
-	"PropertyName" VARCHAR(100) NULL,
-	"ChangeEvents" JSONB NULL,
-	CONSTRAINT "WorkerAudit_Worker_fk" FOREIGN KEY ("WorkerFK") REFERENCES cqc."Worker" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
-);
-CREATE INDEX "WorkerAudit_WorkerFK" on cqc."WorkerAudit" ("WorkerFK");
 
+CREATE TYPE cqc."WorkerRecruitedFrom" AS ENUM (
+	'Yes',
+	'No'
+);
 
 -- Ethnicity Reference Data
 CREATE TABLE IF NOT EXISTS cqc."Ethnicity" (
@@ -691,3 +626,120 @@ INSERT INTO cqc."Qualification" ("ID", "seq", "Level") VALUES
 	(8,8, 'Level 7'),
 	(9,9, 'Level 8 or above'),
 	(10,10, 'Don'' know');
+
+CREATE TABLE IF NOT EXISTS cqc."Worker" (
+	"ID" SERIAL NOT NULL PRIMARY KEY,
+	"WorkerUID" UUID NOT NULL,
+	"EstablishmentFK" INTEGER NOT NULL,
+	"NameOrIdValue" VARCHAR(50) NOT NULL,
+	"NameOrIdSavedAt" TIMESTAMP NULL,
+	"NameOrIdChangedAt" TIMESTAMP NULL,
+	"NameOrIdSavedBy" VARCHAR(120) NULL,
+	"NameOrIdChangedBy" VARCHAR(120) NULL,
+	"ContractValue" cqc."WorkerContract" NOT NULL,
+	"ContractSavedAt" TIMESTAMP NULL,
+	"ContractChangedAt" TIMESTAMP NULL,
+	"ContractSavedBy" VARCHAR(120) NULL,
+	"ContractChangedBy" VARCHAR(120) NULL,
+	"MainJobFKValue" INTEGER NOT NULL,
+	"MainJobFKSavedAt" TIMESTAMP NULL,
+	"MainJobFKChangedAt" TIMESTAMP NULL,
+	"MainJobFKSavedBy" VARCHAR(120) NULL,
+	"MainJobFKChangedBy" VARCHAR(120) NULL,
+	"ApprovedMentalHealthWorkerValue" cqc."WorkerApprovedMentalHealthWorker" NULL,
+	"ApprovedMentalHealthWorkerSavedAt" TIMESTAMP NULL,
+	"ApprovedMentalHealthWorkerChangedAt" TIMESTAMP NULL,
+	"ApprovedMentalHealthWorkerSavedBy" VARCHAR(120) NULL,
+	"ApprovedMentalHealthWorkerChangedBy" VARCHAR(120) NULL,
+	"MainJobStartDateValue" DATE NULL,		-- Just date component, no time.
+	"MainJobStartDateSavedAt" TIMESTAMP NULL,
+	"MainJobStartDateChangedAt" TIMESTAMP NULL,
+	"MainJobStartDateSavedBy" VARCHAR(120) NULL,
+	"MainJobStartDateChangedBy" VARCHAR(120) NULL,
+	"NationalInsuranceNumberValue" VARCHAR(13) NULL,
+	"NationalInsuranceNumberSavedAt" TIMESTAMP NULL,
+	"NationalInsuranceNumberChangedAt" TIMESTAMP NULL,
+	"NationalInsuranceNumberSavedBy" VARCHAR(120) NULL,
+	"NationalInsuranceNumberChangedBy" VARCHAR(120) NULL,
+	"DateOfBirthValue" DATE NULL,
+	"DateOfBirthSavedAt" TIMESTAMP NULL,
+	"DateOfBirthChangedAt" TIMESTAMP NULL,
+	"DateOfBirthSavedBy" VARCHAR(120) NULL,
+	"DateOfBirthChangedBy" VARCHAR(120) NULL,
+	"PostcodeValue" VARCHAR(8) NULL,
+	"PostcodeSavedAt" TIMESTAMP NULL,
+	"PostcodeChangedAt" TIMESTAMP NULL,
+	"PostcodeSavedBy" VARCHAR(120) NULL,
+	"PostcodeChangedBy" VARCHAR(120) NULL,
+	"DisabilityValue" cqc."WorkerDisability" NULL,
+	"DisabilitySavedAt" TIMESTAMP NULL,
+	"DisabilityChangedAt" TIMESTAMP NULL,
+	"DisabilitySavedBy" VARCHAR(120) NULL,
+	"DisabilityChangedBy" VARCHAR(120) NULL,
+	"GenderValue" cqc."WorkerGender" NULL,
+	"GenderSavedAt" TIMESTAMP NULL,
+	"GenderChangedAt" TIMESTAMP NULL,
+	"GenderSavedBy" VARCHAR(120) NULL,
+	"GenderChangedBy" VARCHAR(120) NULL,
+	"EthnicityFKValue" INTEGER NULL,
+	"EthnicityFKSavedAt" TIMESTAMP NULL,
+	"EthnicityFKChangedAt" TIMESTAMP NULL,
+	"EthnicityFKSavedBy" VARCHAR(120) NULL,
+	"EthnicityFKChangedBy" VARCHAR(120) NULL,
+	"NationalityValue" cqc."WorkerNationality" NULL,
+	"NationalityOtherFK" INTEGER NULL,
+	"NationalitySavedAt" TIMESTAMP NULL,
+	"NationalityChangedAt" TIMESTAMP NULL,
+	"NationalitySavedBy" VARCHAR(120) NULL,
+	"NationalityChangedBy" VARCHAR(120) NULL,
+	"CountryOfBirthValue" cqc."WorkerCountryOfBirth" NULL,
+	"CountryOfBirthOtherFK" INTEGER NULL,
+	"CountryOfBirthSavedAt" TIMESTAMP NULL,
+	"CountryOfBirthChangedAt" TIMESTAMP NULL,
+	"CountryOfBirthSavedBy" VARCHAR(120) NULL,
+	"CountryOfBirthChangedBy" VARCHAR(120) NULL,
+	"QualificationFKValue" INTEGER NULL,
+	"QualificationFKSavedAt" TIMESTAMP NULL,
+	"QualificationFKChangedAt" TIMESTAMP NULL,
+	"QualificationFKSavedBy" VARCHAR(120) NULL,
+	"QualificationFKChangedBy" VARCHAR(120) NULL,
+	"RecruitedFromValue" cqc."WorkerRecruitedFrom" NULL,
+	"RecruitedFromOtherFK" INTEGER NULL,
+	"RecruitedFromSavedAt" TIMESTAMP NULL,
+	"RecruitedFromChangedAt" TIMESTAMP NULL,
+	"RecruitedFromSavedBy" VARCHAR(120) NULL,
+	"RecruitedFromChangedBy" VARCHAR(120) NULL,
+	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
+	updatedby VARCHAR(120) NOT NULL,
+    CONSTRAINT "Worker_Establishment_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "Worker_Job_mainjob_fk" FOREIGN KEY ("MainJobFKValue") REFERENCES cqc."Job" ("JobID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "Worker_Job_ethnicity_fk" FOREIGN KEY ("EthnicityFKValue") REFERENCES cqc."Ethnicity" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "Worker_Job_nationality_fk" FOREIGN KEY ("NationalityOtherFK") REFERENCES cqc."Nationality" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "Worker_Job_country_of_birth_fk" FOREIGN KEY ("CountryOfBirthOtherFK") REFERENCES cqc."Country" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "Worker_Job_qualification_fk" FOREIGN KEY ("QualificationFKValue") REFERENCES cqc."Qualification" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "Worker_Job_recruited_from_fk" FOREIGN KEY ("RecruitedFromOtherFK") REFERENCES cqc."RecruitedFrom" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "Worker_WorkerUID_unq" UNIQUE ("WorkerUID")
+);
+
+CREATE UNIQUE INDEX "Worker_WorkerUID" on cqc."Worker" ("WorkerUID");
+CREATE INDEX "Worker_EstablishmentFK" on cqc."Worker" ("EstablishmentFK");
+
+-- change auditting
+CREATE TYPE cqc."AuditChangeType" AS ENUM (
+	'created',
+	'updated',
+	'saved',
+	'changed'
+);
+CREATE TABLE IF NOT EXISTS cqc."WorkerAudit" (
+	"ID" SERIAL NOT NULL PRIMARY KEY,
+	"WorkerFK" INTEGER NOT NULL,
+	"Username" VARCHAR(120) NOT NULL,
+	"When" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+	"EventType" cqc."AuditChangeType" NOT NULL,
+	"PropertyName" VARCHAR(100) NULL,
+	"ChangeEvents" JSONB NULL,
+	CONSTRAINT "WorkerAudit_Worker_fk" FOREIGN KEY ("WorkerFK") REFERENCES cqc."Worker" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+CREATE INDEX "WorkerAudit_WorkerFK" on cqc."WorkerAudit" ("WorkerFK");
