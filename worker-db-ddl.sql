@@ -80,7 +80,7 @@ INSERT INTO cqc."Ethnicity" ("ID", "Seq", "EthnicityGroup", "Ethnicity") VALUES
 	(6, 300, 'Mixed / multiple ethnic groups', 'White and Black Caribbean'),
 	(7, 301, 'Mixed / multiple ethnic groups', 'White and Black African'),
 	(8, 302, 'Mixed / multiple ethnic groups', 'White and Asian'),
-	(9, 303, 'Mixed / multiple ethnic groups', 'Any other Mixed/Multiple ethnic background'),
+	(9, 303, 'Mixed / multiple ethnic groups', 'Any other Mixed/ multiple ethnic background'),
 	(10, 400, 'Asian / Asian British', 'Indian'),
 	(11, 401, 'Asian / Asian British', 'Pakistani'),
 	(12, 402, 'Asian / Asian British', 'Bangladeshi'),
@@ -600,7 +600,7 @@ INSERT INTO cqc."RecruitedFrom" ("ID", "Seq", "From") VALUES
 	(1,1, 'Adult care sector: Local Authority'),
 	(2,2, 'Adult care sector: private or voluntary sector'),
 	(3,3, 'Health sector'),
-	(4,4, 'Childrens/young people''s Social Care'),
+	(4,4, 'Childrens/young people''s social care'),
 	(5,5, 'Other sector'),
 	(6,6, 'Internal promotion or transfer or career development'),
 	(7,7, 'Not previously employed'),
@@ -625,7 +625,7 @@ INSERT INTO cqc."Qualification" ("ID", "Seq", "Level") VALUES
 	(7,7, 'Level 6'),
 	(8,8, 'Level 7'),
 	(9,9, 'Level 8 or above'),
-	(10,10, 'Don'' know');
+	(10,10, 'Don''t know');
 
 CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,
@@ -712,7 +712,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
 	updatedby VARCHAR(120) NOT NULL,
-    CONSTRAINT "Worker_Establishment_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "Worker_Establishment_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT "Worker_Job_mainjob_fk" FOREIGN KEY ("MainJobFKValue") REFERENCES cqc."Job" ("JobID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT "Worker_Job_ethnicity_fk" FOREIGN KEY ("EthnicityFKValue") REFERENCES cqc."Ethnicity" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT "Worker_Job_nationality_fk" FOREIGN KEY ("NationalityOtherFK") REFERENCES cqc."Nationality" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
