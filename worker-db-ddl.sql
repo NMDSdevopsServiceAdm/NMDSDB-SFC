@@ -67,11 +67,11 @@ CREATE TYPE cqc."WorkerRecruitedFrom" AS ENUM (
 -- Ethnicity Reference Data
 CREATE TABLE IF NOT EXISTS cqc."Ethnicity" (
 	"ID" INTEGER NOT NULL PRIMARY KEY,
-	"seq" INTEGER NOT NULL, 	-- this is the order in which the Ethinicity will appear without impacting on primary key (existing foreign keys)
+	"Seq" INTEGER NOT NULL, 	-- this is the order in which the Ethinicity will appear without impacting on primary key (existing foreign keys)
 	"EthnicityGroup" TEXT NOT NULL,
 	"Ethnicity" TEXT NOT NULL
 );
-INSERT INTO cqc."Ethnicity" ("ID", "seq", "EthnicityGroup", "Ethnicity") VALUES 
+INSERT INTO cqc."Ethnicity" ("ID", "Seq", "EthnicityGroup", "Ethnicity") VALUES 
 	(1, 1, '', 'English / Welsh / Scottish / Northern Irish / British'),
 	(2, 2, '', 'Don''t know'),
 	(3, 200, 'White', 'Irish'),
@@ -95,10 +95,10 @@ INSERT INTO cqc."Ethnicity" ("ID", "seq", "EthnicityGroup", "Ethnicity") VALUES
 -- Nationality Reference Data
 CREATE TABLE IF NOT EXISTS cqc."Nationality" (
 	"ID" INTEGER NOT NULL PRIMARY KEY,
-	"seq" INTEGER NOT NULL, 	-- this is the order in which the Ethinicity will appear without impacting on primary key (existing foreign keys)
-	"nationality" TEXT NOT NULL
+	"Seq" INTEGER NOT NULL, 	-- this is the order in which the Ethinicity will appear without impacting on primary key (existing foreign keys)
+	"Nationality" TEXT NOT NULL
 );
-INSERT INTO cqc."Nationality" ("ID", "seq", "nationality") VALUES
+INSERT INTO cqc."Nationality" ("ID", "Seq", "Nationality") VALUES
 (1,1, 'Afghan'),
 (2,2, 'Albanian'),
 (3,3, 'Algerian'),
@@ -329,10 +329,10 @@ INSERT INTO cqc."Nationality" ("ID", "seq", "nationality") VALUES
 -- Country Reference Data
 CREATE TABLE IF NOT EXISTS cqc."Country" (
 	"ID" INTEGER NOT NULL PRIMARY KEY,
-	"seq" INTEGER NOT NULL, 	-- this is the order in which the Ethinicity will appear without impacting on primary key (existing foreign keys)
+	"Seq" INTEGER NOT NULL, 	-- this is the order in which the Ethinicity will appear without impacting on primary key (existing foreign keys)
 	"Country" TEXT NOT NULL
 );
-INSERT INTO cqc."Country" ("ID", "seq", "Country") VALUES
+INSERT INTO cqc."Country" ("ID", "Seq", "Country") VALUES
 	(1,1, 'Afghanistan'),
 	(2,2, 'Aland Islands'),
 	(3,3, 'Albania'),
@@ -593,10 +593,10 @@ INSERT INTO cqc."Country" ("ID", "seq", "Country") VALUES
 -- "Recruited From" Reference Data
 CREATE TABLE IF NOT EXISTS cqc."RecruitedFrom" (
 	"ID" INTEGER NOT NULL PRIMARY KEY,
-	"seq" INTEGER NOT NULL, 	-- this is the order in which the Ethinicity will appear without impacting on primary key (existing foreign keys)
+	"Seq" INTEGER NOT NULL, 	-- this is the order in which the Ethinicity will appear without impacting on primary key (existing foreign keys)
 	"From" TEXT NOT NULL
 );
-INSERT INTO cqc."RecruitedFrom" ("ID", "seq", "From") VALUES
+INSERT INTO cqc."RecruitedFrom" ("ID", "Seq", "From") VALUES
 	(1,1, 'Adult care sector: Local Authority'),
 	(2,2, 'Adult care sector: private or voluntary sector'),
 	(3,3, 'Health sector'),
@@ -612,10 +612,10 @@ INSERT INTO cqc."RecruitedFrom" ("ID", "seq", "From") VALUES
 -- Qualifications Reference Data
 CREATE TABLE IF NOT EXISTS cqc."Qualification" (
 	"ID" INTEGER NOT NULL PRIMARY KEY,
-	"seq" INTEGER NOT NULL, 	-- this is the order in which the Ethinicity will appear without impacting on primary key (existing foreign keys)
+	"Seq" INTEGER NOT NULL, 	-- this is the order in which the Ethinicity will appear without impacting on primary key (existing foreign keys)
 	"Level" TEXT NOT NULL
 );
-INSERT INTO cqc."Qualification" ("ID", "seq", "Level") VALUES
+INSERT INTO cqc."Qualification" ("ID", "Seq", "Level") VALUES
 	(1,1, 'Entry level'),
 	(2,2, 'Level 1'),
 	(3,3, 'Level 2'),
