@@ -17,6 +17,9 @@ DROP TYPE IF EXISTS cqc."WorkerDisability";
 DROP TYPE IF EXISTS cqc."WorkerNationality";
 DROP TYPE IF EXISTS cqc."WorkerCountryOfBirth";
 DROP TYPE IF EXISTS cqc."WorkerRecruitedFrom";
+DROP TYPE IF EXISTS cqc."WorkerBritishCitizenship";
+DROP TYPE IF EXISTS cqc."WorkerYearArrived";
+DROP TYPE IF EXISTS cqc."WorkerSocialCareStartDate";
 
 -- CREATE/RE-CREATE SCHEMA
 CREATE TYPE cqc."WorkerContract" AS ENUM (
@@ -60,6 +63,20 @@ CREATE TYPE cqc."WorkerCountryOfBirth" AS ENUM (
 );
 
 CREATE TYPE cqc."WorkerRecruitedFrom" AS ENUM (
+	'Yes',
+	'No'
+);
+
+CREATE TYPE cqc."WorkerBritishCitizenship" AS ENUM (
+	'Yes',
+	'No',
+	'Don''t know'
+);
+CREATE TYPE cqc."WorkerYearArrived" AS ENUM (
+	'Yes',
+	'No'
+);
+CREATE TYPE cqc."WorkerSocialCareStartDate" AS ENUM (
 	'Yes',
 	'No'
 );
@@ -709,6 +726,22 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"RecruitedFromChangedAt" TIMESTAMP NULL,
 	"RecruitedFromSavedBy" VARCHAR(120) NULL,
 	"RecruitedFromChangedBy" VARCHAR(120) NULL,
+	"BritishCitizenshipValue" cqc."WorkerBritishCitizenship" NULL,
+	"BritishCitizenshipSavedAt" TIMESTAMP NULL,
+	"BritishCitizenshipChangedAt" TIMESTAMP NULL,
+	"BritishCitizenshipSavedBy" VARCHAR(120) NULL,
+	"BritishCitizenshipChangedBy" VARCHAR(120) NULL,
+	"YearArrivedValue" cqc."WorkerYearArrived" NULL,
+	"YearArrivedYear" INTEGER NULL,		-- is an integer because only referencing the year part of date
+	"YearArrivedSavedAt" TIMESTAMP NULL,
+	"YearArrivedChangedAt" TIMESTAMP NULL,
+	"YearArrivedSavedBy" VARCHAR(120) NULL,
+	"YearArrivedChangedBy" VARCHAR(120) NULL,
+	"SocialCareStartDateValue" cqc."WorkerSocialCareStartDate" NULL,
+	"SocialCareStartDateSavedAt" TIMESTAMP NULL,
+	"SocialCareStartDateChangedAt" TIMESTAMP NULL,
+	"SocialCareStartDateSavedBy" VARCHAR(120) NULL,
+	"SocialCareStartDateChangedBy" VARCHAR(120) NULL,
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
 	updatedby VARCHAR(120) NOT NULL,
@@ -743,3 +776,25 @@ CREATE TABLE IF NOT EXISTS cqc."WorkerAudit" (
 	CONSTRAINT "WorkerAudit_Worker_fk" FOREIGN KEY ("WorkerFK") REFERENCES cqc."Worker" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 CREATE INDEX "WorkerAudit_WorkerFK" on cqc."WorkerAudit" ("WorkerFK");
+
+
+-- required to update (rather than rebuild) sfcdevdb
+ALTER TABLE cqc."Worker" ADD COLUMN "BritishCitizenshipValue" cqc."WorkerBritishCitizenship" NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "BritishCitizenshipSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "BritishCitizenshipChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "BritishCitizenshipSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "BritishCitizenshipChangedBy" VARCHAR(120) NULL;
+
+ALTER TABLE cqc."Worker" ADD COLUMN "YearArrivedValue" cqc."WorkerYearArrived" NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "YearArrivedYear" INTEGER NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "YearArrivedSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "YearArrivedChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "YearArrivedSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "YearArrivedChangedBy" VARCHAR(120) NULL;
+
+
+ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateValue" cqc."WorkerSocialCareStartDate" NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateChangedBy" VARCHAR(120) NULL;
