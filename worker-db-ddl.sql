@@ -738,6 +738,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"YearArrivedSavedBy" VARCHAR(120) NULL,
 	"YearArrivedChangedBy" VARCHAR(120) NULL,
 	"SocialCareStartDateValue" cqc."WorkerSocialCareStartDate" NULL,
+	"SocialCareStartDateYear" INTEGER NULL,		-- is an integer because only referencing the year part of date
 	"SocialCareStartDateSavedAt" TIMESTAMP NULL,
 	"SocialCareStartDateChangedAt" TIMESTAMP NULL,
 	"SocialCareStartDateSavedBy" VARCHAR(120) NULL,
@@ -794,6 +795,7 @@ ALTER TABLE cqc."Worker" ADD COLUMN "YearArrivedChangedBy" VARCHAR(120) NULL;
 
 
 ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateValue" cqc."WorkerSocialCareStartDate" NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateYear" INTEGER NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateSavedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateChangedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateSavedBy" VARCHAR(120) NULL;
