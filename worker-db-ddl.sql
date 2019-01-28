@@ -80,6 +80,10 @@ CREATE TYPE cqc."WorkerSocialCareStartDate" AS ENUM (
 	'Yes',
 	'No'
 );
+CREATE TYPE cqc."WorkerOtherJobs" AS ENUM (
+	'Yes',
+	'No'
+);
 
 -- Ethnicity Reference Data
 CREATE TABLE IF NOT EXISTS cqc."Ethnicity" (
@@ -743,6 +747,11 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"SocialCareStartDateChangedAt" TIMESTAMP NULL,
 	"SocialCareStartDateSavedBy" VARCHAR(120) NULL,
 	"SocialCareStartDateChangedBy" VARCHAR(120) NULL,
+	"OtherJobsValue" cqc."WorkerOtherJobs" NULL,
+	"OtherJobsSavedAt" TIMESTAMP NULL,
+	"OtherJobsChangedAt" TIMESTAMP NULL,
+	"OtherJobsSavedBy" VARCHAR(120) NULL,
+	"OtherJobsChangedBy" VARCHAR(120) NULL,
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
 	updatedby VARCHAR(120) NOT NULL,
@@ -778,25 +787,22 @@ CREATE TABLE IF NOT EXISTS cqc."WorkerAudit" (
 );
 CREATE INDEX "WorkerAudit_WorkerFK" on cqc."WorkerAudit" ("WorkerFK");
 
+-- other jobs reflextion table
+CREATE TABLE IF NOT EXISTS cqc."WorkerJobs" (
+	"ID" SERIAL NOT NULL PRIMARY KEY,
+	"WorkerFK" INTEGER NOT NULL,
+	"JobFK" INTEGER NOT NULL,
+	CONSTRAINT "WorkerJobs_Worker_fk" FOREIGN KEY ("WorkerFK") REFERENCES cqc."Worker" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "WorkerJobs_Job_fk" FOREIGN KEY ("JobFK") REFERENCES cqc."Job" ("JobID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+CREATE INDEX "WorkerJobs_WorkerFK" on cqc."WorkerJobs" ("WorkerFK");
+CREATE INDEX "WorkerJobs_JobFK" on cqc."WorkerJobs" ("JobFK");
+
+
 
 -- required to update (rather than rebuild) sfcdevdb
-ALTER TABLE cqc."Worker" ADD COLUMN "BritishCitizenshipValue" cqc."WorkerBritishCitizenship" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "BritishCitizenshipSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "BritishCitizenshipChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "BritishCitizenshipSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "BritishCitizenshipChangedBy" VARCHAR(120) NULL;
-
-ALTER TABLE cqc."Worker" ADD COLUMN "YearArrivedValue" cqc."WorkerYearArrived" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "YearArrivedYear" INTEGER NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "YearArrivedSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "YearArrivedChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "YearArrivedSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "YearArrivedChangedBy" VARCHAR(120) NULL;
-
-
-ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateValue" cqc."WorkerSocialCareStartDate" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateYear" INTEGER NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "SocialCareStartDateChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "OtherJobsValue" cqc."WorkerOtherJobs" NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "OtherJobsSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "OtherJobsChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "OtherJobsSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "OtherJobsChangedBy" VARCHAR(120) NULL;
