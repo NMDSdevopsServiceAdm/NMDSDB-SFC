@@ -25,7 +25,7 @@ DROP TYPE IF EXISTS cqc."WorkerDaysSick";
 DROP TYPE IF EXISTS cqc."WorkerZeroHoursContract";
 DROP TYPE IF EXISTS cqc."WorkerWeeklyHoursAverage";
 DROP TYPE IF EXISTS cqc."WorkerWeeklyHoursContracted";
-DROP TYPE IF EXISTS cqc."WorkerAnnualWeeklyPay";
+DROP TYPE IF EXISTS cqc."WorkerAnnualHourlyPay";
 
 
 -- CREATE/RE-CREATE SCHEMA
@@ -109,7 +109,7 @@ CREATE TYPE cqc."WorkerWeeklyHoursContracted" AS ENUM (
 	'Yes',
 	'No'
 );
-CREATE TYPE cqc."WorkerAnnualWeeklyPay" AS ENUM (
+CREATE TYPE cqc."WorkerAnnualHourlyPay" AS ENUM (
 	'Hourly',
 	'Annually',
 	'Don''t know'
@@ -806,12 +806,12 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"WeeklyHoursContractedChangedAt" TIMESTAMP NULL,
 	"WeeklyHoursContractedSavedBy" VARCHAR(120) NULL,
 	"WeeklyHoursContractedChangedBy" VARCHAR(120) NULL,
-	"AnnualWeeklyPayValue" cqc."WorkerAnnualWeeklyPay" NULL,
-	"AnnualWeeklyPayRate" NUMERIC(7,2) NULL,
-	"AnnualWeeklyPaySavedAt" TIMESTAMP NULL,
-	"AnnualWeeklyPayChangedAt" TIMESTAMP NULL,
-	"AnnualWeeklyPaySavedBy" VARCHAR(120) NULL,
-	"AnnualWeeklyPayChangedBy" VARCHAR(120) NULL,
+	"AnnualHourlyPayValue" cqc."WorkerAnnualHourlyPay" NULL,
+	"AnnualHourlyPayRate" NUMERIC(9,2) NULL,
+	"AnnualHourlyPaySavedAt" TIMESTAMP NULL,
+	"AnnualHourlyPayChangedAt" TIMESTAMP NULL,
+	"AnnualHourlyPaySavedBy" VARCHAR(120) NULL,
+	"AnnualHourlyPayChangedBy" VARCHAR(120) NULL,
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
 	updatedby VARCHAR(120) NOT NULL,
@@ -888,9 +888,9 @@ ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedChangedAt" TIMESTAMP N
 ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedSavedBy" VARCHAR(120) NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedChangedBy" VARCHAR(120) NULL;
 
-ALTER TABLE cqc."Worker" ADD COLUMN "AnnualWeeklyPayValue" cqc."WorkerAnnualWeeklyPay" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "AnnualWeeklyPayRate" NUMERIC(7,2) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "AnnualWeeklyPaySavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "AnnualWeeklyPayChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "AnnualWeeklyPaySavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "AnnualWeeklyPayChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayValue" cqc."WorkerAnnualHourlyPay" NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayRate" NUMERIC(9,2) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPaySavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPaySavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayChangedBy" VARCHAR(120) NULL;
