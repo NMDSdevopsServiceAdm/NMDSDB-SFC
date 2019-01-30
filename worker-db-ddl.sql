@@ -807,7 +807,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"WeeklyHoursContractedSavedBy" VARCHAR(120) NULL,
 	"WeeklyHoursContractedChangedBy" VARCHAR(120) NULL,
 	"AnnualWeeklyPayValue" cqc."WorkerAnnualWeeklyPay" NULL,
-	"AnnualWeeklyPayRate" INTEGER NULL,
+	"AnnualWeeklyPayRate" NUMERIC(9,2) NULL,
 	"AnnualWeeklyPaySavedAt" TIMESTAMP NULL,
 	"AnnualWeeklyPayChangedAt" TIMESTAMP NULL,
 	"AnnualWeeklyPaySavedBy" VARCHAR(120) NULL,
@@ -889,7 +889,7 @@ ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedSavedBy" VARCHAR(120) 
 ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedChangedBy" VARCHAR(120) NULL;
 
 ALTER TABLE cqc."Worker" ADD COLUMN "AnnualWeeklyPayValue" cqc."WorkerAnnualWeeklyPay" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "AnnualWeeklyPayRate" INTEGER NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "AnnualWeeklyPayRate" NUMERIC(9,2) NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "AnnualWeeklyPaySavedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "AnnualWeeklyPayChangedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "AnnualWeeklyPaySavedBy" VARCHAR(120) NULL;
