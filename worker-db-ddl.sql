@@ -784,7 +784,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"OtherJobsSavedBy" VARCHAR(120) NULL,
 	"OtherJobsChangedBy" VARCHAR(120) NULL,
 	"DaysSickValue" cqc."WorkerDaySick" NULL,
-	"DaysSickDays" INTEGER NULL,
+	"DaysSickDays" NUMERIC(4,1) NULL,
 	"DaysSickSavedAt" TIMESTAMP NULL,
 	"DaysSickChangedAt" TIMESTAMP NULL,
 	"DaysSickSavedBy" VARCHAR(120) NULL,
@@ -862,7 +862,7 @@ CREATE INDEX "WorkerJobs_JobFK" on cqc."WorkerJobs" ("JobFK");
 
 -- required to update (rather than rebuild) sfcdevdb
 ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickValue" cqc."WorkerDaysSick" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickDays" INTEGER NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickDays" NUMERIC(4,1) NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickSavedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickChangedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickSavedBy" VARCHAR(120) NULL;
