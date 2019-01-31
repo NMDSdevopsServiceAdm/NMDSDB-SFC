@@ -2,6 +2,7 @@
 
 -- DROP/CLEAN SCHEMA
 DROP TABLE IF EXISTS cqc."WorkerAudit";
+DROP TABLE IF EXISTS cqc."WorkerJobs";
 DROP TABLE IF EXISTS cqc."Worker";
 DROP TABLE IF EXISTS cqc."Ethnicity";
 DROP TABLE IF EXISTS cqc."Nationality";
@@ -783,7 +784,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"OtherJobsChangedAt" TIMESTAMP NULL,
 	"OtherJobsSavedBy" VARCHAR(120) NULL,
 	"OtherJobsChangedBy" VARCHAR(120) NULL,
-	"DaysSickValue" cqc."WorkerDaySick" NULL,
+	"DaysSickValue" cqc."WorkerDaysSick" NULL,
 	"DaysSickDays" NUMERIC(4,1) NULL,
 	"DaysSickSavedAt" TIMESTAMP NULL,
 	"DaysSickChangedAt" TIMESTAMP NULL,
@@ -861,36 +862,36 @@ CREATE INDEX "WorkerJobs_JobFK" on cqc."WorkerJobs" ("JobFK");
 
 
 -- required to update (rather than rebuild) sfcdevdb
-ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickValue" cqc."WorkerDaysSick" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickDays" NUMERIC(4,1) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickChangedBy" VARCHAR(120) NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickValue" cqc."WorkerDaysSick" NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickDays" NUMERIC(4,1) NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickSavedAt" TIMESTAMP NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickChangedAt" TIMESTAMP NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickSavedBy" VARCHAR(120) NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickChangedBy" VARCHAR(120) NULL;
 
-ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractValue" cqc."WorkerZeroHoursContract" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractChangedBy" VARCHAR(120) NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractValue" cqc."WorkerZeroHoursContract" NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractSavedAt" TIMESTAMP NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractChangedAt" TIMESTAMP NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractSavedBy" VARCHAR(120) NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractChangedBy" VARCHAR(120) NULL;
 
-ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageValue" cqc."WorkerWeeklyHoursAverage" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageHours" INTEGER NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageChangedBy" VARCHAR(120) NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageValue" cqc."WorkerWeeklyHoursAverage" NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageHours" INTEGER NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageSavedAt" TIMESTAMP NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageChangedAt" TIMESTAMP NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageSavedBy" VARCHAR(120) NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageChangedBy" VARCHAR(120) NULL;
 
-ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedValue" cqc."WorkerWeeklyHoursContracted" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedHours" INTEGER NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedChangedBy" VARCHAR(120) NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedValue" cqc."WorkerWeeklyHoursContracted" NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedHours" INTEGER NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedSavedAt" TIMESTAMP NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedChangedAt" TIMESTAMP NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedSavedBy" VARCHAR(120) NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedChangedBy" VARCHAR(120) NULL;
 
-ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayValue" cqc."WorkerAnnualHourlyPay" NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayRate" NUMERIC(9,2) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPaySavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPaySavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayChangedBy" VARCHAR(120) NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayValue" cqc."WorkerAnnualHourlyPay" NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayRate" NUMERIC(9,2) NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPaySavedAt" TIMESTAMP NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayChangedAt" TIMESTAMP NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPaySavedBy" VARCHAR(120) NULL;
+-- ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayChangedBy" VARCHAR(120) NULL;
