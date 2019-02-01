@@ -14,7 +14,6 @@ DROP TYPE IF EXISTS cqc."WorkerContract";
 DROP TYPE IF EXISTS cqc."WorkerApprovedMentalHealthWorker";
 DROP TYPE IF EXISTS cqc."WorkerGender";
 DROP TYPE IF EXISTS cqc."WorkerDisability";
-DROP TYPE IF EXISTS cqc."WorkerDisability";
 DROP TYPE IF EXISTS cqc."WorkerNationality";
 DROP TYPE IF EXISTS cqc."WorkerCountryOfBirth";
 DROP TYPE IF EXISTS cqc."WorkerRecruitedFrom";
@@ -27,7 +26,10 @@ DROP TYPE IF EXISTS cqc."WorkerZeroHoursContract";
 DROP TYPE IF EXISTS cqc."WorkerWeeklyHoursAverage";
 DROP TYPE IF EXISTS cqc."WorkerWeeklyHoursContracted";
 DROP TYPE IF EXISTS cqc."WorkerAnnualHourlyPay";
-
+DROP TYPE IF EXISTS cqc."WorkerCareCertificate";
+DROP TYPE IF EXISTS cqc."WorkerApprenticeshipTraining";
+DROP TYPE IF EXISTS cqc."WorkerQualificationInSocialCare";
+DROP TYPE IF EXISTS cqc."WorkerOtherQualifications";
 
 -- CREATE/RE-CREATE SCHEMA
 CREATE TYPE cqc."WorkerContract" AS ENUM (
@@ -862,13 +864,14 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
 	updatedby VARCHAR(120) NOT NULL,
-  CONSTRAINT "Worker_Establishment_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+  	CONSTRAINT "Worker_Establishment_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT "Worker_Job_mainjob_fk" FOREIGN KEY ("MainJobFKValue") REFERENCES cqc."Job" ("JobID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
-	CONSTRAINT "Worker_Job_ethnicity_fk" FOREIGN KEY ("EthnicityFKValue") REFERENCES cqc."Ethnicity" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
-	CONSTRAINT "Worker_Job_nationality_fk" FOREIGN KEY ("NationalityOtherFK") REFERENCES cqc."Nationality" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
-	CONSTRAINT "Worker_Job_country_of_birth_fk" FOREIGN KEY ("CountryOfBirthOtherFK") REFERENCES cqc."Country" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
-	CONSTRAINT "Worker_Job_qualification_fk" FOREIGN KEY ("QualificationFKValue") REFERENCES cqc."Qualification" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
-	CONSTRAINT "Worker_Job_recruited_from_fk" FOREIGN KEY ("RecruitedFromOtherFK") REFERENCES cqc."RecruitedFrom" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "Worker_ethnicity_fk" FOREIGN KEY ("EthnicityFKValue") REFERENCES cqc."Ethnicity" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "Worker_nationality_fk" FOREIGN KEY ("NationalityOtherFK") REFERENCES cqc."Nationality" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "Worker_country_of_birth_fk" FOREIGN KEY ("CountryOfBirthOtherFK") REFERENCES cqc."Country" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "Worker_social_care_qualification_fk" FOREIGN KEY ("SocialCareQualificationFKValue") REFERENCES cqc."Qualification" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "Worker_highest_qualification_fk" FOREIGN KEY ("HighestQualificationFKValue") REFERENCES cqc."Qualification" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "Worker_recruited_from_fk" FOREIGN KEY ("RecruitedFromOtherFK") REFERENCES cqc."RecruitedFrom" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT "Worker_WorkerUID_unq" UNIQUE ("WorkerUID")
 );
 
