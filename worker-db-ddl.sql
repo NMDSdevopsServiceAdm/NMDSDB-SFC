@@ -115,6 +115,27 @@ CREATE TYPE cqc."WorkerAnnualHourlyPay" AS ENUM (
 	'Annually',
 	'Don''t know'
 );
+CREATE TYPE cqc."WorkerCareCertificate" AS ENUM (
+	'Yes, completed',
+	'Yes, in progress or partially completed',
+	'No'
+);
+CREATE TYPE cqc."WorkerApprenticeshipTraining" AS ENUM (
+	'Yes',
+	'No',
+	'Don''t know'
+);
+CREATE TYPE cqc."WorkerQualificationInSocialCare" AS ENUM (
+	'Yes',
+	'No',
+	'Don''t know'
+);
+CREATE TYPE cqc."WorkerOtherQualifications" AS ENUM (
+	'Yes',
+	'No',
+	'Don''t know'
+);
+
 
 
 -- Ethnicity Reference Data
@@ -709,6 +730,11 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"MainJobStartDateChangedAt" TIMESTAMP NULL,
 	"MainJobStartDateSavedBy" VARCHAR(120) NULL,
 	"MainJobStartDateChangedBy" VARCHAR(120) NULL,
+	"OtherJobsValue" cqc."WorkerOtherJobs" NULL,
+	"OtherJobsSavedAt" TIMESTAMP NULL,
+	"OtherJobsChangedAt" TIMESTAMP NULL,
+	"OtherJobsSavedBy" VARCHAR(120) NULL,
+	"OtherJobsChangedBy" VARCHAR(120) NULL,
 	"NationalInsuranceNumberValue" VARCHAR(13) NULL,
 	"NationalInsuranceNumberSavedAt" TIMESTAMP NULL,
 	"NationalInsuranceNumberChangedAt" TIMESTAMP NULL,
@@ -751,11 +777,6 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"CountryOfBirthChangedAt" TIMESTAMP NULL,
 	"CountryOfBirthSavedBy" VARCHAR(120) NULL,
 	"CountryOfBirthChangedBy" VARCHAR(120) NULL,
-	"QualificationFKValue" INTEGER NULL,
-	"QualificationFKSavedAt" TIMESTAMP NULL,
-	"QualificationFKChangedAt" TIMESTAMP NULL,
-	"QualificationFKSavedBy" VARCHAR(120) NULL,
-	"QualificationFKChangedBy" VARCHAR(120) NULL,
 	"RecruitedFromValue" cqc."WorkerRecruitedFrom" NULL,
 	"RecruitedFromOtherFK" INTEGER NULL,
 	"RecruitedFromSavedAt" TIMESTAMP NULL,
@@ -779,11 +800,6 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"SocialCareStartDateChangedAt" TIMESTAMP NULL,
 	"SocialCareStartDateSavedBy" VARCHAR(120) NULL,
 	"SocialCareStartDateChangedBy" VARCHAR(120) NULL,
-	"OtherJobsValue" cqc."WorkerOtherJobs" NULL,
-	"OtherJobsSavedAt" TIMESTAMP NULL,
-	"OtherJobsChangedAt" TIMESTAMP NULL,
-	"OtherJobsSavedBy" VARCHAR(120) NULL,
-	"OtherJobsChangedBy" VARCHAR(120) NULL,
 	"DaysSickValue" cqc."WorkerDaysSick" NULL,
 	"DaysSickDays" NUMERIC(4,1) NULL,
 	"DaysSickSavedAt" TIMESTAMP NULL,
@@ -813,6 +829,36 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"AnnualHourlyPayChangedAt" TIMESTAMP NULL,
 	"AnnualHourlyPaySavedBy" VARCHAR(120) NULL,
 	"AnnualHourlyPayChangedBy" VARCHAR(120) NULL,
+	"CareCertificateValue" cqc."WorkerCareCertificate" NULL,
+	"CareCertificateSavedAt" TIMESTAMP NULL,
+	"CareCertificateChangedAt" TIMESTAMP NULL,
+	"CareCertificateSavedBy" VARCHAR(120) NULL,
+	"CareCertificateChangedBy" VARCHAR(120) NULL,
+	"ApprenticeshipTrainingValue" cqc."WorkerApprenticeshipTraining" NULL,
+	"ApprenticeshipTrainingSavedAt" TIMESTAMP NULL,
+	"ApprenticeshipTrainingChangedAt" TIMESTAMP NULL,
+	"ApprenticeshipTrainingSavedBy" VARCHAR(120) NULL,
+	"ApprenticeshipTrainingChangedBy" VARCHAR(120) NULL,
+	"QualificationInSocialCareValue" cqc."WorkerQualificationInSocialCare" NULL,
+	"QualificationInSocialCareSavedAt" TIMESTAMP NULL,
+	"QualificationInSocialCareChangedAt" TIMESTAMP NULL,
+	"QualificationInSocialCareSavedBy" VARCHAR(120) NULL,
+	"QualificationInSocialCareChangedBy" VARCHAR(120) NULL,
+	"SocialCareQualificationFKValue" INTEGER NULL,
+	"SocialCareQualificationFKSavedAt" TIMESTAMP NULL,
+	"SocialCareQualificationFKChangedAt" TIMESTAMP NULL,
+	"SocialCareQualificationFKSavedBy" VARCHAR(120) NULL,
+	"SocialCareQualificationFKChangedBy" VARCHAR(120) NULL,
+	"OtherQualificationsValue" cqc."WorkerOtherQualifications" NULL,
+	"OtherQualificationsSavedAt" TIMESTAMP NULL,
+	"OtherQualificationsChangedAt" TIMESTAMP NULL,
+	"OtherQualificationsSavedBy" VARCHAR(120) NULL,
+	"OtherQualificationsChangedBy" VARCHAR(120) NULL,
+	"HighestQualificationFKValue" INTEGER NULL,
+	"HighestQualificationFKSavedAt" TIMESTAMP NULL,
+	"HighestQualificationFKChangedAt" TIMESTAMP NULL,
+	"HighestQualificationFKSavedBy" VARCHAR(120) NULL,
+	"HighestQualificationFKChangedBy" VARCHAR(120) NULL,
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
 	updatedby VARCHAR(120) NOT NULL,
@@ -860,38 +906,40 @@ CREATE INDEX "WorkerJobs_WorkerFK" on cqc."WorkerJobs" ("WorkerFK");
 CREATE INDEX "WorkerJobs_JobFK" on cqc."WorkerJobs" ("JobFK");
 
 
-
 -- required to update (rather than rebuild) sfcdevdb
--- ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickValue" cqc."WorkerDaysSick" NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickDays" NUMERIC(4,1) NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickSavedAt" TIMESTAMP NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickChangedAt" TIMESTAMP NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickSavedBy" VARCHAR(120) NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "DaysSickChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "CareCertificateValue" cqc."WorkerCareCertificate" NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "CareCertificateSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "CareCertificateChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "CareCertificateSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "CareCertificateChangedBy" VARCHAR(120) NULL;
 
--- ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractValue" cqc."WorkerZeroHoursContract" NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractSavedAt" TIMESTAMP NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractChangedAt" TIMESTAMP NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractSavedBy" VARCHAR(120) NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "ZeroHoursContractChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "ApprenticeshipTrainingValue" cqc."WorkerApprenticeshipTraining" NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "ApprenticeshipTrainingSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "ApprenticeshipTrainingChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "ApprenticeshipTrainingSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "ApprenticeshipTrainingChangedBy" VARCHAR(120) NULL;
 
--- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageValue" cqc."WorkerWeeklyHoursAverage" NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageHours" INTEGER NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageSavedAt" TIMESTAMP NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageChangedAt" TIMESTAMP NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageSavedBy" VARCHAR(120) NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursAverageChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "QualificationInSocialCareValue" cqc."WorkerQualificationInSocialCare" NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "QualificationInSocialCareSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "QualificationInSocialCareChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "QualificationInSocialCareSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "QualificationInSocialCareChangedBy" VARCHAR(120) NULL;
 
--- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedValue" cqc."WorkerWeeklyHoursContracted" NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedHours" INTEGER NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedSavedAt" TIMESTAMP NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedChangedAt" TIMESTAMP NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedSavedBy" VARCHAR(120) NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "WeeklyHoursContractedChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" RENAME COLUMN "QualificationFKValue" TO "SocialCareQualificationFKValue";
+ALTER TABLE cqc."Worker" RENAME COLUMN "QualificationFKSavedAt" TO "SocialCareQualificationFKSavedAt";
+ALTER TABLE cqc."Worker" RENAME COLUMN "QualificationFKChangedAt" TO "SocialCareQualificationFKChangedAt";
+ALTER TABLE cqc."Worker" RENAME COLUMN "QualificationFKSavedBy" TO "SocialCareQualificationFKSavedBy";
+ALTER TABLE cqc."Worker" RENAME COLUMN "QualificationFKChangedBy" TO "SocialCareQualificationFKChangedBy";
 
--- ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayValue" cqc."WorkerAnnualHourlyPay" NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayRate" NUMERIC(9,2) NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPaySavedAt" TIMESTAMP NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayChangedAt" TIMESTAMP NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPaySavedBy" VARCHAR(120) NULL;
--- ALTER TABLE cqc."Worker" ADD COLUMN "AnnualHourlyPayChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "OtherQualificationsValue" cqc."WorkerOtherQualifications" NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "OtherQualificationsSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "OtherQualificationsChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "OtherQualificationsSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "OtherQualificationsChangedBy" VARCHAR(120) NULL;
+
+ALTER TABLE cqc."Worker" ADD COLUMN "HighestQualificationFKValue" INTEGER NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "HighestQualificationFKSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "HighestQualificationFKChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "HighestQualificationFKSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "HighestQualificationFKChangedBy" VARCHAR(120) NULL;
+
