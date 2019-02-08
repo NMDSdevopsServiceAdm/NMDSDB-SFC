@@ -1013,3 +1013,32 @@ CREATE TYPE cqc.job_declaration AS ENUM (
 ALTER TABLE cqc."Establishment" add column "Vacancies" cqc.job_declaration NULL;
 ALTER TABLE cqc."Establishment" add column "Starters" cqc.job_declaration NULL;
 ALTER TABLE cqc."Establishment" add column "Leavers" cqc.job_declaration NULL;
+
+
+--- New Table CSSR and adding column NMDSID to Establishment table
+-- DROP TABLE cqc."Cssr";
+
+CREATE TABLE cqc."Cssr"
+(
+    Id serial,
+    "LocalCustodianCode" integer,
+    "CssrID" integer,
+    "Region" text COLLATE pg_catalog."default",
+    "RegionID" integer,
+    "NmdsIDLetter" character(1) COLLATE pg_catalog."default",
+    CONSTRAINT "Cssr_pkey" PRIMARY KEY ("Id")
+    CONSTRAINT ID_unq UNIQUE ("Id")
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE cqc."Cssr"
+    OWNER to sfcadmin;
+---- Adding column NMDSID to Establishment table
+--The NMDSID consists of the NMDSID letter in the table and a 7 digit number:
+--  E.g. A1000001
+
+ALTER TABLE cqc."Establishment"
+    ADD COLUMN "NmdsID" character(8);
