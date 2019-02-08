@@ -1020,7 +1020,8 @@ ALTER TABLE cqc."Establishment" add column "Leavers" cqc.job_declaration NULL;
 
 CREATE TABLE cqc."Cssr"
 (
-    Id serial,
+    "Id" serial,
+    "CssR"  text,
     "LocalCustodianCode" integer,
     "CssrID" integer,
     "Region" text COLLATE pg_catalog."default",
