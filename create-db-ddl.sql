@@ -1018,6 +1018,7 @@ ALTER TABLE cqc."Establishment" add column "Leavers" cqc.job_declaration NULL;
 --- New Table CSSR and adding column NMDSID to Establishment table
 -- DROP TABLE cqc."Cssr";
 
+
 CREATE TABLE cqc."Cssr"
 (
     "Id" serial,
@@ -1027,13 +1028,15 @@ CREATE TABLE cqc."Cssr"
     "Region" text COLLATE pg_catalog."default",
     "RegionID" integer,
     "NmdsIDLetter" character(1) COLLATE pg_catalog."default",
-    CONSTRAINT "Cssr_pkey" PRIMARY KEY ("Id")
-    CONSTRAINT ID_unq UNIQUE ("Id")
+    CONSTRAINT "Cssr_pkey" PRIMARY KEY ("Id"),
+    CONSTRAINT "ID_unq" UNIQUE ("Id"),
+    CONSTRAINT Cssr_LocalCustodianCode_fk FOREIGN KEY  ("LocalCustodianCode") REFERENCES  cqc."LocalAuthority" ("LocalCustodianCode") MATCH SIMPLE
 )
 WITH (
-    OIDS = FALSE
+    OIDS = FALSE 
 )
 TABLESPACE pg_default;
+
 
 ALTER TABLE cqc."Cssr"
     OWNER to sfcadmin;
