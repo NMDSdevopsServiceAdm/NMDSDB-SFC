@@ -998,11 +998,10 @@ insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") va
 
 
 -- removing the unnecessary location.cqcid and promoting location.locationid as primary key
-ALTER TABLE cqc.location DROP CONSTRAINT location_pkey;
-ALTER TABLE cqc.location DROP COLUMN cqcid ;
-
-ALTER TABLE cqc.location  add constraint locationid_PK PRIMARY KEY (locationid);
-ALTER TABLE cqc.location  add constraint locationid_Unq UNIQUE  (locationid);
+--ALTER TABLE cqc.location DROP CONSTRAINT location_pkey;
+--ALTER TABLE cqc.location DROP COLUMN cqcid ;
+--ALTER TABLE cqc.location  add constraint locationid_PK PRIMARY KEY (locationid);
+--ALTER TABLE cqc.location  add constraint locationid_Unq UNIQUE  (locationid);
 
 CREATE TYPE cqc.job_declaration AS ENUM (
     'None',
@@ -1013,3 +1012,9 @@ CREATE TYPE cqc.job_declaration AS ENUM (
 ALTER TABLE cqc."Establishment" add column "Vacancies" cqc.job_declaration NULL;
 ALTER TABLE cqc."Establishment" add column "Starters" cqc.job_declaration NULL;
 ALTER TABLE cqc."Establishment" add column "Leavers" cqc.job_declaration NULL;
+
+-- https://trello.com/c/LgdigwUb - duplicate establishment
+DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
+DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode");
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode", "LocationID") WHERE "LocationID" IS NOT NULL;
