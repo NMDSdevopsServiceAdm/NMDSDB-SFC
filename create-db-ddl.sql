@@ -1041,3 +1041,5 @@ TABLESPACE pg_default;
 ---Establishment Table Column addition
 ALTER TABLE cqc."Establishment"    ADD COLUMN "NmdsID" character(8);
 
+
+
