@@ -998,11 +998,10 @@ insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") va
 
 
 -- removing the unnecessary location.cqcid and promoting location.locationid as primary key
-ALTER TABLE cqc.location DROP CONSTRAINT location_pkey;
-ALTER TABLE cqc.location DROP COLUMN cqcid ;
-
-ALTER TABLE cqc.location  add constraint locationid_PK PRIMARY KEY (locationid);
-ALTER TABLE cqc.location  add constraint locationid_Unq UNIQUE  (locationid);
+--ALTER TABLE cqc.location DROP CONSTRAINT location_pkey;
+--ALTER TABLE cqc.location DROP COLUMN cqcid ;
+--ALTER TABLE cqc.location  add constraint locationid_PK PRIMARY KEY (locationid);
+--ALTER TABLE cqc.location  add constraint locationid_Unq UNIQUE  (locationid);
 
 CREATE TYPE cqc.job_declaration AS ENUM (
     'None',
@@ -1014,35 +1013,31 @@ ALTER TABLE cqc."Establishment" add column "Vacancies" cqc.job_declaration NULL;
 ALTER TABLE cqc."Establishment" add column "Starters" cqc.job_declaration NULL;
 ALTER TABLE cqc."Establishment" add column "Leavers" cqc.job_declaration NULL;
 
+-- https://trello.com/c/LgdigwUb - duplicate establishment
+DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
+DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode");
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode", "LocationID") WHERE "LocationID" IS NOT NULL;
 
---- New Table CSSR and adding column NMDSID to Establishment table
--- DROP TABLE cqc."Cssr";
 
-
+---CSSR TABLE CREATION 
 CREATE TABLE cqc."Cssr"
 (
-    "Id" serial,
+    "CssrID" integer,
     "CssR"  text,
     "LocalCustodianCode" integer,
-    "CssrID" integer,
     "Region" text COLLATE pg_catalog."default",
     "RegionID" integer,
     "NmdsIDLetter" character(1) COLLATE pg_catalog."default",
-    CONSTRAINT "Cssr_pkey" PRIMARY KEY ("Id"),
-    CONSTRAINT "ID_unq" UNIQUE ("Id"),
+    CONSTRAINT "CssrID_pkey" PRIMARY KEY ("CssrID"),
+    CONSTRAINT "CssrID_unq" UNIQUE ("CssrID"),
     CONSTRAINT Cssr_LocalCustodianCode_fk FOREIGN KEY  ("LocalCustodianCode") REFERENCES  cqc."LocalAuthority" ("LocalCustodianCode") MATCH SIMPLE
 )
 WITH (
-    OIDS = FALSE 
+    OIDS = FALSE
 )
 TABLESPACE pg_default;
 
+---Establishment Table Column addition
+ALTER TABLE cqc."Establishment"    ADD COLUMN "NmdsID" character(8);
 
-ALTER TABLE cqc."Cssr"
-    OWNER to sfcadmin;
----- Adding column NMDSID to Establishment table
---The NMDSID consists of the NMDSID letter in the table and a 7 digit number:
---  E.g. A1000001
-
-ALTER TABLE cqc."Establishment"
-    ADD COLUMN "NmdsID" character(8);

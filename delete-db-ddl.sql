@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS cqc."Feedback";
 
 -- workers
 DROP TABLE IF EXISTS cqc."WorkerAudit";
+DROP TABLE IF EXISTS cqc."WorkerJobs";
 DROP TABLE IF EXISTS cqc."Worker";
 
 -- establishments
@@ -30,6 +31,7 @@ DROP TABLE IF EXISTS cqc.services;
 -- types
 DROP TYPE IF EXISTS cqc.est_employertype_enum;
 DROP TYPE IF EXISTS cqc.job_type;
+DROP TYPE IF EXISTS cqc.job_declaration;
 DROP TYPE IF EXISTS cqc."WorkerContract";
 
 -- sequences
@@ -43,6 +45,7 @@ DROP SEQUENCE IF EXISTS cqc."User_RegistrationID_seq";
 DROP SEQUENCE IF EXISTS cqc.services_id_seq;
 --DROP SEQUENCE IF EXISTS cqc.cqclog_id_seq;
 
-
+--- Drop table CSSR
+DROP TABLE IF EXISTS cqc."Cssr";
 
 
