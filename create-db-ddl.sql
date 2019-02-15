@@ -1237,5 +1237,3 @@ update cqc."EstablishmentLocalAuthority" set "CssrID" = "Cssr"."CssrID", "CssR" 
 ALTER TABLE cqc."EstablishmentLocalAuthority" ALTER COLUMN "CssrID" SET NOT NULL;
 ALTER TABLE cqc."EstablishmentLocalAuthority" ALTER COLUMN "CssR" SET NOT NULL;
 ALTER TABLE cqc."EstablishmentLocalAuthority" DROP COLUMN "LocalCustodianCode";
-
-ALTER TABLE cqc."EstablishmentLocalAuthority" DROP CONSTRAINT cssr_establishmentlocalauthority_fk
