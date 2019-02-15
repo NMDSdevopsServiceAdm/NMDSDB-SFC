@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "ShareDataWithLA" boolean DEFAULT false,
     "ShareData" boolean DEFAULT false,
     "NumberOfStaff" integer,
-    "NmdsID" character(8)
+    "NmdsID" character(8) NOT NULL
 );
 
 
@@ -1268,4 +1268,6 @@ from (
 			inner join cqc."Cssr" on pcodedata.local_custodian_code = "Cssr"."LocalCustodianCode"
 		on pcodedata.postcode = "Establishment"."PostCode"
 ) as "CssrNmdsLetter"
-where "CssrNmdsLetter"."EstablishmentID" = "Establishment"."EstablishmentID";
+where "CssrNmdsLetter"."EstablishmentID" = "Establishment"."EstablishmentID"
+  and "Establishment"."NmdsID" is null;
+ALTER TABLE cqc."Establishment" ALTER COLUMN "NmdsID" SET NOT NULL;
