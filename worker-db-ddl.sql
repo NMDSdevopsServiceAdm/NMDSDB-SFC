@@ -1,36 +1,5 @@
 -- DDL for Workers
 
--- DROP/CLEAN SCHEMA
-DROP TABLE IF EXISTS cqc."WorkerAudit";
-DROP TABLE IF EXISTS cqc."WorkerJobs";
-DROP TABLE IF EXISTS cqc."Worker";
-DROP TABLE IF EXISTS cqc."Ethnicity";
-DROP TABLE IF EXISTS cqc."Nationality";
-DROP TABLE IF EXISTS cqc."Country";
-DROP TABLE IF EXISTS cqc."RecruitedFrom";
-DROP TABLE IF EXISTS cqc."Qualification";
-DROP TYPE IF EXISTS cqc."AuditChangeType";
-DROP TYPE IF EXISTS cqc."WorkerContract";
-DROP TYPE IF EXISTS cqc."WorkerApprovedMentalHealthWorker";
-DROP TYPE IF EXISTS cqc."WorkerGender";
-DROP TYPE IF EXISTS cqc."WorkerDisability";
-DROP TYPE IF EXISTS cqc."WorkerNationality";
-DROP TYPE IF EXISTS cqc."WorkerCountryOfBirth";
-DROP TYPE IF EXISTS cqc."WorkerRecruitedFrom";
-DROP TYPE IF EXISTS cqc."WorkerBritishCitizenship";
-DROP TYPE IF EXISTS cqc."WorkerYearArrived";
-DROP TYPE IF EXISTS cqc."WorkerSocialCareStartDate";
-DROP TYPE IF EXISTS cqc."WorkerOtherJobs";
-DROP TYPE IF EXISTS cqc."WorkerDaysSick";
-DROP TYPE IF EXISTS cqc."WorkerZeroHoursContract";
-DROP TYPE IF EXISTS cqc."WorkerWeeklyHoursAverage";
-DROP TYPE IF EXISTS cqc."WorkerWeeklyHoursContracted";
-DROP TYPE IF EXISTS cqc."WorkerAnnualHourlyPay";
-DROP TYPE IF EXISTS cqc."WorkerCareCertificate";
-DROP TYPE IF EXISTS cqc."WorkerApprenticeshipTraining";
-DROP TYPE IF EXISTS cqc."WorkerQualificationInSocialCare";
-DROP TYPE IF EXISTS cqc."WorkerOtherQualifications";
-
 -- CREATE/RE-CREATE SCHEMA
 CREATE TYPE cqc."WorkerContract" AS ENUM (
     'Permanent',
@@ -878,7 +847,7 @@ CREATE UNIQUE INDEX "Worker_WorkerUID" on cqc."Worker" ("WorkerUID");
 CREATE INDEX "Worker_EstablishmentFK" on cqc."Worker" ("EstablishmentFK");
 
 -- change auditting
-CREATE TYPE cqc."AuditChangeType" AS ENUM (
+CREATE TYPE cqc."WorkerAuditChangeType" AS ENUM (
 	'created',
 	'updated',
 	'saved',
@@ -889,7 +858,7 @@ CREATE TABLE IF NOT EXISTS cqc."WorkerAudit" (
 	"WorkerFK" INTEGER NOT NULL,
 	"Username" VARCHAR(120) NOT NULL,
 	"When" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
-	"EventType" cqc."AuditChangeType" NOT NULL,
+	"EventType" cqc."WorkerAuditChangeType" NOT NULL,
 	"PropertyName" VARCHAR(100) NULL,
 	"ChangeEvents" JSONB NULL,
 	CONSTRAINT "WorkerAudit_Worker_fk" FOREIGN KEY ("WorkerFK") REFERENCES cqc."Worker" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION

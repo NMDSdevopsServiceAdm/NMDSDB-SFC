@@ -268,12 +268,11 @@ CREATE TABLE IF NOT EXISTS cqc."Login" (
     "ID" integer NOT NULL,
     "RegistrationID" integer NOT NULL,
     "Username" character varying(120) NOT NULL,
-    "SecurityQuestion" character varying(255) NOT NULL,
-    "SecurityQuestionAnswer" character varying(255) NOT NULL,
     "Active" boolean NOT NULL,
     "InvalidAttempt" integer NOT NULL,
     "Hash" character varying(255),
-    "FirstLogin" timestamp(4) without time zone
+    "FirstLogin" timestamp(4) without time zone,
+    "PasswdLastChanged" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 
@@ -325,16 +324,42 @@ ALTER TABLE cqc."ServicesCapacity" OWNER TO sfcadmin;
 
 CREATE TABLE IF NOT EXISTS cqc."User" (
     "RegistrationID" integer NOT NULL,
-    "FullName" character varying(120) NOT NULL,
-    "JobTitle" character varying(255) NOT NULL,
-    "Email" character varying(255) NOT NULL,
-    "Phone" character varying(50) NOT NULL,
-    "DateCreated" timestamp without time zone NOT NULL,
     "EstablishmentID" integer NOT NULL,
-    "AdminUser" boolean NOT NULL
+    "FullNameValue" character varying(120) NOT NULL,
+    "FullNameSavedAt" TIMESTAMP NULL,
+    "FullNameChangedAt" TIMESTAMP NULL,
+    "FullNameSavedBy" VARCHAR(120) NULL,
+    "FullNameChangedBy" VARCHAR(120) NULL,
+    "JobTitleValue" character varying(255) NOT NULL,
+    "JobTitleSavedAt" TIMESTAMP NULL,
+    "JobTitleChangedAt" TIMESTAMP NULL,
+    "JobTitleSavedBy" VARCHAR(120) NULL,
+    "JobTitleChangedBy" VARCHAR(120) NULL,
+    "EmailValue" character varying(255) NOT NULL,
+    "EmailSavedAt" TIMESTAMP NULL,
+    "EmailChangedAt" TIMESTAMP NULL,
+    "EmailSavedBy" VARCHAR(120) NULL,
+    "EmailChangedBy" VARCHAR(120) NULL,
+    "PhoneValue" character varying(50) NOT NULL,
+    "PhoneSavedAt" TIMESTAMP NULL,
+    "PhoneChangedAt" TIMESTAMP NULL,
+    "PhoneSavedBy" VARCHAR(120) NULL,
+    "PhoneChangedBy" VARCHAR(120) NULL,
+    "SecurityQuestionValue" character varying(255) NOT NULL,
+    "SecurityQuestionSavedAt" TIMESTAMP NULL,
+    "SecurityQuestionChangedAt" TIMESTAMP NULL,
+    "SecurityQuestionSavedBy" VARCHAR(120) NULL,
+    "SecurityQuestionChangedBy" VARCHAR(120) NULL,
+    "SecurityQuestionAnswerValue" character varying(255) NOT NULL,
+    "SecurityQuestionAnswerSavedAt" TIMESTAMP NULL,
+    "SecurityQuestionAnswerChangedAt" TIMESTAMP NULL,
+    "SecurityQuestionAnswerSavedBy" VARCHAR(120) NULL,
+    "SecurityQuestionAnswerChangedBy" VARCHAR(120) NULL,
+    "AdminUser" boolean NOT NULL,
+    created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
+	updatedby VARCHAR(120) NOT NULL
 );
-
-
 ALTER TABLE cqc."User" OWNER TO sfcadmin;
 
 --
@@ -358,64 +383,6 @@ ALTER TABLE cqc."User_RegistrationID_seq" OWNER TO sfcadmin;
 
 ALTER SEQUENCE IF EXISTS cqc."User_RegistrationID_seq" OWNED BY cqc."User"."RegistrationID";
 
-
-
---
--- Name: location_cqcid_seq; Type: SEQUENCE; Schema: cqc; Owner: sfcadmin
---
-
-CREATE SEQUENCE IF NOT EXISTS cqc.location_cqcid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE cqc.location_cqcid_seq OWNER TO sfcadmin;
-
---
--- Name: location; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
---
-
-CREATE TABLE IF NOT EXISTS cqc.location (
-    cqcid integer DEFAULT nextval('cqc.location_cqcid_seq'::regclass) NOT NULL,
-    locationid text,
-    locationname text,
-    addressline1 text,
-    addressline2 text,
-    towncity text,
-    county text,
-    postalcode text,
-    mainservice text,
-    createdat timestamp without time zone NOT NULL,
-    updatedat timestamp without time zone,
-	CONSTRAINT location_pkey PRIMARY KEY (cqcid),
-	CONSTRAINT uniqlocationid UNIQUE (locationid)
-);
-
-
-ALTER TABLE cqc.location OWNER TO sfcadmin;
-
---
--- Name: pcodedata; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
---
-
-CREATE TABLE IF NOT EXISTS cqc.pcodedata (
-    uprn bigint,
-    sub_building_name character varying,
-    building_name character varying,
-    building_number character varying,
-    street_description character varying,
-    post_town character varying,
-    postcode character varying,
-    local_custodian_code bigint,
-    county character varying,
-    rm_organisation_name character varying
-);
-
-
-ALTER TABLE cqc.pcodedata OWNER TO sfcadmin;
 
 --
 -- Name: services; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
@@ -628,13 +595,6 @@ ALTER TABLE ONLY cqc."ServicesCapacity"
 --SET default_tablespace = sfcdevtbs_index;
 
 --
--- Name: Postcodedata_postcode_Idx; Type: INDEX; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_index
---
-
-CREATE INDEX IF NOT EXISTS "Postcodedata_postcode_Idx" ON cqc.pcodedata USING btree (postcode text_pattern_ops);
-
-
---
 -- Name: EstablishmentCapacity EstablishmentServiceCapacity_Establishment_fk1; Type: FK CONSTRAINT; Schema: cqc; Owner: postgres
 --
 
@@ -679,7 +639,7 @@ ALTER TABLE ONLY cqc."EstablishmentJobs"
 --
 
 ALTER TABLE ONLY cqc."Establishment"
-    ADD CONSTRAINT estloc_fk FOREIGN KEY ("LocationID") REFERENCES cqc.location(locationid);
+    ADD CONSTRAINT estloc_fk FOREIGN KEY ("LocationID") REFERENCES cqcref.location(locationid);
 
 
 --
@@ -849,12 +809,6 @@ insert into cqc."Job" ("JobID", "JobName") values (28, 'Supervisor');
 insert into cqc."Job" ("JobID", "JobName") values (29, 'Technician');
 
 
--- removing the unnecessary location.cqcid and promoting location.locationid as primary key
---ALTER TABLE cqc.location DROP CONSTRAINT location_pkey;
---ALTER TABLE cqc.location DROP COLUMN cqcid ;
---ALTER TABLE cqc.location  add constraint locationid_PK PRIMARY KEY (locationid);
---ALTER TABLE cqc.location  add constraint locationid_Unq UNIQUE  (locationid);
-
 CREATE TYPE cqc.job_declaration AS ENUM (
     'None',
     'Don''t know',
@@ -868,8 +822,8 @@ ALTER TABLE cqc."Establishment" add column "Leavers" cqc.job_declaration NULL;
 -- https://trello.com/c/LgdigwUb - duplicate establishment
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
-CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode");
-CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode", "LocationID") WHERE "LocationID" IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode", "LocationID");
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode") WHERE "LocationID" IS NULL;
 
 
 INSERT INTO cqc."Cssr" ("CssrID", "CssR", "LocalAuthority", "LocalCustodianCode", "Region", "RegionID", "NmdsIDLetter") VALUES 
@@ -1209,66 +1163,150 @@ CREATE SEQUENCE IF NOT EXISTS cqc."NmdsID_seq"
     MAXVALUE 9999999
     CACHE 1;
 
-
--- to apply DB patach for https://trello.com/c/BqSXEWI5
-ALTER TABLE cqc."EstablishmentLocalAuthority" DROP CONSTRAINT localauthrity_establishmentlocalauthority_fk;
-DROP TABLE cqc."LocalAuthority";
-
----CSSR TABLE CREATION 
-CREATE TABLE cqc."Cssr"
-(
-    "CssrID" INTEGER NOT NULL,
-    "CssR" TEXT COLLATE pg_catalog."default" NOT NULL,
-	"LocalAuthority" TEXT NOT NULL,
-    "LocalCustodianCode" integer NOT NULL,
-    "Region" TEXT COLLATE pg_catalog."default" NOT NULL,
-    "RegionID" INTEGER NOT NULL,
-    "NmdsIDLetter" CHARACTER(1) COLLATE pg_catalog."default" NOT NULL,
-	PRIMARY KEY ("CssrID", "LocalCustodianCode")
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-ALTER TABLE cqc."Cssr" OWNER TO sfcadmin;
-
-CREATE SEQUENCE IF NOT EXISTS cqc."NmdsID_seq"
+-- password reset - https://trello.com/c/isgnA7X5
+CREATE SEQUENCE IF NOT EXISTS cqc."PasswdResetTracking_seq"
     AS integer
-    START WITH 1001000
+    START WITH 1
     INCREMENT BY 1
-    MINVALUE 1001000
-    MAXVALUE 9999999
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;CREATE SEQUENCE IF NOT EXISTS cqc.passwdresettracking_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
     CACHE 1;
-
-ALTER TABLE cqc."Establishment" ADD COLUMN "NmdsID" character(8);
-ALTER TABLE cqc."EstablishmentLocalAuthority" ADD COLUMN "CssrID" INTEGER NULL;
-ALTER TABLE cqc."EstablishmentLocalAuthority" ADD COLUMN "CssR" TEXT COLLATE pg_catalog."default" NULL;
-
--- The EstablishmentLocalAuthority.Cssr column is ideally NOT NULL, but if there are already records in
---   EstablishmentLocalAuthority table, then we need to do a bulk update against that and the Cssr table
---   to get the CssrID - use a "bulk update"
-update cqc."EstablishmentLocalAuthority" set "CssrID" = "Cssr"."CssrID", "CssR" = "Cssr"."CssR"
-    from cqc."Cssr" where "Cssr"."LocalCustodianCode" = "EstablishmentLocalAuthority"."LocalCustodianCode";
-
-ALTER TABLE cqc."EstablishmentLocalAuthority" ALTER COLUMN "CssrID" SET NOT NULL;
-ALTER TABLE cqc."EstablishmentLocalAuthority" ALTER COLUMN "CssR" SET NOT NULL;
-ALTER TABLE cqc."EstablishmentLocalAuthority" DROP COLUMN "LocalCustodianCode";
+	
+CREATE TABLE IF NOT EXISTS cqc."PasswdResetTracking" (
+    "ID" INTEGER NOT NULL PRIMARY KEY,
+	"UserFK" INTEGER NOT NULL,
+    "Created" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    "Expires" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW() + INTERVAL '24 hour',
+    "ResetUuid"  UUID NOT NULL,
+    "Completed" TIMESTAMP NULL,
+	CONSTRAINT "PasswdResetTracking_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+ALTER TABLE cqc."PasswdResetTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc.passwdresettracking_seq');
+ALTER TABLE cqc."PasswdResetTracking" OWNER TO sfcadmin;
 
 
--- and now update 
-update cqc."Establishment"
-set "NmdsID" = "CssrNmdsLetter"."NmdsIDLetter" || nextval('cqc."NmdsID_seq"')
-from (
-	select distinct pcodedata.postcode,
-			pcodedata.local_custodian_code,
-			"Cssr"."NmdsIDLetter",
-			"Establishment"."EstablishmentID"
-	from cqc."Establishment"
-	 inner join cqc.pcodedata
-			inner join cqc."Cssr" on pcodedata.local_custodian_code = "Cssr"."LocalCustodianCode"
-		on pcodedata.postcode = "Establishment"."PostCode"
-) as "CssrNmdsLetter"
-where "CssrNmdsLetter"."EstablishmentID" = "Establishment"."EstablishmentID"
-  and "Establishment"."NmdsID" is null;
-ALTER TABLE cqc."Establishment" ALTER COLUMN "NmdsID" SET NOT NULL;
+CREATE TYPE cqc."UserAuditChangeType" AS ENUM (
+    'created',
+    'updated',
+    'saved',
+    'changed',
+    'passwdReset',
+    'loginSuccess',
+    'loginFailed',
+    'loginWhileLocked'
+);
+CREATE TABLE IF NOT EXISTS cqc."UserAudit" (
+	"ID" SERIAL NOT NULL PRIMARY KEY,
+	"UserFK" INTEGER NOT NULL,
+	"Username" VARCHAR(120) NOT NULL,
+	"When" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+	"EventType" cqc."UserAuditChangeType" NOT NULL,
+	"PropertyName" VARCHAR(100) NULL,
+	"ChangeEvents" JSONB NULL,
+	CONSTRAINT "WorkerAudit_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+CREATE INDEX "UserAudit_UserFK" on cqc."UserAudit" ("UserFK");
 
+
+-- DB Patch Schema for https://trello.com/c/pByUKSW3
+DROP TABLE IF EXISTS  cqc."WorkerAudit";
+DROP TYPE IF EXISTS cqc."WorkerAuditChangeType";
+CREATE TYPE cqc."WorkerAuditChangeType" AS ENUM (
+	'created',
+	'updated',
+	'saved',
+	'changed'
+);
+CREATE TABLE IF NOT EXISTS cqc."WorkerAudit" (
+	"ID" SERIAL NOT NULL PRIMARY KEY,
+	"WorkerFK" INTEGER NOT NULL,
+	"Username" VARCHAR(120) NOT NULL,
+	"When" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+	"EventType" cqc."WorkerAuditChangeType" NOT NULL,
+	"PropertyName" VARCHAR(100) NULL,
+	"ChangeEvents" JSONB NULL,
+	CONSTRAINT "WorkerAudit_Worker_fk" FOREIGN KEY ("WorkerFK") REFERENCES cqc."Worker" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+CREATE INDEX "WorkerAudit_WorkerFK" on cqc."WorkerAudit" ("WorkerFK");
+
+ALTER TABLE cqc."Establishment" ADD COLUMN "passwdLastChanged" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestion" character varying(255) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswer" character varying(255) NULL;
+
+
+-- migrate security question/answer from Login to User
+UPDATE
+	cqc."User"
+SET
+	"SecurityQuestion" = login."SecurityQuestion",
+    "SecurityQuestionAnswer" = login."SecurityQuestionAnswer"	
+FROM
+	cqc."Login" as login
+WHERE
+	login."RegistrationID" = "User"."RegistrationID";
+
+-- having migrated the security questions/answers, make the target columns NOT NULL
+ALTER TABLE cqc."User" ALTER COLUMN "SecurityQuestion" SET NOT NULL;
+ALTER TABLE cqc."User" ALTER COLUMN "SecurityQuestionAnswer" SET NOT NULL;
+
+-- and now drop the columns from Login
+ALTER TABLE cqc."Login" DROP COLUMN "SecurityQuestion";
+ALTER TABLE cqc."Login" DROP COLUMN "SecurityQuestionAnswer";
+
+
+-- and now rename the User columns ready for Extended Change Properties
+ALTER TABLE cqc."User" RENAME "FullName" TO "FullNameValue";
+ALTER TABLE cqc."User" RENAME "JobTitle" TO "JobTitleValue";
+ALTER TABLE cqc."User" RENAME "Email" TO "EmailValue";
+ALTER TABLE cqc."User" RENAME "Phone" TO "PhoneValue";
+ALTER TABLE cqc."User" RENAME "SecurityQuestion" TO "SecurityQuestionValue";
+ALTER TABLE cqc."User" RENAME "SecurityQuestionAnswer" TO "SecurityQuestionAnswerValue";
+
+-- and now add the additional the User columns ready for Extended Change Properties
+ALTER TABLE cqc."User" ADD COLUMN "FullNameSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "FullNameChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "FullNameSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "FullNameChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "JobTitleSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "JobTitleChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "JobTitleSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "JobTitleChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "EmailSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "EmailChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "EmailSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "EmailChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "PhoneSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "PhoneChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "PhoneSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "PhoneChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerChangedBy" VARCHAR(120) NULL;
+
+
+-- add the created/updated/updatedBy columns
+ALTER TABLE cqc."User" ADD COLUMN created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
+ALTER TABLE cqc."User" ADD COLUMN updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
+ALTER TABLE cqc."User" ADD COLUMN updatedby VARCHAR(120) NULL;
+UPDATE cqc."User" set updatedby='admin';                            -- cannot be null, so setting a default value on apply patch
+ALTER TABLE cqc."User" ALTER COLUMN updatedby SET NOT NULL;
+
+-- and drop the now unused "DateCreated" column
+ALTER TABLE cqc."User" DROP COLUMN "DateCreated";
+
+-- https://trello.com/c/1f4RSnlu defect fix
+DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
+DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode", "LocationID");
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode") WHERE "LocationID" IS NULL;
