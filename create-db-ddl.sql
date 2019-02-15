@@ -1018,3 +1018,55 @@ DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
 CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode");
 CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode", "LocationID") WHERE "LocationID" IS NOT NULL;
+
+
+-- password reset - https://trello.com/c/isgnA7X5
+CREATE SEQUENCE IF NOT EXISTS cqc."PasswdResetTracking_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;CREATE SEQUENCE IF NOT EXISTS cqc.passwdresettracking_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+	
+CREATE TABLE IF NOT EXISTS cqc."PasswdResetTracking" (
+    "ID" INTEGER NOT NULL PRIMARY KEY,
+	"UserFK" INTEGER NOT NULL,
+    "Created" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    "Expires" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW() + INTERVAL '24 hour',
+    "ResetUuid"  UUID NOT NULL,
+    "Completed" TIMESTAMP NULL,
+	CONSTRAINT "PasswdResetTracking_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+ALTER TABLE cqc."PasswdResetTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc.passwdresettracking_seq');
+ALTER TABLE cqc."PasswdResetTracking" OWNER TO sfcadmin;
+
+
+CREATE TYPE cqc."UserAuditChangeType" AS ENUM (
+	'created',
+	'updated',
+	'saved',
+	'changed',
+    'passwd-reset',
+    'loginSuccess',
+    'loginFailed'
+);
+CREATE TABLE IF NOT EXISTS cqc."UsertAudit" (
+	"ID" SERIAL NOT NULL PRIMARY KEY,
+	"UserFK" INTEGER NOT NULL,
+	"Username" VARCHAR(120) NOT NULL,
+	"When" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+	"EventType" cqc."UserAuditChangeType" NOT NULL,
+	"PropertyName" VARCHAR(100) NULL,
+	"ChangeEvents" JSONB NULL,
+	CONSTRAINT "WorkerAudit_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+CREATE INDEX "UsertAudit_UserFK" on cqc."UsertAudit" ("UserFK");
+
+ALTER TABLE cqc."Establishment" ADD COLUMN "passwdLastChanged" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();

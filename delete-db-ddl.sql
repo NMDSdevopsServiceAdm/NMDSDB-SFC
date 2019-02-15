@@ -12,6 +12,10 @@ DROP TABLE IF EXISTS cqc."EstablishmentLocalAuthority";
 DROP TABLE IF EXISTS cqc."EstablishmentJobs";
 DROP TABLE IF EXISTS cqc."EstablishmentCapacity";
 
+-- user
+DROP TABLE IF EXISTS cqc."PasswdResetTracking";
+DROP TABLE IF EXISTS cqc."UsertAudit";
+
 -- registration
 --DROP TABLE IF EXISTS cqc."CqcLog";
 DROP TABLE IF EXISTS cqc."Login";
@@ -33,6 +37,8 @@ DROP TYPE IF EXISTS cqc.est_employertype_enum;
 DROP TYPE IF EXISTS cqc.job_type;
 DROP TYPE IF EXISTS cqc.job_declaration;
 DROP TYPE IF EXISTS cqc."WorkerContract";
+DROP TYPE IF EXISTS cqc."WorkerAuditChangeType";
+DROP TYPE IF EXISTS cqc."UserAuditChangeType";
 
 -- sequences
 DROP SEQUENCE IF EXISTS cqc."EstablishmentCapacity_EstablishmentCapacityID_seq";
@@ -42,6 +48,7 @@ DROP SEQUENCE IF EXISTS cqc."Establishment_EstablishmentID_seq";
 DROP SEQUENCE IF EXISTS cqc."Feedback_seq";
 DROP SEQUENCE IF EXISTS cqc."Login_ID_seq";
 DROP SEQUENCE IF EXISTS cqc."User_RegistrationID_seq";
+DROP SEQUENCE IF EXISTS cqc."PasswdResetTracking_seq";
 DROP SEQUENCE IF EXISTS cqc.services_id_seq;
 --DROP SEQUENCE IF EXISTS cqc.cqclog_id_seq;
 
