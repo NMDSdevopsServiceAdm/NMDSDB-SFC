@@ -1201,6 +1201,14 @@ INSERT INTO cqc."Cssr" ("CssrID", "CssR", "LocalAuthority", "LocalCustodianCode"
 (219, 'York', 'York', 2741, 'Yorkshire and the Humber', 9, 'J');
 
 
+CREATE SEQUENCE IF NOT EXISTS cqc."NmdsID_seq"
+    AS integer
+    START WITH 1001000
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 
 -- to apply DB patach for https://trello.com/c/BqSXEWI5
 ALTER TABLE cqc."EstablishmentLocalAuthority" DROP CONSTRAINT localauthrity_establishmentlocalauthority_fk;
@@ -1224,6 +1232,14 @@ WITH (
 TABLESPACE pg_default;
 ALTER TABLE cqc."Cssr" OWNER TO sfcadmin;
 
+CREATE SEQUENCE IF NOT EXISTS cqc."NmdsID_seq"
+    AS integer
+    START WITH 1001000
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 ALTER TABLE cqc."Establishment" ADD COLUMN "NmdsID" character(8);
 ALTER TABLE cqc."EstablishmentLocalAuthority" ADD COLUMN "CssrID" INTEGER NULL;
 ALTER TABLE cqc."EstablishmentLocalAuthority" ADD COLUMN "CssR" TEXT COLLATE pg_catalog."default" NULL;
@@ -1237,3 +1253,19 @@ update cqc."EstablishmentLocalAuthority" set "CssrID" = "Cssr"."CssrID", "CssR" 
 ALTER TABLE cqc."EstablishmentLocalAuthority" ALTER COLUMN "CssrID" SET NOT NULL;
 ALTER TABLE cqc."EstablishmentLocalAuthority" ALTER COLUMN "CssR" SET NOT NULL;
 ALTER TABLE cqc."EstablishmentLocalAuthority" DROP COLUMN "LocalCustodianCode";
+
+
+-- and now update 
+update cqc."Establishment"
+set "NmdsID" = "CssrNmdsLetter"."NmdsIDLetter" || nextval('cqc."NmdsID_seq"')
+from (
+	select distinct pcodedata.postcode,
+			pcodedata.local_custodian_code,
+			"Cssr"."NmdsIDLetter",
+			"Establishment"."EstablishmentID"
+	from cqc."Establishment"
+	 inner join cqc.pcodedata
+			inner join cqc."Cssr" on pcodedata.local_custodian_code = "Cssr"."LocalCustodianCode"
+		on pcodedata.postcode = "Establishment"."PostCode"
+) as "CssrNmdsLetter"
+where "CssrNmdsLetter"."EstablishmentID" = "Establishment"."EstablishmentID";
