@@ -1069,4 +1069,4 @@ CREATE TABLE IF NOT EXISTS cqc."UsertAudit" (
 );
 CREATE INDEX "UsertAudit_UserFK" on cqc."UsertAudit" ("UserFK");
 
-ALTER TABLE cqc."Establishment" ADD COLUMN "passwdLastChanged" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
+ALTER TABLE cqc."Login" ADD COLUMN "PasswdLastChanged" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
