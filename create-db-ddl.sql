@@ -1271,3 +1271,4 @@ from (
 where "CssrNmdsLetter"."EstablishmentID" = "Establishment"."EstablishmentID"
   and "Establishment"."NmdsID" is null;
 ALTER TABLE cqc."Establishment" ALTER COLUMN "NmdsID" SET NOT NULL;
+
