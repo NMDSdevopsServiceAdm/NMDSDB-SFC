@@ -71,7 +71,8 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "ShareDataWithCQC" boolean DEFAULT false,
     "ShareDataWithLA" boolean DEFAULT false,
     "ShareData" boolean DEFAULT false,
-    "NumberOfStaff" integer
+    "NumberOfStaff" integer,
+    "NmdsID" character(8) NOT NULL
 );
 
 
@@ -154,33 +155,23 @@ ALTER TABLE cqc."EstablishmentJobs_EstablishmentJobID_seq" OWNER TO sfcadmin;
 
 ALTER SEQUENCE IF EXISTS cqc."EstablishmentJobs_EstablishmentJobID_seq" OWNED BY cqc."EstablishmentJobs"."EstablishmentJobID";
 
---
--- Name: LocalAuthority; Type: TABLE; Schema: cqc; Owner: sfcadmin
---
-
-CREATE TABLE IF NOT EXISTS cqc."LocalAuthority" (
+---CSSR TABLE CREATION 
+CREATE TABLE cqc."Cssr"
+(
+    "CssrID" INTEGER NOT NULL,
     "LocalCustodianCode" integer NOT NULL,
-    "LocalAuthorityName" text
-);
-
-
-ALTER TABLE cqc."LocalAuthority" OWNER TO sfcadmin;
-
---
--- Name: LocalAuthority localcustodiancode_pk; Type: CONSTRAINT; Schema: cqc; Owner: sfcadmin
---
-
-ALTER TABLE ONLY cqc."LocalAuthority"
-    ADD CONSTRAINT localcustodiancode_pk PRIMARY KEY ("LocalCustodianCode");
-
-
---
--- Name: LocalAuthority localcustodiancode_unq; Type: CONSTRAINT; Schema: cqc; Owner: sfcadmin
---
-
-ALTER TABLE ONLY cqc."LocalAuthority"
-    ADD CONSTRAINT localcustodiancode_unq UNIQUE ("LocalCustodianCode");
-
+    "CssR" TEXT COLLATE pg_catalog."default" NOT NULL,
+	"LocalAuthority" TEXT NOT NULL,
+    "Region" TEXT COLLATE pg_catalog."default" NOT NULL,
+    "RegionID" INTEGER NOT NULL,
+    "NmdsIDLetter" CHARACTER(1) COLLATE pg_catalog."default" NOT NULL,
+	PRIMARY KEY ("CssrID", "LocalCustodianCode")
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+ALTER TABLE cqc."Cssr" OWNER TO sfcadmin;
 
 --
 -- Name: EstablishmentLocalAuthority_EstablishmentLocalAuthorityID_seq; Type: SEQUENCE; Schema: cqc; Owner: postgres
@@ -202,15 +193,12 @@ CREATE SEQUENCE IF NOT EXISTS cqc."EstablishmentLocalAuthority_EstablishmentLoca
 CREATE TABLE IF NOT EXISTS cqc."EstablishmentLocalAuthority" (
     "EstablishmentLocalAuthorityID" integer NOT NULL DEFAULT nextval('cqc."EstablishmentLocalAuthority_EstablishmentLocalAuthorityID_seq"'::regclass),
     "EstablishmentID" integer NOT NULL,
-    "LocalCustodianCode" integer,
+    "CssrID" integer NOT NULL,
+    "CssR" TEXT COLLATE pg_catalog."default" NOT NULL,
 	CONSTRAINT establishmentlocalauthority_pk PRIMARY KEY ("EstablishmentLocalAuthorityID"),
     CONSTRAINT "EstablishmentLocalAuthorityID_Unq" UNIQUE ("EstablishmentLocalAuthorityID"),
     CONSTRAINT establishment_establishmentlocalauthority_fk FOREIGN KEY ("EstablishmentID")
         REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
-    CONSTRAINT localauthrity_establishmentlocalauthority_fk FOREIGN KEY ("LocalCustodianCode")
-        REFERENCES cqc."LocalAuthority" ("LocalCustodianCode") MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 );
@@ -861,142 +849,6 @@ insert into cqc."Job" ("JobID", "JobName") values (28, 'Supervisor');
 insert into cqc."Job" ("JobID", "JobName") values (29, 'Technician');
 
 
----- Local Authorities
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(119, 'SOUTH GLOUCESTERSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(121, 'NORTH SOMERSET');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(230, 'LUTON');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(235, 'BEDFORD');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(240, 'CENTRAL BEDFORDSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(335, 'BRACKNELL FOREST');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(340, 'WEST BERKSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(345, 'READING');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(350, 'SLOUGH');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(355, 'WINDSOR AND MAIDENHEAD');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(360, 'WOKINGHAM');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(425, 'WYCOMBE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(435, 'MILTON KEYNES');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(540, 'PETERBOROUGH');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(650, 'HALTON');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(655, 'WARRINGTON');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(660, 'CHESHIRE EAST');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(665, 'CHESHIRE WEST AND CHESTER');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(724, 'HARTLEPOOL');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(728, 'REDCAR AND CLEVELAND');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(734, 'MIDDLESBROUGH');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(738, 'STOCKTON-ON-TEES');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(835, 'ISLES OF SCILLY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(840, 'CORNWALL');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(1045, 'DERBYSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(1055, 'DERBY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(1160, 'PLYMOUTH');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(1165, 'TORBAY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(1250, 'BOURNEMOUTH');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(1255, 'POOLE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(1350, 'DARLINGTON');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(1355, 'DURHAM');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(1445, 'BRIGHTON & HOVE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(1590, 'SOUTHEND-ON-SEA');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(1620, 'GLOUCESTERSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(1775, 'PORTSMOUTH CITY COUNCIL');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(1780, 'SOUTHAMPTON');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(1850, 'HEREFORDSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2001, 'EAST RIDING OF YORKSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2002, 'NORTH EAST LINCOLNSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2003, 'NORTH LINCOLNSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2004, 'KINGSTON UPON HULL');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2114, 'ISLE OF WIGHT');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2280, 'MEDWAY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2335, 'LANCASHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2372, 'BLACKBURN WITH DARWEN');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2373, 'BLACKPOOL');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2465, 'LEICESTER');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2470, 'RUTLAND');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2515, 'LINCOLNSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2635, 'KINGS LYNN AND WEST NORFOLK');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2741, 'YORK');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2830, 'SOUTH NORTHAMPTONSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(2935, 'NORTHUMBERLAND');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3060, 'NOTTINGHAM');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3110, 'OXFORDSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3240, 'TELFORD AND WREKIN');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3245, 'SHROPSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3320, 'WEST SOMERSET');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3430, 'SOUTH STAFFORDSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3530, 'SUFFOLK COASTAL');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3640, 'SURREY HEATH');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3725, 'WARWICKSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(3940, 'WILTSHIRE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4205, 'BOLTON');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4210, 'BURY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4215, 'MANCHESTER');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4220, 'OLDHAM');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4225, 'ROCHDALE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4230, 'SALFORD');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4235, 'STOCKPORT');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4240, 'TAMESIDE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4245, 'TRAFFORD');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4250, 'WIGAN');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4305, 'KNOWSLEY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4310, 'LIVERPOOL');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4315, 'ST HELENS COUNCIL');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4320, 'SEFTON COUNCIL');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4325, 'WIRRAL');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4405, 'BARNSLEY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4410, 'DONCASTER');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4415, 'ROTHERHAM');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4420, 'SHEFFIELD');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4505, 'GATESHEAD');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4510, 'NEWCASTLE UPON TYNE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4515, 'NORTH TYNESIDE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4520, 'SOUTH TYNESIDE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4525, 'SUNDERLAND');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4605, 'BIRMINGHAM');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4610, 'COVENTRY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4615, 'DUDLEY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4620, 'SANDWELL');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4625, 'SOLIHULL');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4630, 'WALSALL');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4635, 'WOLVERHAMPTON');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4705, 'BRADFORD MDC');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4710, 'CALDERDALE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4715, 'KIRKLEES');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4720, 'LEEDS');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(4725, 'WAKEFIELD');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5030, 'CITY OF LONDON');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5060, 'BARKING AND DAGENHAM');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5090, 'BARNET');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5120, 'BEXLEY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5150, 'BRENT');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5180, 'LONDON BOROUGH OF BROMLEY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5210, 'CAMDEN');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5240, 'CROYDON');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5270, 'EALING');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5300, 'ENFIELD');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5330, 'GREENWICH');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5360, 'HACKNEY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5390, 'HAMMERSMITH AND FULHAM');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5420, 'LONDON BOROUGH OF HARINGEY');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5450, 'HARROW');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5480, 'HAVERING');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5510, 'HILLINGDON');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5540, 'LONDON BOROUGH OF HOUNSLOW');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5570, 'ISLINGTON');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5600, 'KENSINGTON AND CHELSEA');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5630, 'KINGSTON UPON THAMES');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5660, 'LAMBETH');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5690, 'LEWISHAM');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5720, 'MERTON');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5750, 'NEWHAM');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5780, 'REDBRIDGE');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5810, 'RICHMOND UPON THAMES');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5840, 'SOUTHWARK');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5870, 'SUTTON');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5900, 'TOWER HAMLETS');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5930, 'WALTHAM FOREST');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5960, 'WANDSWORTH');
-insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5990, 'CITY OF WESTMINSTER');
-
-
 -- removing the unnecessary location.cqcid and promoting location.locationid as primary key
 --ALTER TABLE cqc.location DROP CONSTRAINT location_pkey;
 --ALTER TABLE cqc.location DROP COLUMN cqcid ;
@@ -1018,6 +870,405 @@ DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
 CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode");
 CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode", "LocationID") WHERE "LocationID" IS NOT NULL;
--- Removed the DEV specific one off code and updated DEV folder sql file
 
+
+INSERT INTO cqc."Cssr" ("CssrID", "CssR", "LocalAuthority", "LocalCustodianCode", "Region", "RegionID", "NmdsIDLetter") VALUES 
+(807, 'West Sussex', 'Adur', 3805, 'South East', 6, 'H'),
+(102, 'Cumbria', 'Allerdale', 905, 'North West', 5, 'F'),
+(506, 'Derbyshire', 'Amber Valley', 1005, 'East Midlands', 2, 'C'),
+(807, 'West Sussex', 'Arun', 3810, 'South East', 6, 'H'),
+(511, 'Nottinghamshire', 'Ashfield', 3005, 'East Midlands', 2, 'C'),
+(820, 'Kent', 'Ashford', 2205, 'South East', 6, 'H'),
+(612, 'Buckinghamshire', 'Aylesbury Vale', 405, 'South East', 6, 'H'),
+(609, 'Suffolk', 'Babergh', 3505, 'Eastern', 1, 'I'),
+(716, 'Barking & Dagenham', 'Barking and Dagenham', 5060, 'London', 3, 'G'),
+(717, 'Barnet', 'Barnet', 5090, 'London', 3, 'G'),
+(204, 'Barnsley', 'Barnsley', 4405, 'Yorkshire and the Humber', 9, 'J'),
+(102, 'Cumbria', 'Barrow-in-Furness', 910, 'North West', 5, 'F'),
+(620, 'Essex', 'Basildon', 1505, 'Eastern', 1, 'I'),
+(812, 'Hampshire', 'Basingstoke and Deane', 1705, 'South East', 6, 'H'),
+(511, 'Nottinghamshire', 'Bassetlaw', 3010, 'East Midlands', 2, 'C'),
+(908, 'Bath and North East Somerset', 'Bath and North East Somerset', 114, 'South West', 7, 'D'),
+(996, 'Bedford', 'Bedford', 235, 'Eastern', 1, 'I'),
+(718, 'Bexley', 'Bexley', 5120, 'London', 3, 'G'),
+(406, 'Birmingham', 'Birmingham', 4605, 'West Midlands', 8, 'E'),
+(508, 'Leicestershire', 'Blaby', 2405, 'East Midlands', 2, 'C'),
+(324, 'Blackburn with Darwen', 'Blackburn with Darwen', 2372, 'North West', 5, 'F'),
+(325, 'Blackpool', 'Blackpool', 2373, 'North West', 5, 'F'),
+(506, 'Derbyshire', 'Bolsover', 1010, 'East Midlands', 2, 'C'),
+(304, 'Bolton', 'Bolton', 4205, 'North West', 5, 'F'),
+(503, 'Lincolnshire', 'Boston', 2505, 'East Midlands', 2, 'C'),
+(810, 'Bournemouth', 'Bournemouth', 1250, 'South West', 7, 'D'),
+(614, 'Bracknell Forest', 'Bracknell Forest', 335, 'South East', 6, 'H'),
+(209, 'Bradford', 'Bradford', 4705, 'Yorkshire and the Humber', 9, 'J'),
+(620, 'Essex', 'Braintree', 1510, 'Eastern', 1, 'I'),
+(607, 'Norfolk', 'Breckland', 2605, 'Eastern', 1, 'I'),
+(719, 'Brent', 'Brent', 5150, 'London', 3, 'G'),
+(620, 'Essex', 'Brentwood', 1515, 'Eastern', 1, 'I'),
+(816, 'Brighton & Hove', 'Brighton and Hove', 1445, 'South East', 6, 'H'),
+(607, 'Norfolk', 'Broadland', 2610, 'Eastern', 1, 'I'),
+(720, 'Bromley', 'Bromley', 5180, 'London', 3, 'G'),
+(416, 'Worcestershire', 'Bromsgrove', 1805, 'West Midlands', 8, 'E'),
+(606, 'Hertfordshire', 'Broxbourne', 1905, 'Eastern', 1, 'I'),
+(511, 'Nottinghamshire', 'Broxtowe', 3015, 'East Midlands', 2, 'C'),
+(323, 'Lancashire', 'Burnley', 2315, 'North West', 5, 'F'),
+(305, 'Bury', 'Bury', 4210, 'North West', 5, 'F'),
+(210, 'Calderdale', 'Calderdale', 4710, 'Yorkshire and the Humber', 9, 'J'),
+(623, 'Cambridgeshire', 'Cambridge', 505, 'Eastern', 1, 'I'),
+(702, 'Camden', 'Camden', 5210, 'London', 3, 'G'),
+(413, 'Staffordshire', 'Cannock Chase', 3405, 'West Midlands', 8, 'E'),
+(820, 'Kent', 'Canterbury', 2210, 'South East', 6, 'H'),
+(102, 'Cumbria', 'Carlisle', 915, 'North West', 5, 'F'),
+(620, 'Essex', 'Castle Point', 1520, 'Eastern', 1, 'I'),
+(997, 'Central Bedfordshire', 'Central Bedfordshire', 240, 'Eastern', 1, 'I'),
+(508, 'Leicestershire', 'Charnwood', 2410, 'East Midlands', 2, 'C'),
+(620, 'Essex', 'Chelmsford', 1525, 'Eastern', 1, 'I'),
+(904, 'Gloucestershire', 'Cheltenham', 1605, 'South West', 7, 'D'),
+(608, 'Oxfordshire', 'Cherwell', 3105, 'South East', 6, 'H'),
+(998, 'Cheshire East', 'Cheshire East', 660, 'North West', 5, 'F'),
+(999, 'Cheshire West & Chester', 'Cheshire West and Chester', 665, 'North West', 5, 'F'),
+(506, 'Derbyshire', 'Chesterfield', 1015, 'East Midlands', 2, 'C'),
+(807, 'West Sussex', 'Chichester', 3815, 'South East', 6, 'H'),
+(612, 'Buckinghamshire', 'Chiltern', 415, 'South East', 6, 'H'),
+(323, 'Lancashire', 'Chorley', 2320, 'North West', 5, 'F'),
+(809, 'Dorset', 'Christchurch', 1210, 'South West', 7, 'D'),
+(909, 'Bristol', 'City of Bristol', 116, 'South West', 7, 'D'),
+(714, 'City of London', 'City of London', 5030, 'London', 3, 'G'),
+(620, 'Essex', 'Colchester', 1530, 'Eastern', 1, 'I'),
+(102, 'Cumbria', 'Copeland', 920, 'North West', 5, 'F'),
+(504, 'Northamptonshire', 'Corby', 2805, 'East Midlands', 2, 'C'),
+(902, 'Cornwall', 'Cornwall', 840, 'South West', 7, 'D'),
+(904, 'Gloucestershire', 'Cotswold', 1610, 'South West', 7, 'D'),
+(116, 'Durham', 'County Durham', 1355, 'North East', 4, 'B'),
+(407, 'Coventry', 'Coventry', 4610, 'West Midlands', 8, 'E'),
+(218, 'North Yorkshire', 'Craven', 2705, 'Yorkshire and the Humber', 9, 'J'),
+(807, 'West Sussex', 'Crawley', 3820, 'South East', 6, 'H'),
+(721, 'Croydon', 'Croydon', 5240, 'London', 3, 'G'),
+(606, 'Hertfordshire', 'Dacorum', 1910, 'Eastern', 1, 'I'),
+(117, 'Darlington', 'Darlington', 1350, 'North East', 4, 'B'),
+(820, 'Kent', 'Dartford', 2215, 'South East', 6, 'H'),
+(504, 'Northamptonshire', 'Daventry', 2810, 'East Midlands', 2, 'C'),
+(507, 'Derby', 'Derby', 1055, 'East Midlands', 2, 'C'),
+(506, 'Derbyshire', 'Derbyshire Dales', 1045, 'East Midlands', 2, 'C'),
+(205, 'Doncaster', 'Doncaster', 4410, 'Yorkshire and the Humber', 9, 'J'),
+(820, 'Kent', 'Dover', 2220, 'South East', 6, 'H'),
+(408, 'Dudley', 'Dudley', 4615, 'West Midlands', 8, 'E'),
+(722, 'Ealing', 'Ealing', 5270, 'London', 3, 'G'),
+(623, 'Cambridgeshire', 'East Cambridgeshire', 510, 'Eastern', 1, 'I'),
+(912, 'Devon', 'East Devon', 1105, 'South West', 7, 'D'),
+(809, 'Dorset', 'East Dorset', 1240, 'South West', 7, 'D'),
+(812, 'Hampshire', 'East Hampshire', 1710, 'South East', 6, 'H'),
+(606, 'Hertfordshire', 'East Hertfordshire', 1915, 'Eastern', 1, 'I'),
+(503, 'Lincolnshire', 'East Lindsey', 2510, 'East Midlands', 2, 'C'),
+(504, 'Northamptonshire', 'East Northamptonshire', 2815, 'East Midlands', 2, 'C'),
+(214, 'East Riding of Yorkshire', 'East Riding of Yorkshire', 2001, 'Yorkshire and the Humber', 9, 'J'),
+(413, 'Staffordshire', 'East Staffordshire', 3410, 'West Midlands', 8, 'E'),
+(815, 'East Sussex', 'Eastbourne', 1410, 'South East', 6, 'H'),
+(812, 'Hampshire', 'Eastleigh', 1715, 'South East', 6, 'H'),
+(102, 'Cumbria', 'Eden', 925, 'North West', 5, 'F'),
+(805, 'Surrey', 'Elmbridge', 3605, 'South East', 6, 'H'),
+(723, 'Enfield', 'Enfield', 5300, 'London', 3, 'G'),
+(620, 'Essex', 'Epping Forest', 1535, 'Eastern', 1, 'I'),
+(805, 'Surrey', 'Epsom and Ewell', 3610, 'South East', 6, 'H'),
+(506, 'Derbyshire', 'Erewash', 1025, 'East Midlands', 2, 'C'),
+(912, 'Devon', 'Exeter', 1110, 'South West', 7, 'D'),
+(812, 'Hampshire', 'Fareham', 1720, 'South East', 6, 'H'),
+(623, 'Cambridgeshire', 'Fenland', 515, 'Eastern', 1, 'I'),
+(609, 'Suffolk', 'Forest Heath', 3510, 'Eastern', 1, 'I'),
+(904, 'Gloucestershire', 'Forest of Dean', 1615, 'South West', 7, 'D'),
+(323, 'Lancashire', 'Fylde', 2325, 'North West', 5, 'F'),
+(106, 'Gateshead', 'Gateshead', 4505, 'North East', 4, 'B'),
+(511, 'Nottinghamshire', 'Gedling', 3020, 'East Midlands', 2, 'C'),
+(904, 'Gloucestershire', 'Gloucester', 1620, 'South West', 7, 'D'),
+(812, 'Hampshire', 'Gosport', 1725, 'South East', 6, 'H'),
+(820, 'Kent', 'Gravesham', 2230, 'South East', 6, 'H'),
+(607, 'Norfolk', 'Great Yarmouth', 2615, 'Eastern', 1, 'I'),
+(703, 'Greenwich', 'Greenwich', 5330, 'London', 3, 'G'),
+(805, 'Surrey', 'Guildford', 3615, 'South East', 6, 'H'),
+(704, 'Hackney', 'Hackney', 5360, 'London', 3, 'G'),
+(321, 'Halton', 'Halton', 650, 'North West', 5, 'F'),
+(218, 'North Yorkshire', 'Hambleton', 2710, 'Yorkshire and the Humber', 9, 'J'),
+(705, 'Hammersmith & Fulham', 'Hammersmith and Fulham', 5390, 'London', 3, 'G'),
+(508, 'Leicestershire', 'Harborough', 2415, 'East Midlands', 2, 'C'),
+(724, 'Haringey', 'Haringey', 5420, 'London', 3, 'G'),
+(620, 'Essex', 'Harlow', 1540, 'Eastern', 1, 'I'),
+(218, 'North Yorkshire', 'Harrogate', 2715, 'Yorkshire and the Humber', 9, 'J'),
+(725, 'Harrow', 'Harrow', 5450, 'London', 3, 'G'),
+(812, 'Hampshire', 'Hart', 1730, 'South East', 6, 'H'),
+(111, 'Hartlepool', 'Hartlepool', 724, 'North East', 4, 'B'),
+(815, 'East Sussex', 'Hastings', 1415, 'South East', 6, 'H'),
+(812, 'Hampshire', 'Havant', 1735, 'South East', 6, 'H'),
+(726, 'Havering', 'Havering', 5480, 'London', 3, 'G'),
+(415, 'Herefordshire', 'Herefordshire', 1850, 'West Midlands', 8, 'E'),
+(606, 'Hertfordshire', 'Hertsmere', 1920, 'Eastern', 1, 'I'),
+(506, 'Derbyshire', 'High Peak', 1030, 'East Midlands', 2, 'C'),
+(727, 'Hillingdon', 'Hillingdon', 5510, 'London', 3, 'G'),
+(508, 'Leicestershire', 'Hinckley and Bosworth', 2420, 'East Midlands', 2, 'C'),
+(807, 'West Sussex', 'Horsham', 3825, 'South East', 6, 'H'),
+(728, 'Hounslow', 'Hounslow', 5540, 'London', 3, 'G'),
+(623, 'Cambridgeshire', 'Huntingdonshire', 520, 'Eastern', 1, 'I'),
+(323, 'Lancashire', 'Hyndburn', 2330, 'North West', 5, 'F'),
+(609, 'Suffolk', 'Ipswich', 3515, 'Eastern', 1, 'I'),
+(803, 'Isle of Wight', 'Isle of Wight', 2114, 'South East', 6, 'H'),
+(906, 'Isles of Scilly', 'Isles of Scilly', 835, 'South West', 7, 'D'),
+(706, 'Islington', 'Islington', 5570, 'London', 3, 'G'),
+(707, 'Kensington & Chelsea', 'Kensington and Chelsea', 5600, 'London', 3, 'G'),
+(504, 'Northamptonshire', 'Kettering', 2820, 'East Midlands', 2, 'C'),
+(607, 'Norfolk', 'King`s Lynn and West Norfolk', 2635, 'Eastern', 1, 'I'),
+(215, 'Kingston upon Hull', 'Kingston upon Hull', 2004, 'Yorkshire and the Humber', 9, 'J'),
+(729, 'Kingston upon Thames', 'Kingston upon Thames', 5630, 'London', 3, 'G'),
+(211, 'Kirklees', 'Kirklees', 4715, 'Yorkshire and the Humber', 9, 'J'),
+(315, 'Knowsley', 'Knowsley', 4305, 'North West', 5, 'F'),
+(708, 'Lambeth', 'Lambeth', 5660, 'London', 3, 'G'),
+(323, 'Lancashire', 'Lancaster', 2335, 'North West', 5, 'F'),
+(212, 'Leeds', 'Leeds', 4720, 'Yorkshire and the Humber', 9, 'J'),
+(509, 'Leicester', 'Leicester', 2465, 'East Midlands', 2, 'C'),
+(815, 'East Sussex', 'Lewes', 1425, 'South East', 6, 'H'),
+(709, 'Lewisham', 'Lewisham', 5690, 'London', 3, 'G'),
+(413, 'Staffordshire', 'Lichfield', 3415, 'West Midlands', 8, 'E'),
+(503, 'Lincolnshire', 'Lincoln', 2515, 'East Midlands', 2, 'C'),
+(316, 'Liverpool', 'Liverpool', 4310, 'North West', 5, 'F'),
+(611, 'Luton', 'Luton', 230, 'Eastern', 1, 'I'),
+(820, 'Kent', 'Maidstone', 2235, 'South East', 6, 'H'),
+(620, 'Essex', 'Maldon', 1545, 'Eastern', 1, 'I'),
+(416, 'Worcestershire', 'Malvern Hills', 1820, 'West Midlands', 8, 'E'),
+(306, 'Manchester', 'Manchester', 4215, 'North West', 5, 'F'),
+(511, 'Nottinghamshire', 'Mansfield', 3025, 'East Midlands', 2, 'C'),
+(821, 'Medway', 'Medway', 2280, 'South East', 6, 'H'),
+(508, 'Leicestershire', 'Melton', 2430, 'East Midlands', 2, 'C'),
+(905, 'Somerset', 'Mendip', 3305, 'South West', 7, 'D'),
+(730, 'Merton', 'Merton', 5720, 'London', 3, 'G'),
+(912, 'Devon', 'Mid Devon', 1135, 'South West', 7, 'D'),
+(609, 'Suffolk', 'Mid Suffolk', 3520, 'Eastern', 1, 'I'),
+(807, 'West Sussex', 'Mid Sussex', 3830, 'South East', 6, 'H'),
+(112, 'Middlesbrough', 'Middlesbrough', 734, 'North East', 4, 'B'),
+(613, 'Milton Keynes', 'Milton Keynes', 435, 'South East', 6, 'H'),
+(805, 'Surrey', 'Mole Valley', 3620, 'South East', 6, 'H'),
+(812, 'Hampshire', 'New Forest', 1740, 'South East', 6, 'H'),
+(511, 'Nottinghamshire', 'Newark and Sherwood', 3030, 'East Midlands', 2, 'C'),
+(107, 'Newcastle upon Tyne', 'Newcastle upon Tyne', 4510, 'North East', 4, 'B'),
+(413, 'Staffordshire', 'Newcastle-under-Lyme', 3420, 'West Midlands', 8, 'E'),
+(731, 'Newham', 'Newham', 5750, 'London', 3, 'G'),
+(912, 'Devon', 'North Devon', 1115, 'South West', 7, 'D'),
+(809, 'Dorset', 'North Dorset', 1215, 'South West', 7, 'D'),
+(506, 'Derbyshire', 'North East Derbyshire', 1035, 'East Midlands', 2, 'C'),
+(216, 'North East Lincolnshire', 'North East Lincolnshire', 2002, 'Yorkshire and the Humber', 9, 'J'),
+(606, 'Hertfordshire', 'North Hertfordshire', 1925, 'Eastern', 1, 'I'),
+(503, 'Lincolnshire', 'North Kesteven', 2520, 'East Midlands', 2, 'C'),
+(217, 'North Lincolnshire', 'North Lincolnshire', 2003, 'Yorkshire and the Humber', 9, 'J'),
+(607, 'Norfolk', 'North Norfolk', 2620, 'Eastern', 1, 'I'),
+(910, 'North Somerset', 'North Somerset', 121, 'South West', 7, 'D'),
+(108, 'North Tyneside', 'North Tyneside', 4515, 'North East', 4, 'B'),
+(404, 'Warwickshire', 'North Warwickshire', 3705, 'West Midlands', 8, 'E'),
+(508, 'Leicestershire', 'North West Leicestershire', 2435, 'East Midlands', 2, 'C'),
+(504, 'Northamptonshire', 'Northampton', 2825, 'East Midlands', 2, 'C'),
+(104, 'Northumberland', 'Northumberland', 2935, 'North East', 4, 'B'),
+(607, 'Norfolk', 'Norwich', 2625, 'Eastern', 1, 'I'),
+(512, 'Nottingham', 'Nottingham', 3060, 'East Midlands', 2, 'C'),
+(404, 'Warwickshire', 'Nuneaton and Bedworth', 3710, 'West Midlands', 8, 'E'),
+(508, 'Leicestershire', 'Oadby and Wigston', 2440, 'East Midlands', 2, 'C'),
+(307, 'Oldham', 'Oldham', 4220, 'North West', 5, 'F'),
+(608, 'Oxfordshire', 'Oxford', 3110, 'South East', 6, 'H'),
+(323, 'Lancashire', 'Pendle', 2340, 'North West', 5, 'F'),
+(624, 'Peterborough', 'Peterborough', 540, 'Eastern', 1, 'I'),
+(913, 'Plymouth', 'Plymouth', 1160, 'South West', 7, 'D'),
+(811, 'Poole', 'Poole', 1255, 'South West', 7, 'D'),
+(813, 'Portsmouth', 'Portsmouth', 1775, 'South East', 6, 'H'),
+(323, 'Lancashire', 'Preston', 2345, 'North West', 5, 'F'),
+(809, 'Dorset', 'Purbeck', 1225, 'South West', 7, 'D'),
+(616, 'Reading', 'Reading', 345, 'South East', 6, 'H'),
+(732, 'Redbridge', 'Redbridge', 5780, 'London', 3, 'G'),
+(113, 'Redcar & Cleveland', 'Redcar and Cleveland', 728, 'North East', 4, 'B'),
+(416, 'Worcestershire', 'Redditch', 1825, 'West Midlands', 8, 'E'),
+(805, 'Surrey', 'Reigate and Banstead', 3625, 'South East', 6, 'H'),
+(323, 'Lancashire', 'Ribble Valley', 2350, 'North West', 5, 'F'),
+(733, 'Richmond upon Thames', 'Richmond upon Thames', 5810, 'London', 3, 'G'),
+(218, 'North Yorkshire', 'Richmondshire', 2720, 'Yorkshire and the Humber', 9, 'J'),
+(308, 'Rochdale', 'Rochdale', 4225, 'North West', 5, 'F'),
+(620, 'Essex', 'Rochford', 1550, 'Eastern', 1, 'I'),
+(323, 'Lancashire', 'Rossendale', 2355, 'North West', 5, 'F'),
+(815, 'East Sussex', 'Rother', 1430, 'South East', 6, 'H'),
+(206, 'Rotherham', 'Rotherham', 4415, 'Yorkshire and the Humber', 9, 'J'),
+(404, 'Warwickshire', 'Rugby', 3715, 'West Midlands', 8, 'E'),
+(805, 'Surrey', 'Runnymede', 3630, 'South East', 6, 'H'),
+(511, 'Nottinghamshire', 'Rushcliffe', 3040, 'East Midlands', 2, 'C'),
+(812, 'Hampshire', 'Rushmoor', 1750, 'South East', 6, 'H'),
+(510, 'Rutland', 'Rutland', 2470, 'East Midlands', 2, 'C'),
+(218, 'North Yorkshire', 'Ryedale', 2725, 'Yorkshire and the Humber', 9, 'J'),
+(309, 'Salford', 'Salford', 4230, 'North West', 5, 'F'),
+(409, 'Sandwell', 'Sandwell', 4620, 'West Midlands', 8, 'E'),
+(218, 'North Yorkshire', 'Scarborough', 2730, 'Yorkshire and the Humber', 9, 'J'),
+(905, 'Somerset', 'Sedgemoor', 3310, 'South West', 7, 'D'),
+(317, 'Sefton', 'Sefton', 4320, 'North West', 5, 'F'),
+(218, 'North Yorkshire', 'Selby', 2735, 'Yorkshire and the Humber', 9, 'J'),
+(820, 'Kent', 'Sevenoaks', 2245, 'South East', 6, 'H'),
+(207, 'Sheffield', 'Sheffield', 4420, 'Yorkshire and the Humber', 9, 'J'),
+(820, 'Kent', 'Shepway', 2250, 'South East', 6, 'H'),
+(417, 'Shropshire', 'Shropshire', 3245, 'West Midlands', 8, 'E'),
+(617, 'Slough', 'Slough', 350, 'South East', 6, 'H'),
+(410, 'Solihull', 'Solihull', 4625, 'West Midlands', 8, 'E'),
+(612, 'Buckinghamshire', 'South Bucks', 410, 'South East', 6, 'H'),
+(623, 'Cambridgeshire', 'South Cambridgeshire', 530, 'Eastern', 1, 'I'),
+(506, 'Derbyshire', 'South Derbyshire', 1040, 'East Midlands', 2, 'C'),
+(911, 'South Gloucestershire', 'South Gloucestershire', 119, 'South West', 7, 'D'),
+(912, 'Devon', 'South Hams', 1125, 'South West', 7, 'D'),
+(503, 'Lincolnshire', 'South Holland', 2525, 'East Midlands', 2, 'C'),
+(503, 'Lincolnshire', 'South Kesteven', 2530, 'East Midlands', 2, 'C'),
+(102, 'Cumbria', 'South Lakeland', 930, 'North West', 5, 'F'),
+(607, 'Norfolk', 'South Norfolk', 2630, 'Eastern', 1, 'I'),
+(504, 'Northamptonshire', 'South Northamptonshire', 2830, 'East Midlands', 2, 'C'),
+(608, 'Oxfordshire', 'South Oxfordshire', 3115, 'South East', 6, 'H'),
+(323, 'Lancashire', 'South Ribble', 2360, 'North West', 5, 'F'),
+(905, 'Somerset', 'South Somerset', 3325, 'South West', 7, 'D'),
+(413, 'Staffordshire', 'South Staffordshire', 3430, 'West Midlands', 8, 'E'),
+(109, 'South Tyneside', 'South Tyneside', 4520, 'North East', 4, 'B'),
+(814, 'Southampton', 'Southampton', 1780, 'South East', 6, 'H'),
+(621, 'Southend on Sea', 'Southend-on-Sea', 1590, 'Eastern', 1, 'I'),
+(710, 'Southwark', 'Southwark', 5840, 'London', 3, 'G'),
+(805, 'Surrey', 'Spelthorne', 3635, 'South East', 6, 'H'),
+(606, 'Hertfordshire', 'St Albans', 1930, 'Eastern', 1, 'I'),
+(609, 'Suffolk', 'St. Edmundsbury', 3525, 'Eastern', 1, 'I'),
+(318, 'St Helens', 'St. Helens', 4315, 'North West', 5, 'F'),
+(413, 'Staffordshire', 'Stafford', 3425, 'West Midlands', 8, 'E'),
+(413, 'Staffordshire', 'Staffordshire Moorlands', 3435, 'West Midlands', 8, 'E'),
+(606, 'Hertfordshire', 'Stevenage', 1935, 'Eastern', 1, 'I'),
+(310, 'Stockport', 'Stockport', 4235, 'North West', 5, 'F'),
+(114, 'Stockton on Tees', 'Stockton-on-Tees', 738, 'North East', 4, 'B'),
+(414, 'Stoke on Trent', 'Stoke-on-Trent', 3455, 'West Midlands', 8, 'E'),
+(404, 'Warwickshire', 'Stratford-on-Avon', 3720, 'West Midlands', 8, 'E'),
+(904, 'Gloucestershire', 'Stroud', 1625, 'South West', 7, 'D'),
+(609, 'Suffolk', 'Suffolk Coastal', 3530, 'Eastern', 1, 'I'),
+(110, 'Sunderland', 'Sunderland', 4525, 'North East', 4, 'B'),
+(805, 'Surrey', 'Surrey Heath', 3640, 'South East', 6, 'H'),
+(734, 'Sutton', 'Sutton', 5870, 'London', 3, 'G'),
+(820, 'Kent', 'Swale', 2255, 'South East', 6, 'H'),
+(819, 'Swindon', 'Swindon', 3935, 'South West', 7, 'D'),
+(311, 'Tameside', 'Tameside', 4240, 'North West', 5, 'F'),
+(413, 'Staffordshire', 'Tamworth', 3445, 'West Midlands', 8, 'E'),
+(805, 'Surrey', 'Tandridge', 3645, 'South East', 6, 'H'),
+(905, 'Somerset', 'Taunton Deane', 3315, 'South West', 7, 'D'),
+(912, 'Devon', 'Teignbridge', 1130, 'South West', 7, 'D'),
+(418, 'Telford & Wrekin', 'Telford and Wrekin', 3240, 'West Midlands', 8, 'E'),
+(620, 'Essex', 'Tendring', 1560, 'Eastern', 1, 'I'),
+(812, 'Hampshire', 'Test Valley', 1760, 'South East', 6, 'H'),
+(904, 'Gloucestershire', 'Tewkesbury', 1630, 'South West', 7, 'D'),
+(820, 'Kent', 'Thanet', 2260, 'South East', 6, 'H'),
+(606, 'Hertfordshire', 'Three Rivers', 1940, 'Eastern', 1, 'I'),
+(622, 'Thurrock', 'Thurrock', 1595, 'Eastern', 1, 'I'),
+(820, 'Kent', 'Tonbridge and Malling', 2265, 'South East', 6, 'H'),
+(914, 'Torbay', 'Torbay', 1165, 'South West', 7, 'D'),
+(912, 'Devon', 'Torridge', 1145, 'South West', 7, 'D'),
+(711, 'Tower Hamlets', 'Tower Hamlets', 5900, 'London', 3, 'G'),
+(312, 'Trafford', 'Trafford', 4245, 'North West', 5, 'F'),
+(820, 'Kent', 'Tunbridge Wells', 2270, 'South East', 6, 'H'),
+(620, 'Essex', 'Uttlesford', 1570, 'Eastern', 1, 'I'),
+(608, 'Oxfordshire', 'Vale of White Horse', 3120, 'South East', 6, 'H'),
+(213, 'Wakefield', 'Wakefield', 4725, 'Yorkshire and the Humber', 9, 'J'),
+(411, 'Walsall', 'Walsall', 4630, 'West Midlands', 8, 'E'),
+(735, 'Waltham Forest', 'Waltham Forest', 5930, 'London', 3, 'G'),
+(712, 'Wandsworth', 'Wandsworth', 5960, 'London', 3, 'G'),
+(322, 'Warrington', 'Warrington', 655, 'North West', 5, 'F'),
+(404, 'Warwickshire', 'Warwick', 3725, 'West Midlands', 8, 'E'),
+(606, 'Hertfordshire', 'Watford', 1945, 'Eastern', 1, 'I'),
+(609, 'Suffolk', 'Waveney', 3535, 'Eastern', 1, 'I'),
+(805, 'Surrey', 'Waverley', 3650, 'South East', 6, 'H'),
+(815, 'East Sussex', 'Wealden', 1435, 'South East', 6, 'H'),
+(504, 'Northamptonshire', 'Wellingborough', 2835, 'East Midlands', 2, 'C'),
+(606, 'Hertfordshire', 'Welwyn Hatfield', 1950, 'Eastern', 1, 'I'),
+(615, 'West Berkshire', 'West Berkshire', 340, 'South East', 6, 'H'),
+(912, 'Devon', 'West Devon', 1150, 'South West', 7, 'D'),
+(809, 'Dorset', 'West Dorset', 1230, 'South West', 7, 'D'),
+(323, 'Lancashire', 'West Lancashire', 2365, 'North West', 5, 'F'),
+(503, 'Lincolnshire', 'West Lindsey', 2535, 'East Midlands', 2, 'C'),
+(608, 'Oxfordshire', 'West Oxfordshire', 3125, 'South East', 6, 'H'),
+(905, 'Somerset', 'West Somerset', 3320, 'South West', 7, 'D'),
+(713, 'Westminster', 'Westminster', 5990, 'London', 3, 'G'),
+(809, 'Dorset', 'Weymouth and Portland', 1235, 'South West', 7, 'D'),
+(313, 'Wigan', 'Wigan', 4250, 'North West', 5, 'F'),
+(817, 'Wiltshire', 'Wiltshire', 3940, 'South West', 7, 'D'),
+(812, 'Hampshire', 'Winchester', 1765, 'South East', 6, 'H'),
+(618, 'Windsor & Maidenhead', 'Windsor and Maidenhead', 355, 'South East', 6, 'H'),
+(319, 'Wirral', 'Wirral', 4325, 'North West', 5, 'F'),
+(805, 'Surrey', 'Woking', 3655, 'South East', 6, 'H'),
+(619, 'Wokingham', 'Wokingham', 360, 'South East', 6, 'H'),
+(412, 'Wolverhampton', 'Wolverhampton', 4635, 'West Midlands', 8, 'E'),
+(416, 'Worcestershire', 'Worcester', 1835, 'West Midlands', 8, 'E'),
+(807, 'West Sussex', 'Worthing', 3835, 'South East', 6, 'H'),
+(416, 'Worcestershire', 'Wychavon', 1840, 'West Midlands', 8, 'E'),
+(612, 'Buckinghamshire', 'Wycombe', 425, 'South East', 6, 'H'),
+(323, 'Lancashire', 'Wyre', 2370, 'North West', 5, 'F'),
+(416, 'Worcestershire', 'Wyre Forest', 1845, 'West Midlands', 8, 'E'),
+(219, 'York', 'York', 2741, 'Yorkshire and the Humber', 9, 'J');
+
+
+CREATE SEQUENCE IF NOT EXISTS cqc."NmdsID_seq"
+    AS integer
+    START WITH 1001000
+    INCREMENT BY 1
+    MINVALUE 1001000
+    MAXVALUE 9999999
+    CACHE 1;
+
+
+-- to apply DB patach for https://trello.com/c/BqSXEWI5
+ALTER TABLE cqc."EstablishmentLocalAuthority" DROP CONSTRAINT localauthrity_establishmentlocalauthority_fk;
+DROP TABLE cqc."LocalAuthority";
+
+---CSSR TABLE CREATION 
+CREATE TABLE cqc."Cssr"
+(
+    "CssrID" INTEGER NOT NULL,
+    "CssR" TEXT COLLATE pg_catalog."default" NOT NULL,
+	"LocalAuthority" TEXT NOT NULL,
+    "LocalCustodianCode" integer NOT NULL,
+    "Region" TEXT COLLATE pg_catalog."default" NOT NULL,
+    "RegionID" INTEGER NOT NULL,
+    "NmdsIDLetter" CHARACTER(1) COLLATE pg_catalog."default" NOT NULL,
+	PRIMARY KEY ("CssrID", "LocalCustodianCode")
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+ALTER TABLE cqc."Cssr" OWNER TO sfcadmin;
+
+CREATE SEQUENCE IF NOT EXISTS cqc."NmdsID_seq"
+    AS integer
+    START WITH 1001000
+    INCREMENT BY 1
+    MINVALUE 1001000
+    MAXVALUE 9999999
+    CACHE 1;
+
+ALTER TABLE cqc."Establishment" ADD COLUMN "NmdsID" character(8);
+ALTER TABLE cqc."EstablishmentLocalAuthority" ADD COLUMN "CssrID" INTEGER NULL;
+ALTER TABLE cqc."EstablishmentLocalAuthority" ADD COLUMN "CssR" TEXT COLLATE pg_catalog."default" NULL;
+
+-- The EstablishmentLocalAuthority.Cssr column is ideally NOT NULL, but if there are already records in
+--   EstablishmentLocalAuthority table, then we need to do a bulk update against that and the Cssr table
+--   to get the CssrID - use a "bulk update"
+update cqc."EstablishmentLocalAuthority" set "CssrID" = "Cssr"."CssrID", "CssR" = "Cssr"."CssR"
+    from cqc."Cssr" where "Cssr"."LocalCustodianCode" = "EstablishmentLocalAuthority"."LocalCustodianCode";
+
+ALTER TABLE cqc."EstablishmentLocalAuthority" ALTER COLUMN "CssrID" SET NOT NULL;
+ALTER TABLE cqc."EstablishmentLocalAuthority" ALTER COLUMN "CssR" SET NOT NULL;
+ALTER TABLE cqc."EstablishmentLocalAuthority" DROP COLUMN "LocalCustodianCode";
+
+
+-- and now update 
+update cqc."Establishment"
+set "NmdsID" = "CssrNmdsLetter"."NmdsIDLetter" || nextval('cqc."NmdsID_seq"')
+from (
+	select distinct pcodedata.postcode,
+			pcodedata.local_custodian_code,
+			"Cssr"."NmdsIDLetter",
+			"Establishment"."EstablishmentID"
+	from cqc."Establishment"
+	 inner join cqc.pcodedata
+			inner join cqc."Cssr" on pcodedata.local_custodian_code = "Cssr"."LocalCustodianCode"
+		on pcodedata.postcode = "Establishment"."PostCode"
+) as "CssrNmdsLetter"
+where "CssrNmdsLetter"."EstablishmentID" = "Establishment"."EstablishmentID"
+  and "Establishment"."NmdsID" is null;
+ALTER TABLE cqc."Establishment" ALTER COLUMN "NmdsID" SET NOT NULL;
 

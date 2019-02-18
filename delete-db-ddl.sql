@@ -20,7 +20,7 @@ DROP TABLE IF EXISTS cqc."Establishment";
 
 -- lookup
 DROP TABLE IF EXISTS cqc."Job";
-DROP TABLE IF EXISTS cqc."LocalAuthority";
+DROP TABLE IF EXISTS cqc."Cssr";
 DROP TABLE IF EXISTS cqc."ServicesCapacity";
 DROP TABLE IF EXISTS cqc.services;
 
@@ -43,11 +43,5 @@ DROP SEQUENCE IF EXISTS cqc."Feedback_seq";
 DROP SEQUENCE IF EXISTS cqc."Login_ID_seq";
 DROP SEQUENCE IF EXISTS cqc."User_RegistrationID_seq";
 DROP SEQUENCE IF EXISTS cqc.services_id_seq;
+DROP SEQUENCE IF EXISTS cqc."NmdsID_seq";
 --DROP SEQUENCE IF EXISTS cqc.cqclog_id_seq;
-
-
--- Removed DEV specific one off code.
-
-
-
-
