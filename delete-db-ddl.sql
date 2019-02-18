@@ -46,5 +46,9 @@ DROP SEQUENCE IF EXISTS cqc.services_id_seq;
 --DROP SEQUENCE IF EXISTS cqc.cqclog_id_seq;
 
 
+---Removing unused schema's as clean up of DEV database
+DROP SCHEMA cqctst cascade;
+DROP SCHEMA cqctsttst cascade;
+
 
 
