@@ -46,5 +46,8 @@ DROP SEQUENCE IF EXISTS cqc.services_id_seq;
 --DROP SEQUENCE IF EXISTS cqc.cqclog_id_seq;
 
 
+-- Removed DEV specific one off code.
+
+
 
 
