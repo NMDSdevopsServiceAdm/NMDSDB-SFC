@@ -202,7 +202,6 @@ INSERT INTO cqc."Nationality" ("ID", "Seq", "Nationality") VALUES
 (25,25, 'Citizen of Bosnia and Herzegovina'),
 (26,26, 'Botswanan'),
 (27,27, 'Brazilian'),
-(28,28, 'British'),
 (29,29, 'British Virgin Islander'),
 (30,30, 'Bruneian'),
 (31,31, 'Bulgarian'),
