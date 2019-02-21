@@ -10,3 +10,4 @@ alter table cqc.location set schema cqcref;
 
 DROP SCHEMA cqctst cascade;
 DROP SCHEMA cqctsttst cascade;
+
