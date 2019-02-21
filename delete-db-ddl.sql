@@ -14,7 +14,7 @@ DROP TABLE IF EXISTS cqc."EstablishmentCapacity";
 
 -- user
 DROP TABLE IF EXISTS cqc."PasswdResetTracking";
-DROP TABLE IF EXISTS cqc."UsertAudit";
+DROP TABLE IF EXISTS cqc."UserAudit";
 
 -- registration
 --DROP TABLE IF EXISTS cqc."CqcLog";

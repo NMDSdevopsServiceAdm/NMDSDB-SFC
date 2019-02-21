@@ -1053,11 +1053,12 @@ CREATE TYPE cqc."UserAuditChangeType" AS ENUM (
 	'updated',
 	'saved',
 	'changed',
-    'passwd-reset',
+    'passwdReset',
     'loginSuccess',
-    'loginFailed'
+    'loginFailed',
+    'loginWhileLocked'
 );
-CREATE TABLE IF NOT EXISTS cqc."UsertAudit" (
+CREATE TABLE IF NOT EXISTS cqc."UserAudit" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,
 	"UserFK" INTEGER NOT NULL,
 	"Username" VARCHAR(120) NOT NULL,
@@ -1067,6 +1068,6 @@ CREATE TABLE IF NOT EXISTS cqc."UsertAudit" (
 	"ChangeEvents" JSONB NULL,
 	CONSTRAINT "WorkerAudit_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
 );
-CREATE INDEX "UsertAudit_UserFK" on cqc."UsertAudit" ("UserFK");
+CREATE INDEX "UsertAudit_UserFK" on cqc."UserAudit" ("UserFK");
 
 ALTER TABLE cqc."Login" ADD COLUMN "PasswdLastChanged" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
