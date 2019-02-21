@@ -1207,7 +1207,6 @@ CREATE TABLE IF NOT EXISTS cqc."UserAudit" (
 );
 CREATE INDEX "UserAudit_UserFK" on cqc."UserAudit" ("UserFK");
 
-
 -- DB Patch Schema for https://trello.com/c/pByUKSW3
 DROP TABLE IF EXISTS  cqc."WorkerAudit";
 DROP TYPE IF EXISTS cqc."WorkerAuditChangeType";
