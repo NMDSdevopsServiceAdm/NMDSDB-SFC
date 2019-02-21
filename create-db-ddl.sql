@@ -1208,79 +1208,9 @@ CREATE SEQUENCE IF NOT EXISTS cqc."NmdsID_seq"
     MINVALUE 1001000
     MAXVALUE 9999999
     CACHE 1;
+ALTER TABLE cqc."NmdsID_seq" OWNER TO sfcadmin;
 
-
--- to apply DB patach for https://trello.com/c/BqSXEWI5
-ALTER TABLE cqc."EstablishmentLocalAuthority" DROP CONSTRAINT localauthrity_establishmentlocalauthority_fk;
-DROP TABLE cqc."LocalAuthority";
-
----CSSR TABLE CREATION 
-CREATE TABLE cqc."Cssr"
-(
-    "CssrID" INTEGER NOT NULL,
-    "CssR" TEXT COLLATE pg_catalog."default" NOT NULL,
-	"LocalAuthority" TEXT NOT NULL,
-    "LocalCustodianCode" integer NOT NULL,
-    "Region" TEXT COLLATE pg_catalog."default" NOT NULL,
-    "RegionID" INTEGER NOT NULL,
-    "NmdsIDLetter" CHARACTER(1) COLLATE pg_catalog."default" NOT NULL,
-	PRIMARY KEY ("CssrID", "LocalCustodianCode")
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-ALTER TABLE cqc."Cssr" OWNER TO sfcadmin;
-
-CREATE SEQUENCE IF NOT EXISTS cqc."NmdsID_seq"
-    AS integer
-    START WITH 1001000
-    INCREMENT BY 1
-    MINVALUE 1001000
-    MAXVALUE 9999999
-    CACHE 1;
-
-ALTER TABLE cqc."Establishment" ADD COLUMN "NmdsID" character(8);
-ALTER TABLE cqc."EstablishmentLocalAuthority" ADD COLUMN "CssrID" INTEGER NULL;
-ALTER TABLE cqc."EstablishmentLocalAuthority" ADD COLUMN "CssR" TEXT COLLATE pg_catalog."default" NULL;
-
--- The EstablishmentLocalAuthority.Cssr column is ideally NOT NULL, but if there are already records in
---   EstablishmentLocalAuthority table, then we need to do a bulk update against that and the Cssr table
---   to get the CssrID - use a "bulk update"
-update cqc."EstablishmentLocalAuthority" set "CssrID" = "Cssr"."CssrID", "CssR" = "Cssr"."CssR"
-    from cqc."Cssr" where "Cssr"."LocalCustodianCode" = "EstablishmentLocalAuthority"."LocalCustodianCode";
-
-ALTER TABLE cqc."EstablishmentLocalAuthority" ALTER COLUMN "CssrID" SET NOT NULL;
-ALTER TABLE cqc."EstablishmentLocalAuthority" ALTER COLUMN "CssR" SET NOT NULL;
-ALTER TABLE cqc."EstablishmentLocalAuthority" DROP COLUMN "LocalCustodianCode";
-
-
--- and now update 
-update cqc."Establishment"
-set "NmdsID" = "CssrNmdsLetter"."NmdsIDLetter" || nextval('cqc."NmdsID_seq"')
-from (
-	select distinct pcodedata.postcode,
-			pcodedata.local_custodian_code,
-			"Cssr"."NmdsIDLetter",
-			"Establishment"."EstablishmentID"
-	from cqc."Establishment"
-	 inner join cqc.pcodedata
-			inner join cqc."Cssr" on pcodedata.local_custodian_code = "Cssr"."LocalCustodianCode"
-		on pcodedata.postcode = "Establishment"."PostCode"
-) as "CssrNmdsLetter"
-where "CssrNmdsLetter"."EstablishmentID" = "Establishment"."EstablishmentID"
-  and "Establishment"."NmdsID" is null;
-ALTER TABLE cqc."Establishment" ALTER COLUMN "NmdsID" SET NOT NULL;
-
-
--- SERVICE MAPPING UPDATES  --  https://trello.com/c/geZXmbDi
-
-alter table cqc.services add column "reportingID" integer;
-
-ALTER TABLE cqc.services ADD CONSTRAINT "reportingID_Unq" UNIQUE ("reportingID");
-
-
-	
+-- new reporting id for services
 update cqc.services  set  "reportingID"=1	where id=24		;
 update cqc.services  set  "reportingID"=2	where id=25		;
 update cqc.services  set  "reportingID"=53	where id=13		;
