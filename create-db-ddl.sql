@@ -367,7 +367,9 @@ CREATE TABLE IF NOT EXISTS cqc."User" (
     "SecurityQuestionAnswerSavedBy" VARCHAR(120) NULL,
     "SecurityQuestionAnswerChangedBy" VARCHAR(120) NULL,
     "AdminUser" boolean NOT NULL,
-    "DateCreated" timestamp without time zone NOT NULL
+    created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
+	updatedby VARCHAR(120) NOT NULL
 );
 
 
@@ -1154,3 +1156,14 @@ ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerSavedAt" TIMESTAMP NULL
 ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerChangedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerSavedBy" VARCHAR(120) NULL;
 ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerChangedBy" VARCHAR(120) NULL;
+
+
+-- add the created/updated/updatedBy columns
+ALTER TABLE cqc."User" ADD COLUMN created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
+ALTER TABLE cqc."User" ADD COLUMN updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
+ALTER TABLE cqc."User" ADD COLUMN updatedby VARCHAR(120) NULL;
+UPDATE cqc."User" set updatedby='admin';                            -- cannot be null, so setting a default value on apply patch
+ALTER TABLE cqc."User" ALTER COLUMN updatedby SET NOT NULL;
+
+-- and drop the now unused "DateCreated" column
+ALTER TABLE cqc."User" DROP COLUMN "DateCreated";
