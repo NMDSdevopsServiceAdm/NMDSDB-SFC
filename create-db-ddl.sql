@@ -1228,11 +1228,11 @@ CREATE TABLE IF NOT EXISTS cqc."WorkerAudit" (
 );
 CREATE INDEX "WorkerAudit_WorkerFK" on cqc."WorkerAudit" ("WorkerFK");
 
-ALTER TABLE cqc."Establishment" ADD COLUMN "passwdLastChanged" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
+ALTER TABLE cqc."Login" ADD COLUMN "PasswdLastChanged" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
+
+-- DB Patch Schema for https://trello.com/c/pByUKSW3
 ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestion" character varying(255) NULL;
 ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswer" character varying(255) NULL;
-
-
 -- migrate security question/answer from Login to User
 UPDATE
 	cqc."User"
@@ -1243,15 +1243,12 @@ FROM
 	cqc."Login" as login
 WHERE
 	login."RegistrationID" = "User"."RegistrationID";
-
 -- having migrated the security questions/answers, make the target columns NOT NULL
 ALTER TABLE cqc."User" ALTER COLUMN "SecurityQuestion" SET NOT NULL;
 ALTER TABLE cqc."User" ALTER COLUMN "SecurityQuestionAnswer" SET NOT NULL;
-
 -- and now drop the columns from Login
 ALTER TABLE cqc."Login" DROP COLUMN "SecurityQuestion";
 ALTER TABLE cqc."Login" DROP COLUMN "SecurityQuestionAnswer";
-
 
 -- and now rename the User columns ready for Extended Change Properties
 ALTER TABLE cqc."User" RENAME "FullName" TO "FullNameValue";
@@ -1286,7 +1283,6 @@ ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerSavedAt" TIMESTAMP NULL
 ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerChangedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerSavedBy" VARCHAR(120) NULL;
 ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerChangedBy" VARCHAR(120) NULL;
-
 
 -- add the created/updated/updatedBy columns
 ALTER TABLE cqc."User" ADD COLUMN created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
