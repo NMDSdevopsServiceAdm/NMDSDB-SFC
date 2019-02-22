@@ -1284,6 +1284,7 @@ ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerChangedAt" TIMESTAMP NU
 ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerSavedBy" VARCHAR(120) NULL;
 ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerChangedBy" VARCHAR(120) NULL;
 
+
 -- add the created/updated/updatedBy columns
 ALTER TABLE cqc."User" ADD COLUMN created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
 ALTER TABLE cqc."User" ADD COLUMN updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
