@@ -51,7 +51,3 @@ DROP SEQUENCE IF EXISTS cqc."User_RegistrationID_seq";
 DROP SEQUENCE IF EXISTS cqc."passwdresettracking_seq";
 DROP SEQUENCE IF EXISTS cqc.services_id_seq;
 --DROP SEQUENCE IF EXISTS cqc.cqclog_id_seq;
-
-
-
-

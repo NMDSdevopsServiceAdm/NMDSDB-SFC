@@ -71,7 +71,8 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "ShareDataWithCQC" boolean DEFAULT false,
     "ShareDataWithLA" boolean DEFAULT false,
     "ShareData" boolean DEFAULT false,
-    "NumberOfStaff" integer
+    "NumberOfStaff" integer,
+    "NmdsID" character(8)
 );
 
 
@@ -202,15 +203,12 @@ CREATE SEQUENCE IF NOT EXISTS cqc."EstablishmentLocalAuthority_EstablishmentLoca
 CREATE TABLE IF NOT EXISTS cqc."EstablishmentLocalAuthority" (
     "EstablishmentLocalAuthorityID" integer NOT NULL DEFAULT nextval('cqc."EstablishmentLocalAuthority_EstablishmentLocalAuthorityID_seq"'::regclass),
     "EstablishmentID" integer NOT NULL,
-    "LocalCustodianCode" integer,
+    "CssrID" integer NOT NULL,
+    "CssR" text NOT NULL,
 	CONSTRAINT establishmentlocalauthority_pk PRIMARY KEY ("EstablishmentLocalAuthorityID"),
     CONSTRAINT "EstablishmentLocalAuthorityID_Unq" UNIQUE ("EstablishmentLocalAuthorityID"),
     CONSTRAINT establishment_establishmentlocalauthority_fk FOREIGN KEY ("EstablishmentID")
         REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
-    CONSTRAINT localauthrity_establishmentlocalauthority_fk FOREIGN KEY ("LocalCustodianCode")
-        REFERENCES cqc."LocalAuthority" ("LocalCustodianCode") MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 );
@@ -396,64 +394,6 @@ ALTER TABLE cqc."User_RegistrationID_seq" OWNER TO sfcadmin;
 
 ALTER SEQUENCE IF EXISTS cqc."User_RegistrationID_seq" OWNED BY cqc."User"."RegistrationID";
 
-
-
---
--- Name: location_cqcid_seq; Type: SEQUENCE; Schema: cqc; Owner: sfcadmin
---
-
-CREATE SEQUENCE IF NOT EXISTS cqc.location_cqcid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE cqc.location_cqcid_seq OWNER TO sfcadmin;
-
---
--- Name: location; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
---
-
-CREATE TABLE IF NOT EXISTS cqc.location (
-    cqcid integer DEFAULT nextval('cqc.location_cqcid_seq'::regclass) NOT NULL,
-    locationid text,
-    locationname text,
-    addressline1 text,
-    addressline2 text,
-    towncity text,
-    county text,
-    postalcode text,
-    mainservice text,
-    createdat timestamp without time zone NOT NULL,
-    updatedat timestamp without time zone,
-	CONSTRAINT location_pkey PRIMARY KEY (cqcid),
-	CONSTRAINT uniqlocationid UNIQUE (locationid)
-);
-
-
-ALTER TABLE cqc.location OWNER TO sfcadmin;
-
---
--- Name: pcodedata; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
---
-
-CREATE TABLE IF NOT EXISTS cqc.pcodedata (
-    uprn bigint,
-    sub_building_name character varying,
-    building_name character varying,
-    building_number character varying,
-    street_description character varying,
-    post_town character varying,
-    postcode character varying,
-    local_custodian_code bigint,
-    county character varying,
-    rm_organisation_name character varying
-);
-
-
-ALTER TABLE cqc.pcodedata OWNER TO sfcadmin;
 
 --
 -- Name: services; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
@@ -666,13 +606,6 @@ ALTER TABLE ONLY cqc."ServicesCapacity"
 --SET default_tablespace = sfcdevtbs_index;
 
 --
--- Name: Postcodedata_postcode_Idx; Type: INDEX; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_index
---
-
-CREATE INDEX IF NOT EXISTS "Postcodedata_postcode_Idx" ON cqc.pcodedata USING btree (postcode text_pattern_ops);
-
-
---
 -- Name: EstablishmentCapacity EstablishmentServiceCapacity_Establishment_fk1; Type: FK CONSTRAINT; Schema: cqc; Owner: postgres
 --
 
@@ -717,7 +650,7 @@ ALTER TABLE ONLY cqc."EstablishmentJobs"
 --
 
 ALTER TABLE ONLY cqc."Establishment"
-    ADD CONSTRAINT estloc_fk FOREIGN KEY ("LocationID") REFERENCES cqc.location(locationid);
+    ADD CONSTRAINT estloc_fk FOREIGN KEY ("LocationID") REFERENCES cqcref.location(locationid);
 
 
 --
@@ -1021,13 +954,6 @@ insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") va
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5930, 'WALTHAM FOREST');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5960, 'WANDSWORTH');
 insert into cqc."LocalAuthority" ("LocalCustodianCode", "LocalAuthorityName") values(5990, 'CITY OF WESTMINSTER');
-
-
--- removing the unnecessary location.cqcid and promoting location.locationid as primary key
---ALTER TABLE cqc.location DROP CONSTRAINT location_pkey;
---ALTER TABLE cqc.location DROP COLUMN cqcid ;
---ALTER TABLE cqc.location  add constraint locationid_PK PRIMARY KEY (locationid);
---ALTER TABLE cqc.location  add constraint locationid_Unq UNIQUE  (locationid);
 
 CREATE TYPE cqc.job_declaration AS ENUM (
     'None',
