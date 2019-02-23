@@ -1167,3 +1167,9 @@ ALTER TABLE cqc."User" ALTER COLUMN updatedby SET NOT NULL;
 
 -- and drop the now unused "DateCreated" column
 ALTER TABLE cqc."User" DROP COLUMN "DateCreated";
+
+-- https://trello.com/c/1f4RSnlu defect fix
+DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
+DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode", "LocationID");
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode") WHERE "LocationID" IS NULL;
