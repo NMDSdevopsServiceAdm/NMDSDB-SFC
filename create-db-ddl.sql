@@ -1170,14 +1170,8 @@ CREATE SEQUENCE IF NOT EXISTS cqc."PasswdResetTracking_seq"
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;CREATE SEQUENCE IF NOT EXISTS cqc.passwdresettracking_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
     CACHE 1;
-	
+    
 CREATE TABLE IF NOT EXISTS cqc."PasswdResetTracking" (
     "ID" INTEGER NOT NULL PRIMARY KEY,
 	"UserFK" INTEGER NOT NULL,
