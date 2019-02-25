@@ -15,7 +15,7 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
---fa
+--
 -- Name: cqc; Type: SCHEMA; Schema: -; Owner: sfcadmin
 --
 
@@ -54,6 +54,15 @@ ALTER TYPE cqc.job_type OWNER TO sfcadmin;
 
 SET default_with_oids = false;
 
+
+CREATE SEQUENCE IF NOT EXISTS cqc."NmdsID_seq"
+    AS integer
+    START WITH 1001000
+    INCREMENT BY 1
+    MINVALUE 1001000
+    MAXVALUE 9999999
+    CACHE 1;
+ALTER TABLE cqc."NmdsID_seq" OWNER TO sfcadmin;
 
 --
 -- Name: Establishment; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
@@ -268,12 +277,11 @@ CREATE TABLE IF NOT EXISTS cqc."Login" (
     "ID" integer NOT NULL,
     "RegistrationID" integer NOT NULL,
     "Username" character varying(120) NOT NULL,
-    "SecurityQuestion" character varying(255) NOT NULL,
-    "SecurityQuestionAnswer" character varying(255) NOT NULL,
     "Active" boolean NOT NULL,
     "InvalidAttempt" integer NOT NULL,
     "Hash" character varying(255),
-    "FirstLogin" timestamp(4) without time zone
+    "FirstLogin" timestamp(4) without time zone,
+    "PasswdLastChanged" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 
@@ -325,16 +333,42 @@ ALTER TABLE cqc."ServicesCapacity" OWNER TO sfcadmin;
 
 CREATE TABLE IF NOT EXISTS cqc."User" (
     "RegistrationID" integer NOT NULL,
-    "FullName" character varying(120) NOT NULL,
-    "JobTitle" character varying(255) NOT NULL,
-    "Email" character varying(255) NOT NULL,
-    "Phone" character varying(50) NOT NULL,
-    "DateCreated" timestamp without time zone NOT NULL,
     "EstablishmentID" integer NOT NULL,
-    "AdminUser" boolean NOT NULL
+    "FullNameValue" character varying(120) NOT NULL,
+    "FullNameSavedAt" TIMESTAMP NULL,
+    "FullNameChangedAt" TIMESTAMP NULL,
+    "FullNameSavedBy" VARCHAR(120) NULL,
+    "FullNameChangedBy" VARCHAR(120) NULL,
+    "JobTitleValue" character varying(255) NOT NULL,
+    "JobTitleSavedAt" TIMESTAMP NULL,
+    "JobTitleChangedAt" TIMESTAMP NULL,
+    "JobTitleSavedBy" VARCHAR(120) NULL,
+    "JobTitleChangedBy" VARCHAR(120) NULL,
+    "EmailValue" character varying(255) NOT NULL,
+    "EmailSavedAt" TIMESTAMP NULL,
+    "EmailChangedAt" TIMESTAMP NULL,
+    "EmailSavedBy" VARCHAR(120) NULL,
+    "EmailChangedBy" VARCHAR(120) NULL,
+    "PhoneValue" character varying(50) NOT NULL,
+    "PhoneSavedAt" TIMESTAMP NULL,
+    "PhoneChangedAt" TIMESTAMP NULL,
+    "PhoneSavedBy" VARCHAR(120) NULL,
+    "PhoneChangedBy" VARCHAR(120) NULL,
+    "SecurityQuestionValue" character varying(255),
+    "SecurityQuestionSavedAt" TIMESTAMP NULL,
+    "SecurityQuestionChangedAt" TIMESTAMP NULL,
+    "SecurityQuestionSavedBy" VARCHAR(120) NULL,
+    "SecurityQuestionChangedBy" VARCHAR(120) NULL,
+    "SecurityQuestionAnswerValue" character varying(255),
+    "SecurityQuestionAnswerSavedAt" TIMESTAMP NULL,
+    "SecurityQuestionAnswerChangedAt" TIMESTAMP NULL,
+    "SecurityQuestionAnswerSavedBy" VARCHAR(120) NULL,
+    "SecurityQuestionAnswerChangedBy" VARCHAR(120) NULL,
+    "AdminUser" boolean NOT NULL,
+    created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
+	updatedby VARCHAR(120) NOT NULL
 );
-
-
 ALTER TABLE cqc."User" OWNER TO sfcadmin;
 
 --
@@ -359,64 +393,6 @@ ALTER TABLE cqc."User_RegistrationID_seq" OWNER TO sfcadmin;
 ALTER SEQUENCE IF EXISTS cqc."User_RegistrationID_seq" OWNED BY cqc."User"."RegistrationID";
 
 
-
---
--- Name: location_cqcid_seq; Type: SEQUENCE; Schema: cqc; Owner: sfcadmin
---
-
-CREATE SEQUENCE IF NOT EXISTS cqc.location_cqcid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE cqc.location_cqcid_seq OWNER TO sfcadmin;
-
---
--- Name: location; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
---
-
-CREATE TABLE IF NOT EXISTS cqc.location (
-    cqcid integer DEFAULT nextval('cqc.location_cqcid_seq'::regclass) NOT NULL,
-    locationid text,
-    locationname text,
-    addressline1 text,
-    addressline2 text,
-    towncity text,
-    county text,
-    postalcode text,
-    mainservice text,
-    createdat timestamp without time zone NOT NULL,
-    updatedat timestamp without time zone,
-	CONSTRAINT location_pkey PRIMARY KEY (cqcid),
-	CONSTRAINT uniqlocationid UNIQUE (locationid)
-);
-
-
-ALTER TABLE cqc.location OWNER TO sfcadmin;
-
---
--- Name: pcodedata; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
---
-
-CREATE TABLE IF NOT EXISTS cqc.pcodedata (
-    uprn bigint,
-    sub_building_name character varying,
-    building_name character varying,
-    building_number character varying,
-    street_description character varying,
-    post_town character varying,
-    postcode character varying,
-    local_custodian_code bigint,
-    county character varying,
-    rm_organisation_name character varying
-);
-
-
-ALTER TABLE cqc.pcodedata OWNER TO sfcadmin;
-
 --
 -- Name: services; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
 --
@@ -426,7 +402,8 @@ CREATE TABLE IF NOT EXISTS cqc.services (
     name text,
     category text,
     iscqcregistered boolean,
-    ismain boolean DEFAULT true
+    ismain boolean DEFAULT true,
+    "reportingID" integer
 );
 
 
@@ -628,13 +605,6 @@ ALTER TABLE ONLY cqc."ServicesCapacity"
 --SET default_tablespace = sfcdevtbs_index;
 
 --
--- Name: Postcodedata_postcode_Idx; Type: INDEX; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_index
---
-
-CREATE INDEX IF NOT EXISTS "Postcodedata_postcode_Idx" ON cqc.pcodedata USING btree (postcode text_pattern_ops);
-
-
---
 -- Name: EstablishmentCapacity EstablishmentServiceCapacity_Establishment_fk1; Type: FK CONSTRAINT; Schema: cqc; Owner: postgres
 --
 
@@ -679,7 +649,7 @@ ALTER TABLE ONLY cqc."EstablishmentJobs"
 --
 
 ALTER TABLE ONLY cqc."Establishment"
-    ADD CONSTRAINT estloc_fk FOREIGN KEY ("LocationID") REFERENCES cqc.location(locationid);
+    ADD CONSTRAINT estloc_fk FOREIGN KEY ("LocationID") REFERENCES cqcref.location(locationid);
 
 
 --
@@ -759,44 +729,42 @@ ALTER TABLE cqc."Feedback"
 --
 
 ---- Services
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (1, 'Carers support', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (2, 'Community support and outreach', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (3, 'Disability adaptations / assistive technology services', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (4, 'Information and advice services', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (5, 'Occupational / employment-related services', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (6, 'Other adult community care service', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (7, 'Short breaks / respite care', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (8, 'Social work and care management', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (9, 'Day care and day services', 'Adult day', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (10, 'Other adult day care services', 'Adult day', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (11, 'Domestic services and home help', 'Adult domiciliary', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (12, 'Other adult residential care services', 'Adult residential', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (13, 'Sheltered housing', 'Adult residential', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (14, 'Any childrens / young peoples services', 'Other', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (15, 'Any other services', 'Other', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (16, 'Head office services', 'Other', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (17, 'Other healthcare service', 'Other', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (18, 'Other adult domiciliary care service', 'Adult domiciliary', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (19, 'Shared lives', 'Adult community care', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (20, 'Domiciliary care services', 'Adult domiciliary', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (21, 'Extra care housing services', 'Adult domiciliary', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (22, 'Nurses agency', 'Adult domiciliary', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (23, 'Supported living services', 'Adult domiciliary', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (26, 'Community based services for people who misuse substances', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (27, 'Community based services for people with a learning disability', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (28, 'Community based services for people with mental health needs', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (29, 'Community healthcare services', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (30, 'Hospice services', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (31, 'Hospital services for people with mental health needs, learning disabilities and/or problems with substance misuse', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (32, 'Long term conditions services', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (33, 'Rehabilitation services', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (34, 'Residential substance misuse treatment/ rehabilitation services', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (36, 'Specialist college services', 'Other', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (24, 'Care home services with nursing', 'Adult residential', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (25, 'Care home services without nursing', 'Adult residential', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (35, 'Live-in care', 'Other', 't', 'f');
-
-
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (1, 'Carers support', 'Adult community care', 'f', 't', 13);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (2, 'Community support and outreach', 'Adult community care', 'f', 't', 15);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (3, 'Disability adaptations / assistive technology services', 'Adult community care', 'f', 't', 18);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (4, 'Information and advice services', 'Adult community care', 'f', 't', 20);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (5, 'Occupational / employment-related services', 'Adult community care', 'f', 't', 19);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (6, 'Other adult community care service', 'Adult community care', 'f', 't', 21);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (7, 'Short breaks / respite care', 'Adult community care', 'f', 't', 14);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (8, 'Social work and care management', 'Adult community care', 'f', 't', 16);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (9, 'Day care and day services', 'Adult day', 'f', 't', 6);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (10, 'Other adult day care services', 'Adult day', 'f', 't', 7);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (11, 'Domestic services and home help', 'Adult domiciliary', 'f', 't', 10);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (12, 'Other adult residential care services', 'Adult residential', 'f', 't', 5);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (13, 'Sheltered housing', 'Adult residential', 'f', 't', 53);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (14, 'Any childrens / young peoples services', 'Other', 'f', 't', 76);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (15, 'Any other services', 'Other', 'f', 't', 52);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (16, 'Head office services', 'Other', 'f', 't', 72);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (17, 'Other healthcare service', 'Other', 'f', 't', 71);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (18, 'Other adult domiciliary care service', 'Adult domiciliary', 'f', 't', 12);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (19, 'Shared lives', 'Adult community care', 't', 't', 17);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (20, 'Domiciliary care services', 'Adult domiciliary', 't', 't', 8);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (21, 'Extra care housing services', 'Adult domiciliary', 't', 't', 54);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (22, 'Nurses agency', 'Adult domiciliary', 't', 't', 77);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (23, 'Supported living services', 'Adult domiciliary', 't', 't', 55);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (26, 'Community based services for people who misuse substances', 'Healthcare', 't', 't', 63);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (27, 'Community based services for people with a learning disability', 'Healthcare', 't', 't', 61);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (28, 'Community based services for people with mental health needs', 'Healthcare', 't', 't', 62);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (29, 'Community healthcare services', 'Healthcare', 't', 't', 64);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (30, 'Hospice services', 'Healthcare', 't', 't', 66);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (31, 'Hospital services for people with mental health needs, learning disabilities and/or problems with substance misuse', 'Healthcare', 't', 't', 68);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (32, 'Long term conditions services', 'Healthcare', 't', 't', 67);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (33, 'Rehabilitation services', 'Healthcare', 't', 't', 69);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (34, 'Residential substance misuse treatment/ rehabilitation services', 'Healthcare', 't', 't', 70);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (36, 'Specialist college services', 'Other', 't', 't', 60);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (24, 'Care home services with nursing', 'Adult residential', 't', 't', 1);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (25, 'Care home services without nursing', 'Adult residential', 't', 't', 2);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (35, 'Live-in care', 'Other', 't', 'f', 73);
 
 ----Service Capacities
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (1, 24, 1, 'How many beds do you currently have?');
@@ -849,12 +817,6 @@ insert into cqc."Job" ("JobID", "JobName") values (28, 'Supervisor');
 insert into cqc."Job" ("JobID", "JobName") values (29, 'Technician');
 
 
--- removing the unnecessary location.cqcid and promoting location.locationid as primary key
---ALTER TABLE cqc.location DROP CONSTRAINT location_pkey;
---ALTER TABLE cqc.location DROP COLUMN cqcid ;
---ALTER TABLE cqc.location  add constraint locationid_PK PRIMARY KEY (locationid);
---ALTER TABLE cqc.location  add constraint locationid_Unq UNIQUE  (locationid);
-
 CREATE TYPE cqc.job_declaration AS ENUM (
     'None',
     'Don''t know',
@@ -868,8 +830,8 @@ ALTER TABLE cqc."Establishment" add column "Leavers" cqc.job_declaration NULL;
 -- https://trello.com/c/LgdigwUb - duplicate establishment
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
-CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode");
-CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode", "LocationID") WHERE "LocationID" IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode", "LocationID");
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode") WHERE "LocationID" IS NULL;
 
 
 INSERT INTO cqc."Cssr" ("CssrID", "CssR", "LocalAuthority", "LocalCustodianCode", "Region", "RegionID", "NmdsIDLetter") VALUES 
@@ -1200,50 +1162,179 @@ INSERT INTO cqc."Cssr" ("CssrID", "CssR", "LocalAuthority", "LocalCustodianCode"
 (416, 'Worcestershire', 'Wyre Forest', 1845, 'West Midlands', 8, 'E'),
 (219, 'York', 'York', 2741, 'Yorkshire and the Humber', 9, 'J');
 
-
-CREATE SEQUENCE IF NOT EXISTS cqc."NmdsID_seq"
+-- password reset - https://trello.com/c/isgnA7X5
+CREATE SEQUENCE IF NOT EXISTS cqc."PasswdResetTracking_seq"
     AS integer
-    START WITH 1001000
+    START WITH 1
     INCREMENT BY 1
-    MINVALUE 1001000
-    MAXVALUE 9999999
+    NO MINVALUE
+    NO MAXVALUE
     CACHE 1;
-ALTER TABLE cqc."NmdsID_seq" OWNER TO sfcadmin;
+    
+CREATE TABLE IF NOT EXISTS cqc."PasswdResetTracking" (
+    "ID" INTEGER NOT NULL PRIMARY KEY,
+	"UserFK" INTEGER NOT NULL,
+    "Created" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    "Expires" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW() + INTERVAL '24 hour',
+    "ResetUuid"  UUID NOT NULL,
+    "Completed" TIMESTAMP NULL,
+	CONSTRAINT "PasswdResetTracking_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+ALTER TABLE cqc."PasswdResetTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc.passwdresettracking_seq');
+ALTER TABLE cqc."PasswdResetTracking" OWNER TO sfcadmin;
 
--- new reporting id for services
-update cqc.services  set  "reportingID"=1	where id=24		;
-update cqc.services  set  "reportingID"=2	where id=25		;
-update cqc.services  set  "reportingID"=53	where id=13		;
-update cqc.services  set  "reportingID"=5	where id=12		;
-update cqc.services  set  "reportingID"=6	where id=9		;
-update cqc.services  set  "reportingID"=7	where id=10		;
-update cqc.services  set  "reportingID"=8	where id=20		;
-update cqc.services  set  "reportingID"=73	where id=35		;
-update cqc.services  set  "reportingID"=10	where id=11		;
-update cqc.services  set  "reportingID"=54	where id=21		;
-update cqc.services  set  "reportingID"=55	where id=23		;
-update cqc.services  set  "reportingID"=12	where id=18		;
-update cqc.services  set  "reportingID"=13	where id=1		;
-update cqc.services  set  "reportingID"=14	where id=7		;
-update cqc.services  set  "reportingID"=15	where id=2		;
-update cqc.services  set  "reportingID"=16	where id=8		;
-update cqc.services  set  "reportingID"=17	where id=19		;
-update cqc.services  set  "reportingID"=18	where id=3		;
-update cqc.services  set  "reportingID"=19	where id=5		;
-update cqc.services  set  "reportingID"=20	where id=4		;
-update cqc.services  set  "reportingID"=21	where id=6		;
-update cqc.services  set  "reportingID"=61	where id=27		;
-update cqc.services  set  "reportingID"=62	where id=28		;
-update cqc.services  set  "reportingID"=63	where id=26		;
-update cqc.services  set  "reportingID"=64	where id=29		;
-update cqc.services  set  "reportingID"=66	where id=30		;
-update cqc.services  set  "reportingID"=67	where id=32		;
-update cqc.services  set  "reportingID"=68	where id=31		;
-update cqc.services  set  "reportingID"=69	where id=33		;
-update cqc.services  set  "reportingID"=70	where id=34		;
-update cqc.services  set  "reportingID"=71	where id=17		;
-update cqc.services  set  "reportingID"=52	where id=15		;
-update cqc.services  set  "reportingID"=72	where id=16		;
-update cqc.services  set  "reportingID"=60	where id=36		;
-update cqc.services  set  "reportingID"=76	where id=14		;
-update cqc.services  set  "reportingID"=77	where id=22		;
+
+CREATE TYPE cqc."UserAuditChangeType" AS ENUM (
+    'created',
+    'updated',
+    'saved',
+    'changed',
+    'passwdReset',
+    'loginSuccess',
+    'loginFailed',
+    'loginWhileLocked'
+);
+CREATE TABLE IF NOT EXISTS cqc."UserAudit" (
+	"ID" SERIAL NOT NULL PRIMARY KEY,
+	"UserFK" INTEGER NOT NULL,
+	"Username" VARCHAR(120) NOT NULL,
+	"When" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+	"EventType" cqc."UserAuditChangeType" NOT NULL,
+	"PropertyName" VARCHAR(100) NULL,
+	"ChangeEvents" JSONB NULL,
+	CONSTRAINT "WorkerAudit_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+CREATE INDEX "UserAudit_UserFK" on cqc."UserAudit" ("UserFK");
+
+-- DB Patch Schema for https://trello.com/c/pByUKSW3
+DROP TABLE IF EXISTS  cqc."WorkerAudit";
+DROP TYPE IF EXISTS cqc."WorkerAuditChangeType";
+CREATE TYPE cqc."WorkerAuditChangeType" AS ENUM (
+	'created',
+	'updated',
+	'saved',
+	'changed'
+);
+CREATE TABLE IF NOT EXISTS cqc."WorkerAudit" (
+	"ID" SERIAL NOT NULL PRIMARY KEY,
+	"WorkerFK" INTEGER NOT NULL,
+	"Username" VARCHAR(120) NOT NULL,
+	"When" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+	"EventType" cqc."WorkerAuditChangeType" NOT NULL,
+	"PropertyName" VARCHAR(100) NULL,
+	"ChangeEvents" JSONB NULL,
+	CONSTRAINT "WorkerAudit_Worker_fk" FOREIGN KEY ("WorkerFK") REFERENCES cqc."Worker" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+CREATE INDEX "WorkerAudit_WorkerFK" on cqc."WorkerAudit" ("WorkerFK");
+
+ALTER TABLE cqc."Login" ADD COLUMN "PasswdLastChanged" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
+
+CREATE SEQUENCE IF NOT EXISTS cqc."PasswdResetTracking_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+    
+CREATE TABLE IF NOT EXISTS cqc."PasswdResetTracking" (
+    "ID" INTEGER NOT NULL PRIMARY KEY,
+	"UserFK" INTEGER NOT NULL,
+    "Created" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    "Expires" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW() + INTERVAL '24 hour',
+    "ResetUuid"  UUID NOT NULL,
+    "Completed" TIMESTAMP NULL,
+	CONSTRAINT "PasswdResetTracking_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+ALTER TABLE cqc."PasswdResetTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc."PasswdResetTracking_seq"');
+
+
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestion" character varying(255) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswer" character varying(255) NULL;
+-- migrate security question/answer from Login to User
+UPDATE
+	cqc."User"
+SET
+	"SecurityQuestion" = login."SecurityQuestion",
+    "SecurityQuestionAnswer" = login."SecurityQuestionAnswer"	
+FROM
+	cqc."Login" as login
+WHERE
+	login."RegistrationID" = "User"."RegistrationID";
+-- note - the security question/answer are not mandatory (later task to add users means they must be left null) so leave them nullable
+-- and now drop the columns from Login
+ALTER TABLE cqc."Login" DROP COLUMN "SecurityQuestion";
+ALTER TABLE cqc."Login" DROP COLUMN "SecurityQuestionAnswer";
+
+-- and now rename the User columns ready for Extended Change Properties
+ALTER TABLE cqc."User" RENAME "FullName" TO "FullNameValue";
+ALTER TABLE cqc."User" RENAME "JobTitle" TO "JobTitleValue";
+ALTER TABLE cqc."User" RENAME "Email" TO "EmailValue";
+ALTER TABLE cqc."User" RENAME "Phone" TO "PhoneValue";
+ALTER TABLE cqc."User" RENAME "SecurityQuestion" TO "SecurityQuestionValue";
+ALTER TABLE cqc."User" RENAME "SecurityQuestionAnswer" TO "SecurityQuestionAnswerValue";
+
+-- and now add the additional the User columns ready for Extended Change Properties
+ALTER TABLE cqc."User" ADD COLUMN "FullNameSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "FullNameChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "FullNameSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "FullNameChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "JobTitleSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "JobTitleChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "JobTitleSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "JobTitleChangedBy" VARCHAR(120) ==NULL;
+ALTER TABLE cqc."User" ADD COLUMN "EmailSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "EmailChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "EmailSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "EmailChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "PhoneSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "PhoneChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "PhoneSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "PhoneChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswerChangedBy" VARCHAR(120) NULL;
+
+
+-- add the created/updated/updatedBy columns
+ALTER TABLE cqc."User" ADD COLUMN created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
+ALTER TABLE cqc."User" ADD COLUMN updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
+ALTER TABLE cqc."User" ADD COLUMN updatedby VARCHAR(120) NULL;
+UPDATE cqc."User" set updatedby='admin';                            -- cannot be null, so setting a default value on apply patch
+ALTER TABLE cqc."User" ALTER COLUMN updatedby SET NOT NULL;
+
+-- and drop the now unused "DateCreated" column
+ALTER TABLE cqc."User" DROP COLUMN "DateCreated";
+
+CREATE TYPE cqc."UserAuditChangeType" AS ENUM (
+    'created',
+    'updated',
+    'saved',
+    'changed',
+    'passwdReset',
+    'loginSuccess',
+    'loginFailed',
+    'loginWhileLocked'
+);
+CREATE TABLE IF NOT EXISTS cqc."UserAudit" (
+	"ID" SERIAL NOT NULL PRIMARY KEY,
+	"UserFK" INTEGER NOT NULL,
+	"Username" VARCHAR(120) NOT NULL,
+	"When" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+	"EventType" cqc."UserAuditChangeType" NOT NULL,
+	"PropertyName" VARCHAR(100) NULL,
+	"ChangeEvents" JSONB NULL,
+	CONSTRAINT "WorkerAudit_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+CREATE INDEX "UserAudit_UserFK" on cqc."UserAudit" ("UserFK");
+
+-- https://trello.com/c/1f4RSnlu defect fix
+DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
+DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode", "LocationID");
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode") WHERE "LocationID" IS NULL;
