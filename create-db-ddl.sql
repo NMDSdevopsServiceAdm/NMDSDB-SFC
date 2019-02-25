@@ -345,12 +345,12 @@ CREATE TABLE IF NOT EXISTS cqc."User" (
     "PhoneChangedAt" TIMESTAMP NULL,
     "PhoneSavedBy" VARCHAR(120) NULL,
     "PhoneChangedBy" VARCHAR(120) NULL,
-    "SecurityQuestionValue" character varying(255) NOT NULL,
+    "SecurityQuestionValue" character varying(255),
     "SecurityQuestionSavedAt" TIMESTAMP NULL,
     "SecurityQuestionChangedAt" TIMESTAMP NULL,
     "SecurityQuestionSavedBy" VARCHAR(120) NULL,
     "SecurityQuestionChangedBy" VARCHAR(120) NULL,
-    "SecurityQuestionAnswerValue" character varying(255) NOT NULL,
+    "SecurityQuestionAnswerValue" character varying(255),
     "SecurityQuestionAnswerSavedAt" TIMESTAMP NULL,
     "SecurityQuestionAnswerChangedAt" TIMESTAMP NULL,
     "SecurityQuestionAnswerSavedBy" VARCHAR(120) NULL,
@@ -1243,9 +1243,7 @@ FROM
 	cqc."Login" as login
 WHERE
 	login."RegistrationID" = "User"."RegistrationID";
--- having migrated the security questions/answers, make the target columns NOT NULL
-ALTER TABLE cqc."User" ALTER COLUMN "SecurityQuestion" SET NOT NULL;
-ALTER TABLE cqc."User" ALTER COLUMN "SecurityQuestionAnswer" SET NOT NULL;
+-- note - the security question/answer are not mandatory (later task to add users means they must be left null) so leave them nullable
 -- and now drop the columns from Login
 ALTER TABLE cqc."Login" DROP COLUMN "SecurityQuestion";
 ALTER TABLE cqc."Login" DROP COLUMN "SecurityQuestionAnswer";
