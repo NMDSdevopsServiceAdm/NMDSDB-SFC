@@ -15,7 +15,7 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
---fa
+--
 -- Name: cqc; Type: SCHEMA; Schema: -; Owner: sfcadmin
 --
 
@@ -54,6 +54,15 @@ ALTER TYPE cqc.job_type OWNER TO sfcadmin;
 
 SET default_with_oids = false;
 
+
+CREATE SEQUENCE IF NOT EXISTS cqc."NmdsID_seq"
+    AS integer
+    START WITH 1001000
+    INCREMENT BY 1
+    MINVALUE 1001000
+    MAXVALUE 9999999
+    CACHE 1;
+ALTER TABLE cqc."NmdsID_seq" OWNER TO sfcadmin;
 
 --
 -- Name: Establishment; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
@@ -393,7 +402,8 @@ CREATE TABLE IF NOT EXISTS cqc.services (
     name text,
     category text,
     iscqcregistered boolean,
-    ismain boolean DEFAULT true
+    ismain boolean DEFAULT true,
+    "reportingID" integer
 );
 
 
@@ -719,44 +729,42 @@ ALTER TABLE cqc."Feedback"
 --
 
 ---- Services
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (1, 'Carers support', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (2, 'Community support and outreach', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (3, 'Disability adaptations / assistive technology services', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (4, 'Information and advice services', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (5, 'Occupational / employment-related services', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (6, 'Other adult community care service', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (7, 'Short breaks / respite care', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (8, 'Social work and care management', 'Adult community care', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (9, 'Day care and day services', 'Adult day', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (10, 'Other adult day care services', 'Adult day', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (11, 'Domestic services and home help', 'Adult domiciliary', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (12, 'Other adult residential care services', 'Adult residential', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (13, 'Sheltered housing', 'Adult residential', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (14, 'Any childrens / young peoples services', 'Other', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (15, 'Any other services', 'Other', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (16, 'Head office services', 'Other', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (17, 'Other healthcare service', 'Other', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (18, 'Other adult domiciliary care service', 'Adult domiciliary', 'f', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (19, 'Shared lives', 'Adult community care', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (20, 'Domiciliary care services', 'Adult domiciliary', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (21, 'Extra care housing services', 'Adult domiciliary', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (22, 'Nurses agency', 'Adult domiciliary', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (23, 'Supported living services', 'Adult domiciliary', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (26, 'Community based services for people who misuse substances', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (27, 'Community based services for people with a learning disability', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (28, 'Community based services for people with mental health needs', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (29, 'Community healthcare services', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (30, 'Hospice services', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (31, 'Hospital services for people with mental health needs, learning disabilities and/or problems with substance misuse', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (32, 'Long term conditions services', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (33, 'Rehabilitation services', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (34, 'Residential substance misuse treatment/ rehabilitation services', 'Healthcare', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (36, 'Specialist college services', 'Other', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (24, 'Care home services with nursing', 'Adult residential', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (25, 'Care home services without nursing', 'Adult residential', 't', 't');
-insert into cqc.services (id, name, category, iscqcregistered, ismain) values (35, 'Live-in care', 'Other', 't', 'f');
-
-
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (1, 'Carers support', 'Adult community care', 'f', 't', 13);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (2, 'Community support and outreach', 'Adult community care', 'f', 't', 15);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (3, 'Disability adaptations / assistive technology services', 'Adult community care', 'f', 't', 18);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (4, 'Information and advice services', 'Adult community care', 'f', 't', 20);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (5, 'Occupational / employment-related services', 'Adult community care', 'f', 't', 19);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (6, 'Other adult community care service', 'Adult community care', 'f', 't', 21);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (7, 'Short breaks / respite care', 'Adult community care', 'f', 't', 14);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (8, 'Social work and care management', 'Adult community care', 'f', 't', 16);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (9, 'Day care and day services', 'Adult day', 'f', 't', 6);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (10, 'Other adult day care services', 'Adult day', 'f', 't', 7);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (11, 'Domestic services and home help', 'Adult domiciliary', 'f', 't', 10);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (12, 'Other adult residential care services', 'Adult residential', 'f', 't', 5);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (13, 'Sheltered housing', 'Adult residential', 'f', 't', 53);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (14, 'Any childrens / young peoples services', 'Other', 'f', 't', 76);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (15, 'Any other services', 'Other', 'f', 't', 52);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (16, 'Head office services', 'Other', 'f', 't', 72);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (17, 'Other healthcare service', 'Other', 'f', 't', 71);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (18, 'Other adult domiciliary care service', 'Adult domiciliary', 'f', 't', 12);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (19, 'Shared lives', 'Adult community care', 't', 't', 17);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (20, 'Domiciliary care services', 'Adult domiciliary', 't', 't', 8);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (21, 'Extra care housing services', 'Adult domiciliary', 't', 't', 54);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (22, 'Nurses agency', 'Adult domiciliary', 't', 't', 77);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (23, 'Supported living services', 'Adult domiciliary', 't', 't', 55);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (26, 'Community based services for people who misuse substances', 'Healthcare', 't', 't', 63);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (27, 'Community based services for people with a learning disability', 'Healthcare', 't', 't', 61);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (28, 'Community based services for people with mental health needs', 'Healthcare', 't', 't', 62);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (29, 'Community healthcare services', 'Healthcare', 't', 't', 64);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (30, 'Hospice services', 'Healthcare', 't', 't', 66);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (31, 'Hospital services for people with mental health needs, learning disabilities and/or problems with substance misuse', 'Healthcare', 't', 't', 68);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (32, 'Long term conditions services', 'Healthcare', 't', 't', 67);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (33, 'Rehabilitation services', 'Healthcare', 't', 't', 69);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (34, 'Residential substance misuse treatment/ rehabilitation services', 'Healthcare', 't', 't', 70);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (36, 'Specialist college services', 'Other', 't', 't', 60);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (24, 'Care home services with nursing', 'Adult residential', 't', 't', 1);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (25, 'Care home services without nursing', 'Adult residential', 't', 't', 2);
+insert into cqc.services (id, name, category, iscqcregistered, ismain, reportingID) values (35, 'Live-in care', 'Other', 't', 'f', 73);
 
 ----Service Capacities
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (1, 24, 1, 'How many beds do you currently have?');
@@ -1153,15 +1161,6 @@ INSERT INTO cqc."Cssr" ("CssrID", "CssR", "LocalAuthority", "LocalCustodianCode"
 (323, 'Lancashire', 'Wyre', 2370, 'North West', 5, 'F'),
 (416, 'Worcestershire', 'Wyre Forest', 1845, 'West Midlands', 8, 'E'),
 (219, 'York', 'York', 2741, 'Yorkshire and the Humber', 9, 'J');
-
-
-CREATE SEQUENCE IF NOT EXISTS cqc."NmdsID_seq"
-    AS integer
-    START WITH 1001000
-    INCREMENT BY 1
-    MINVALUE 1001000
-    MAXVALUE 9999999
-    CACHE 1;
 
 -- password reset - https://trello.com/c/isgnA7X5
 CREATE SEQUENCE IF NOT EXISTS cqc."PasswdResetTracking_seq"

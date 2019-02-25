@@ -7,4 +7,3 @@ alter table cqc.pcodedata set schema cqcref;
 alter table cqc.location set schema cqcref;
 
 
-
