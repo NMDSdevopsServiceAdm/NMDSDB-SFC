@@ -1230,7 +1230,26 @@ CREATE INDEX "WorkerAudit_WorkerFK" on cqc."WorkerAudit" ("WorkerFK");
 
 ALTER TABLE cqc."Login" ADD COLUMN "PasswdLastChanged" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
 
--- DB Patch Schema for https://trello.com/c/pByUKSW3
+CREATE SEQUENCE IF NOT EXISTS cqc."PasswdResetTracking_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+    
+CREATE TABLE IF NOT EXISTS cqc."PasswdResetTracking" (
+    "ID" INTEGER NOT NULL PRIMARY KEY,
+	"UserFK" INTEGER NOT NULL,
+    "Created" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    "Expires" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW() + INTERVAL '24 hour',
+    "ResetUuid"  UUID NOT NULL,
+    "Completed" TIMESTAMP NULL,
+	CONSTRAINT "PasswdResetTracking_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+ALTER TABLE cqc."PasswdResetTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc."PasswdResetTracking_seq"');
+
+
 ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestion" character varying(255) NULL;
 ALTER TABLE cqc."User" ADD COLUMN "SecurityQuestionAnswer" character varying(255) NULL;
 -- migrate security question/answer from Login to User
@@ -1292,6 +1311,28 @@ ALTER TABLE cqc."User" ALTER COLUMN updatedby SET NOT NULL;
 
 -- and drop the now unused "DateCreated" column
 ALTER TABLE cqc."User" DROP COLUMN "DateCreated";
+
+CREATE TYPE cqc."UserAuditChangeType" AS ENUM (
+    'created',
+    'updated',
+    'saved',
+    'changed',
+    'passwdReset',
+    'loginSuccess',
+    'loginFailed',
+    'loginWhileLocked'
+);
+CREATE TABLE IF NOT EXISTS cqc."UserAudit" (
+	"ID" SERIAL NOT NULL PRIMARY KEY,
+	"UserFK" INTEGER NOT NULL,
+	"Username" VARCHAR(120) NOT NULL,
+	"When" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+	"EventType" cqc."UserAuditChangeType" NOT NULL,
+	"PropertyName" VARCHAR(100) NULL,
+	"ChangeEvents" JSONB NULL,
+	CONSTRAINT "WorkerAudit_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+CREATE INDEX "UserAudit_UserFK" on cqc."UserAudit" ("UserFK");
 
 -- https://trello.com/c/1f4RSnlu defect fix
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
