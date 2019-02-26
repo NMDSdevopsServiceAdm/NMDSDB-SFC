@@ -1205,9 +1205,9 @@ CREATE TABLE IF NOT EXISTS cqc."UserAudit" (
 	CONSTRAINT "WorkerAudit_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 CREATE INDEX "UserAudit_UserFK" on cqc."UserAudit" ("UserFK");
-
 -- DB Patch Schema for https://trello.com/c/pByUKSW3
 DROP TABLE IF EXISTS  cqc."WorkerAudit";
+DROP TYPE IF EXISTS cqc."AuditChangeType";
 DROP TYPE IF EXISTS cqc."WorkerAuditChangeType";
 CREATE TYPE cqc."WorkerAuditChangeType" AS ENUM (
 	'created',
@@ -1282,7 +1282,7 @@ ALTER TABLE cqc."User" ADD COLUMN "FullNameChangedBy" VARCHAR(120) NULL;
 ALTER TABLE cqc."User" ADD COLUMN "JobTitleSavedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."User" ADD COLUMN "JobTitleChangedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."User" ADD COLUMN "JobTitleSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."User" ADD COLUMN "JobTitleChangedBy" VARCHAR(120) ==NULL;
+ALTER TABLE cqc."User" ADD COLUMN "JobTitleChangedBy" VARCHAR(120);
 ALTER TABLE cqc."User" ADD COLUMN "EmailSavedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."User" ADD COLUMN "EmailChangedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."User" ADD COLUMN "EmailSavedBy" VARCHAR(120) NULL;
