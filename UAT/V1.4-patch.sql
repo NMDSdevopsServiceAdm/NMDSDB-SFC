@@ -1,23 +1,6 @@
 -- this is an accummulative patch sql file that will be built up on each successive deployment in to sfctstdb
 --  making it easier to apply patches to UAT DB after multiple deploys into sfctstdb
 
--- https://trello.com/c/d4uwAajW - Vacancies/Starters/Leavers: Need to record the 'I have no ...... answer
-CREATE TYPE cqc.job_declaration AS ENUM (
-    'None',
-    'Don''t know',
-	'With Jobs'
-);
-ALTER TABLE cqc."Establishment" add column "Vacancies" cqc.job_declaration NULL;
-ALTER TABLE cqc."Establishment" add column "Starters" cqc.job_declaration NULL;
-ALTER TABLE cqc."Establishment" add column "Leavers" cqc.job_declaration NULL;
-
--- https://trello.com/c/LgdigwUb - duplicate establishment - superseeded by subsequent patch below
---DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
---DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
---CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode");
---CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode", "LocationID") WHERE "LocationID" IS NOT NULL;
-
-
 --- to apply DB patach for https://trello.com/c/BqSXEWI5
 ALTER TABLE cqc."EstablishmentLocalAuthority" DROP CONSTRAINT localauthrity_establishmentlocalauthority_fk;
 DROP TABLE cqc."LocalAuthority";
@@ -254,3 +237,25 @@ DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
 CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode", "LocationID");
 CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode") WHERE "LocationID" IS NULL;
+
+-- DB Patch Schema - https://trello.com/c/pByUKSW3 - add UUID to User
+ALTER TABLE cqc."User" ADD COLUMN "UserUID" UUID NULL;
+
+-- unfortunately, without the postgres extension "uuid-ossp", need an alternative method to
+--  update existing User records with UUID
+UPDATE
+	cqc."User" 
+SET
+	"UserUID" = "USER_UUID"."UIDv4"
+FROM (
+	SELECT CAST(substr(CAST(myuuids."UID" AS TEXT), 0, 15) || '4' || substr(CAST(myuuids."UID" AS TEXT), 16, 3) || '-89' || substr(CAST(myuuids."UID" AS TEXT), 22, 36) AS UUID) "UIDv4", "RegID"
+    FROM (
+        SELECT uuid_in(md5(random()::text || clock_timestamp()::text)::cstring) "UID",
+                "User"."RegistrationID" "RegID"
+        FROM cqc."User", cqc."Login"
+        WHERE "User"."RegistrationID" = "Login"."RegistrationID"
+	) AS MyUUIDs
+) AS "USER_UUID"
+WHERE "USER_UUID"."RegID" = "User"."RegistrationID";
+
+ALTER TABLE cqc."User" ALTER COLUMN "UserUID" SET NOT NULL;
