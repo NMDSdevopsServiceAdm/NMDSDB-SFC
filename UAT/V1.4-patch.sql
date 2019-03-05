@@ -259,3 +259,7 @@ FROM (
 WHERE "USER_UUID"."RegID" = "User"."RegistrationID";
 
 ALTER TABLE cqc."User" ALTER COLUMN "UserUID" SET NOT NULL;
+
+-- DB Patch Schema - https://trello.com/c/MtKBV9EP
+ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (generic/other)';
+ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (adult services)';
