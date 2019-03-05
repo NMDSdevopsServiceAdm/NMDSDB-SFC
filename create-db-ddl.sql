@@ -31,9 +31,7 @@ ALTER SCHEMA cqc OWNER TO sfcadmin;
 CREATE TYPE cqc.est_employertype_enum AS ENUM (
     'Private Sector',
     'Voluntary / Charity',
-    'Other',
-    'Local Authority (generic/other)',
-    'Local Authority (adult services)'
+    'Other'
 );
 
 ALTER TYPE cqc.est_employertype_enum OWNER TO sfcadmin;
@@ -1207,7 +1205,3 @@ CREATE TABLE IF NOT EXISTS cqc."UserAudit" (
 	CONSTRAINT "WorkerAudit_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 CREATE INDEX "UserAudit_UserFK" on cqc."UserAudit" ("UserFK");
-
--- DB Patch Schema - https://trello.com/c/MtKBV9EP
-ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (generic/other)';
-ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (adult services)';
