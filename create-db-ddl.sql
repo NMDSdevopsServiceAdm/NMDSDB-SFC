@@ -31,9 +31,10 @@ ALTER SCHEMA cqc OWNER TO sfcadmin;
 CREATE TYPE cqc.est_employertype_enum AS ENUM (
     'Private Sector',
     'Voluntary / Charity',
-    'Other'
+    'Other',
+    'Local Authority (generic/other)',
+    'Local Authority (adult services)'
 );
-
 
 ALTER TYPE cqc.est_employertype_enum OWNER TO sfcadmin;
 
@@ -1207,24 +1208,6 @@ CREATE TABLE IF NOT EXISTS cqc."UserAudit" (
 );
 CREATE INDEX "UserAudit_UserFK" on cqc."UserAudit" ("UserFK");
 
--- DB Patch Schema - https://trello.com/c/pByUKSW3 - add UUID to User
-ALTER TABLE cqc."User" ADD COLUMN "UserUID" UUID NULL;
-
--- unfortunately, without the postgres extension "uuid-ossp", need an alternative method to
---  update existing User records with UUID
-UPDATE
-	cqc."User" 
-SET
-	"UserUID" = "USER_UUID"."UIDv4"
-FROM (
-	SELECT CAST(substr(CAST(myuuids."UID" AS TEXT), 0, 15) || '4' || substr(CAST(myuuids."UID" AS TEXT), 16, 3) || '-89' || substr(CAST(myuuids."UID" AS TEXT), 22, 36) AS UUID) "UIDv4", "RegID"
-    FROM (
-        SELECT uuid_in(md5(random()::text || clock_timestamp()::text)::cstring) "UID",
-                "User"."RegistrationID" "RegID"
-        FROM cqc."User", cqc."Login"
-        WHERE "User"."RegistrationID" = "Login"."RegistrationID"
-	) AS MyUUIDs
-) AS "USER_UUID"
-WHERE "USER_UUID"."RegID" = "User"."RegistrationID";
-
-ALTER TABLE cqc."User" ALTER COLUMN "UserUID" SET NOT NULL;
+-- DB Patch Schema - https://trello.com/c/MtKBV9EP
+ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (generic/other)';
+ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (adult services)';
