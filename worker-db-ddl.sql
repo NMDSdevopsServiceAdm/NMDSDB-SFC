@@ -829,7 +829,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"HighestQualificationFKChangedAt" TIMESTAMP NULL,
 	"HighestQualificationFKSavedBy" VARCHAR(120) NULL,
 	"HighestQualificationFKChangedBy" VARCHAR(120) NULL,
-	"CompletedValue" BOOLEAN NULL,
+	"CompletedValue" BOOLEAN NULL DEFAULT false,
 	"CompletedSavedAt" TIMESTAMP NULL,
 	"CompletedChangedAt" TIMESTAMP NULL,
 	"CompletedSavedBy" VARCHAR(120) NULL,
