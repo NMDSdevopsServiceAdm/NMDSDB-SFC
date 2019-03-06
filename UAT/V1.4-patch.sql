@@ -263,3 +263,10 @@ ALTER TABLE cqc."User" ALTER COLUMN "UserUID" SET NOT NULL;
 -- DB Patch Schema - https://trello.com/c/MtKBV9EP
 ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (generic/other)';
 ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (adult services)';
+
+-- DB patch schema - https://trello.com/c/ZGbjl37J
+ALTER TABLE cqc."Worker" ADD COLUMN "CompletedValue" BOOLEAN NULL DEFAULT false;
+ALTER TABLE cqc."Worker" ADD COLUMN "CompletedSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "CompletedChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "CompletedSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "CompletedChangedBy" VARCHAR(120) NULL;
