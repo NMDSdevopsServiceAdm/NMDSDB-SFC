@@ -880,3 +880,7 @@ CREATE TABLE IF NOT EXISTS cqc."WorkerJobs" (
 );
 CREATE INDEX "WorkerJobs_WorkerFK" on cqc."WorkerJobs" ("WorkerFK");
 CREATE INDEX "WorkerJobs_JobFK" on cqc."WorkerJobs" ("JobFK");
+
+-- DB Patch Schema - https://trello.com/c/ZPK4AF4o
+ALTER TYPE cqc."WorkerAuditChangeType" ADD VALUE 'deleted';
+ALTER TABLE cqc."Worker" ADD COLUMN "Archived" BOOLEAN NOT NULL DEFAULT false;

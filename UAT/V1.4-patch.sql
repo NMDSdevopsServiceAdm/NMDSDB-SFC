@@ -270,3 +270,6 @@ ALTER TABLE cqc."Worker" ADD COLUMN "CompletedSavedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "CompletedChangedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "CompletedSavedBy" VARCHAR(120) NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "CompletedChangedBy" VARCHAR(120) NULL;
+
+-- DB Patch Schema - https://trello.com/c/ZPK4AF4o
+ALTER TYPE cqc.WorkerAuditChangeType ADD VALUE 'deleted';
