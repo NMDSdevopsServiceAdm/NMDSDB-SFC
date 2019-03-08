@@ -471,18 +471,6 @@ INSERT INTO cqc."Country" ("ID", "Seq", "Country") VALUES
 	(92,92, 'Guinea-Bissau'),
 	(93,93, 'Guyana'),
 	(94,94, 'Haiti'),
-	(95,95, 'Gibraltar'),
-	(96,96, 'Greece'),
-	(97,97, 'Greenland'),
-	(98,98, 'Grenada'),
-	(99,99, 'Guadeloupe'),
-	(100,100, 'Guam'),
-	(101,101, 'Guatemala'),
-	(102,102, 'Guernsey'),
-	(103,103, 'Guinea'),
-	(104,104, 'Guinea-Bissau'),
-	(105,105, 'Guyana'),
-	(106,106, 'Haiti'),
 	(107,107, 'Heard Island and McDonald Islands'),
 	(108,108, 'Holy See (Vatican City State)'),
 	(109,109, 'Honduras'),
@@ -881,6 +869,11 @@ CREATE TABLE IF NOT EXISTS cqc."WorkerJobs" (
 CREATE INDEX "WorkerJobs_WorkerFK" on cqc."WorkerJobs" ("WorkerFK");
 CREATE INDEX "WorkerJobs_JobFK" on cqc."WorkerJobs" ("JobFK");
 
--- DB Patch Schema - https://trello.com/c/ZPK4AF4o
-ALTER TYPE cqc."WorkerAuditChangeType" ADD VALUE 'deleted';
-ALTER TABLE cqc."Worker" ADD COLUMN "Archived" BOOLEAN NOT NULL DEFAULT false;
+-- patch sql - https://trello.com/c/GHtE5neB
+update
+	cqc."Worker"
+set
+	"CountryOfBirthOtherFK" = "CountryOfBirthOtherFK" - 12
+where "CountryOfBirthOtherFK" >= 95 and "CountryOfBirthOtherFK" <= 106
+
+delete from cqc."Country" where "ID" >= 95 and "ID" <= 105;
