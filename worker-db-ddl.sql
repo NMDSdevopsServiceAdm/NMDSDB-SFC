@@ -825,6 +825,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
 	updatedby VARCHAR(120) NOT NULL,
+	"Archived" BOOLEAN NOT NULL DEFAULT false,
   	CONSTRAINT "Worker_Establishment_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT "Worker_Job_mainjob_fk" FOREIGN KEY ("MainJobFKValue") REFERENCES cqc."Job" ("JobID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT "Worker_ethnicity_fk" FOREIGN KEY ("EthnicityFKValue") REFERENCES cqc."Ethnicity" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
@@ -844,7 +845,8 @@ CREATE TYPE cqc."WorkerAuditChangeType" AS ENUM (
 	'created',
 	'updated',
 	'saved',
-	'changed'
+	'changed',
+	'deleted'
 );
 CREATE TABLE IF NOT EXISTS cqc."WorkerAudit" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,
@@ -869,19 +871,6 @@ CREATE TABLE IF NOT EXISTS cqc."WorkerJobs" (
 CREATE INDEX "WorkerJobs_WorkerFK" on cqc."WorkerJobs" ("WorkerFK");
 CREATE INDEX "WorkerJobs_JobFK" on cqc."WorkerJobs" ("JobFK");
 
--- patch sql - https://trello.com/c/GHtE5neB
-update
-	cqc."Worker"
-set
-	"CountryOfBirthOtherFK" = "CountryOfBirthOtherFK" - 12
-where "CountryOfBirthOtherFK" >= 95 and "CountryOfBirthOtherFK" <= 106
-
-delete from cqc."Country" where "ID" >= 95 and "ID" <= 105;
-
--- patch for - https://trello.com/c/GOK4oZ0E
-update
-	cqc."Country"
-set
-	"Country" = 'Zimbabwe'
-where
-	"ID" = 257
+-- DB Patch Schema - https://trello.com/c/ZPK4AF4o
+ALTER TYPE cqc."WorkerAuditChangeType" ADD VALUE 'deleted';
+ALTER TABLE cqc."Worker" ADD COLUMN "Archived" BOOLEAN NOT NULL DEFAULT false;
