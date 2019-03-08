@@ -620,7 +620,7 @@ INSERT INTO cqc."Country" ("ID", "Seq", "Country") VALUES
 	(254,254, 'Western Sahara'),
 	(255,255, 'Yemen'),
 	(256,256, 'Zambia'),
-	(257,257, 'Zimbabwe ');
+	(257,257, 'Zimbabwe');
 
 -- "Recruited From" Reference Data
 CREATE TABLE IF NOT EXISTS cqc."RecruitedFrom" (
@@ -877,3 +877,11 @@ set
 where "CountryOfBirthOtherFK" >= 95 and "CountryOfBirthOtherFK" <= 106
 
 delete from cqc."Country" where "ID" >= 95 and "ID" <= 105;
+
+-- patch for - https://trello.com/c/GOK4oZ0E
+update
+	cqc."Country"
+set
+	"Country" = 'Zimbabwe'
+where
+	"ID" = 257
