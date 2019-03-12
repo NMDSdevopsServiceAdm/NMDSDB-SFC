@@ -533,3 +533,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locati
 update cqc."Job"
 set "JobName" = 'Technician'
 where "JobID" = 29;
+
+-- Establishment location id must exist
+ALTER TABLE ONLY cqc."Establishment"
+    ADD CONSTRAINT estloc_fk FOREIGN KEY ("LocationID") REFERENCES cqcref.location(locationid);
