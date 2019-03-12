@@ -821,7 +821,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"CompletedSavedAt" TIMESTAMP NULL,
 	"CompletedChangedAt" TIMESTAMP NULL,
 	"CompletedSavedBy" VARCHAR(120) NULL,
-	"CompletedChangedBy" VARCHAR(120) NULL
+	"CompletedChangedBy" VARCHAR(120) NULL,
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
 	updatedby VARCHAR(120) NOT NULL,
