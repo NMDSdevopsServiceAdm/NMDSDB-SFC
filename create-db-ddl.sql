@@ -1190,7 +1190,7 @@ CREATE TABLE IF NOT EXISTS cqc."PasswdResetTracking" (
     "Completed" TIMESTAMP NULL,
 	CONSTRAINT "PasswdResetTracking_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
 );
-ALTER TABLE cqc."PasswdResetTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc.passwdresettracking_seq');
+ALTER TABLE cqc."PasswdResetTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc."PasswdResetTracking_seq"');
 ALTER TABLE cqc."PasswdResetTracking" OWNER TO sfcadmin;
 
 
@@ -1215,3 +1215,24 @@ CREATE TABLE IF NOT EXISTS cqc."UserAudit" (
 	CONSTRAINT "WorkerAudit_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 CREATE INDEX "UserAudit_UserFK" on cqc."UserAudit" ("UserFK");
+
+CREATE SEQUENCE IF NOT EXISTS cqc."AddUserTracking_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+    
+CREATE TABLE IF NOT EXISTS cqc."AddUserTracking" (
+    "ID" INTEGER NOT NULL PRIMARY KEY,
+	"UserFK" INTEGER NOT NULL,
+    "Created" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    "Expires" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW() + INTERVAL '3 days',
+    "AddUuid"  UUID NOT NULL,
+    "Completed" TIMESTAMP NULL,
+	CONSTRAINT "AddUserTracking_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+ALTER TABLE cqc."AddUserTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc."AddUserTracking_seq"');
+
+
