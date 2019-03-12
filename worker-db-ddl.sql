@@ -821,7 +821,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"CompletedSavedAt" TIMESTAMP NULL,
 	"CompletedChangedAt" TIMESTAMP NULL,
 	"CompletedSavedBy" VARCHAR(120) NULL,
-	"CompletedChangedBy" VARCHAR(120) NULL
+	"CompletedChangedBy" VARCHAR(120) NULL,
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
 	updatedby VARCHAR(120) NOT NULL,
@@ -870,7 +870,3 @@ CREATE TABLE IF NOT EXISTS cqc."WorkerJobs" (
 );
 CREATE INDEX "WorkerJobs_WorkerFK" on cqc."WorkerJobs" ("WorkerFK");
 CREATE INDEX "WorkerJobs_JobFK" on cqc."WorkerJobs" ("JobFK");
-
--- DB Patch Schema - https://trello.com/c/ZPK4AF4o
-ALTER TYPE cqc."WorkerAuditChangeType" ADD VALUE 'deleted';
-ALTER TABLE cqc."Worker" ADD COLUMN "Archived" BOOLEAN NOT NULL DEFAULT false;
