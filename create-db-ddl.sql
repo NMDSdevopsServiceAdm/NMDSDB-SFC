@@ -282,7 +282,8 @@ CREATE TABLE IF NOT EXISTS cqc."Login" (
     "InvalidAttempt" integer NOT NULL,
     "Hash" character varying(255),
     "FirstLogin" timestamp(4) without time zone,
-    "PasswdLastChanged" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+    "PasswdLastChanged" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW().
+    "LastLoggedIn" TIMESTAMP WITHOUT TIME ZONE NULL
 );
 
 
@@ -326,6 +327,12 @@ CREATE TABLE IF NOT EXISTS cqc."ServicesCapacity" (
 
 ALTER TABLE cqc."ServicesCapacity" OWNER TO sfcadmin;
 
+-- An Establishment's User can take one of two roles: Edit or Read Only
+CREATE TYPE cqc.user_role AS ENUM (
+    'Read',
+    'Edit'
+);
+
 --SET default_tablespace = sfcdevtbs_logins;
 
 --
@@ -335,6 +342,7 @@ ALTER TABLE cqc."ServicesCapacity" OWNER TO sfcadmin;
 CREATE TABLE IF NOT EXISTS cqc."User" (
     "RegistrationID" integer NOT NULL,
     "UserUID" UUID NOT NULL,
+    "UserRole" cqc.user_role NOT NULL DEFAULT 'Edit',
     "EstablishmentID" integer NOT NULL,
     "FullNameValue" character varying(120) NOT NULL,
     "FullNameSavedAt" TIMESTAMP NULL,

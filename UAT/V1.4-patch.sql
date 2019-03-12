@@ -524,10 +524,6 @@ DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
 CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode", "LocationID");
 CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode") WHERE "LocationID" IS NULL;
 
--- DB Patch Schema - https://trello.com/c/MtKBV9EP - can't be done inside a transaction
---ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (generic/other)';
---ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (adult services)';
-
 
 -- correcting reference data
 update cqc."Job"
@@ -537,3 +533,17 @@ where "JobID" = 29;
 -- Establishment location id must exist
 ALTER TABLE ONLY cqc."Establishment"
     ADD CONSTRAINT estloc_fk FOREIGN KEY ("LocationID") REFERENCES cqcref.location(locationid);
+
+-- DB Patch Schema - https://trello.com/c/MtKBV9EP - can't be done inside a transaction
+--ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (generic/other)';
+--ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (adult services)';
+
+-- patch for https://trello.com/c/HzYGVltp - add/edit user
+-- An Establishment's User can take one of two roles: Edit or Read Only
+CREATE TYPE cqc.user_role AS ENUM (
+    'Read',
+    'Edit'
+);
+
+ALTER TABLE cqc."User" ADD COLUMN "UserRole" cqc.user_role NOT NULL DEFAULT 'Edit';
+ALTER TABLE cqc."Login" ADD COLUMN "LastLoggedIn" TIMESTAMP WITHOUT TIME ZONE NULL;
