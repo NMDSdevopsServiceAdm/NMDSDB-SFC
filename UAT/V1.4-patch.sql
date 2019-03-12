@@ -527,3 +527,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locati
 -- DB Patch Schema - https://trello.com/c/MtKBV9EP - can't be done inside a transaction
 --ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (generic/other)';
 --ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (adult services)';
+
+
+-- correcting reference data
+update cqc."Job"
+set "JobName" = 'Technician'
+where "JobID" = 29;
