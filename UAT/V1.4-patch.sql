@@ -570,7 +570,10 @@ CREATE TABLE IF NOT EXISTS cqc."AddUserTracking" (
     "Created" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
     "Expires" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW() + INTERVAL '3 days',
     "AddUuid"  UUID NOT NULL,
+    "RegisteredBy" VARCHAR(120) NOT NULL,
     "Completed" TIMESTAMP NULL,
 	CONSTRAINT "AddUserTracking_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 ALTER TABLE cqc."AddUserTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc."AddUserTracking_seq"');
+
+ALTER TABLE cqc."User" ADD COLUMN "Archived" BOOLEAN DEFAULT false;

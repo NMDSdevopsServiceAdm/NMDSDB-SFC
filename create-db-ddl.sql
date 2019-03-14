@@ -344,6 +344,7 @@ CREATE TABLE IF NOT EXISTS cqc."User" (
     "UserUID" UUID NOT NULL,
     "UserRole" cqc.user_role NOT NULL DEFAULT 'Edit',
     "EstablishmentID" integer NOT NULL,
+    "Archived" BOOLEAN DEFAULT false,
     "FullNameValue" character varying(120) NOT NULL,
     "FullNameSavedAt" TIMESTAMP NULL,
     "FullNameChangedAt" TIMESTAMP NULL,
@@ -1230,6 +1231,7 @@ CREATE TABLE IF NOT EXISTS cqc."AddUserTracking" (
     "Created" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
     "Expires" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW() + INTERVAL '3 days',
     "AddUuid"  UUID NOT NULL,
+    "RegisteredBy" VARCHAR(120) NOT NULL,
     "Completed" TIMESTAMP NULL,
 	CONSTRAINT "AddUserTracking_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
 );
