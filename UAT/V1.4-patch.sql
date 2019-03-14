@@ -524,10 +524,6 @@ DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
 CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode", "LocationID");
 CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode") WHERE "LocationID" IS NULL;
 
--- DB Patch Schema - https://trello.com/c/MtKBV9EP - can't be done inside a transaction
---ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (generic/other)';
---ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (adult services)';
-
 
 -- correcting reference data
 update cqc."Job"
@@ -537,3 +533,47 @@ where "JobID" = 29;
 -- Establishment location id must exist
 ALTER TABLE ONLY cqc."Establishment"
     ADD CONSTRAINT estloc_fk FOREIGN KEY ("LocationID") REFERENCES cqcref.location(locationid);
+
+-- DB Patch Schema - https://trello.com/c/MtKBV9EP - can't be done inside a transaction
+--ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (generic/other)';
+--ALTER TYPE cqc.est_employertype_enum ADD VALUE 'Local Authority (adult services)';
+
+-- patch for https://trello.com/c/HzYGVltp - add/edit user
+-- An Establishment's User can take one of two roles: Edit or Read Only
+CREATE TYPE cqc.user_role AS ENUM (
+    'Read',
+    'Edit'
+);
+
+ALTER TABLE cqc."User" ADD COLUMN "UserRoleValue" cqc.user_role NOT NULL DEFAULT 'Edit';
+ALTER TABLE cqc."User" ADD COLUMN "UserRoleSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "UserRoleChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."User" ADD COLUMN "UserRoleSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."User" ADD COLUMN "UserRoleChangedBy" VARCHAR(120) NULL;
+
+update cqc."User" set "UserRoleSavedAt"=NOW(), "UserRoleChangedAt"=NOW(), "UserRoleSavedBy"='admin', "UserRoleChangedBy"='admin';
+update cqc."User" set "AdminUser"=false;
+
+ALTER TABLE cqc."Login" ADD COLUMN "LastLoggedIn" TIMESTAMP WITHOUT TIME ZONE NULL;
+
+CREATE SEQUENCE IF NOT EXISTS cqc."AddUserTracking_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+    
+CREATE TABLE IF NOT EXISTS cqc."AddUserTracking" (
+    "ID" INTEGER NOT NULL PRIMARY KEY,
+	"UserFK" INTEGER NOT NULL,
+    "Created" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    "Expires" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW() + INTERVAL '3 days',
+    "AddUuid"  UUID NOT NULL,
+    "RegisteredBy" VARCHAR(120) NOT NULL,
+    "Completed" TIMESTAMP NULL,
+	CONSTRAINT "AddUserTracking_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+ALTER TABLE cqc."AddUserTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc."AddUserTracking_seq"');
+
+ALTER TABLE cqc."User" ADD COLUMN "Archived" BOOLEAN DEFAULT false;

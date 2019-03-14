@@ -13,6 +13,7 @@ DROP TABLE IF EXISTS cqc."EstablishmentJobs";
 DROP TABLE IF EXISTS cqc."EstablishmentCapacity";
 
 -- user
+DROP TABLE IF EXISTS cqc."AddUserTracking";
 DROP TABLE IF EXISTS cqc."PasswdResetTracking";
 DROP TABLE IF EXISTS cqc."UserAudit";
 
@@ -67,6 +68,7 @@ DROP TYPE IF EXISTS cqc."WorkerWeeklyHoursContracted";
 DROP TYPE IF EXISTS cqc."WorkerYearArrived";
 DROP TYPE IF EXISTS cqc."WorkerZeroHoursContract";
 DROP TYPE IF EXISTS cqc."WorkerRecruitedFrom";
+DROP TYPE IF EXISTS cqc."user_role";
 
 -- sequences
 DROP SEQUENCE IF EXISTS cqc."EstablishmentCapacity_EstablishmentCapacityID_seq";
@@ -80,4 +82,4 @@ DROP SEQUENCE IF EXISTS cqc."passwdresettracking_seq";
 DROP SEQUENCE IF EXISTS cqc."passwdresettracking_seq";
 DROP SEQUENCE IF EXISTS cqc.services_id_seq;
 DROP SEQUENCE IF EXISTS cqc."NmdsID_seq";
---DROP SEQUENCE IF EXISTS cqc.cqclog_id_seq;
+DROP SEQUENCE IF EXISTS cqc."AddUserTracking_seq";
