@@ -71,6 +71,7 @@ ALTER TABLE cqc."NmdsID_seq" OWNER TO sfcadmin;
 
 CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "EstablishmentID" integer NOT NULL,
+    "EstablishmentUID" UUID NOT NULL,
     "Name" text NOT NULL,
     "Address" text,
     "LocationID" text,
@@ -82,7 +83,10 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "ShareDataWithLA" boolean DEFAULT false,
     "ShareData" boolean DEFAULT false,
     "NumberOfStaff" integer,
-    "NmdsID" character(8) NOT NULL
+    "NmdsID" character(8) NOT NULL,
+    created timestamp without time zone NOT NULL DEFAULT now(),
+    updated timestamp without time zone NOT NULL DEFAULT now(),
+    updatedby character varying(120) COLLATE pg_catalog."default" NOT NULL
 );
 
 
@@ -1237,4 +1241,21 @@ CREATE TABLE IF NOT EXISTS cqc."AddUserTracking" (
 );
 ALTER TABLE cqc."AddUserTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc."AddUserTracking_seq"');
 
-
+CREATE TYPE cqc."EstablishmentAuditChangeType" AS ENUM (
+    'created',
+    'updated',
+    'saved',
+    'changed',
+    'deleted'
+);
+CREATE TABLE IF NOT EXISTS cqc."EstablishmentAudit" (
+    "ID" SERIAL NOT NULL PRIMARY KEY,
+    "EstablishmentFK" INTEGER NOT NULL,
+    "Username" VARCHAR(120) NOT NULL,
+    "When" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    "EventType" cqc."EstablishmentAuditChangeType" NOT NULL,
+    "PropertyName" VARCHAR(100) NULL,
+    "ChangeEvents" JSONB NULL,
+    CONSTRAINT "EstablishmentAudit_User_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+CREATE INDEX "EstablshmentAudit_EstablishmentFK" on cqc."EstablishmentAudit" ("EstablishmentFK");
