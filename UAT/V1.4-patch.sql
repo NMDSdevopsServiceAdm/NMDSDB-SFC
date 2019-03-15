@@ -577,3 +577,45 @@ CREATE TABLE IF NOT EXISTS cqc."AddUserTracking" (
 ALTER TABLE cqc."AddUserTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc."AddUserTracking_seq"');
 
 ALTER TABLE cqc."User" ADD COLUMN "Archived" BOOLEAN DEFAULT false;
+
+-- Establishment auditing - https://trello.com/c/jaqBQdQg
+ALTER TABLE cqc."Establishment" ADD COLUMN created timestamp without time zone NOT NULL DEFAULT now();
+ALTER TABLE cqc."Establishment" ADD COLUMN updated timestamp without time zone NOT NULL DEFAULT now();
+ALTER TABLE cqc."Establishment" ADD COLUMN updatedby character varying(120) COLLATE pg_catalog."default" NOT NULL DEFAULT 'admin';
+
+CREATE TYPE cqc."EstablishmentAuditChangeType" AS ENUM (
+    'created',
+    'updated',
+    'saved',
+    'changed',
+    'deleted'
+);
+CREATE TABLE IF NOT EXISTS cqc."EstablishmentAudit" (
+    "ID" SERIAL NOT NULL PRIMARY KEY,
+    "EstablishmentFK" INTEGER NOT NULL,
+    "Username" VARCHAR(120) NOT NULL,
+    "When" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    "EventType" cqc."EstablishmentAuditChangeType" NOT NULL,
+    "PropertyName" VARCHAR(100) NULL,
+    "ChangeEvents" JSONB NULL,
+    CONSTRAINT "EstablishmentAudit_User_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+CREATE INDEX "EstablshmentAudit_EstablishmentFK" on cqc."EstablishmentAudit" ("EstablishmentFK");
+
+ALTER TABLE cqc."Establishment" ADD COLUMN "EstablishmentUID" UUID NULL;
+-- unfortunately, without the postgres extension "uuid-ossp", need an alternative method to
+--  update existing User records with UUID
+UPDATE
+    cqc."Establishment" 
+SET
+    "EstablishmentUID" = "ESTABLISHMENT_UUID"."UIDv4"
+FROM (
+    SELECT CAST(substr(CAST(myuuids."UID" AS TEXT), 0, 15) || '4' || substr(CAST(myuuids."UID" AS TEXT), 16, 3) || '-89' || substr(CAST(myuuids."UID" AS TEXT), 22, 36) AS UUID) "UIDv4", "RegID"
+    FROM (
+        SELECT uuid_in(md5(random()::text || clock_timestamp()::text)::cstring) "UID",
+                "Establishment"."EstablishmentID" "RegID"
+        FROM cqc."Establishment"
+    ) AS MyUUIDs
+) AS "ESTABLISHMENT_UUID"
+WHERE "ESTABLISHMENT_UUID"."RegID" = "Establishment"."EstablishmentID";
+ALTER TABLE cqc."Establishment" ALTER COLUMN "EstablishmentUID" SET NOT NULL;
