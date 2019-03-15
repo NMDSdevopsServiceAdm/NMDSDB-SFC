@@ -654,6 +654,16 @@ ALTER TABLE cqc."Establishment"   ADD COLUMN "NumberOfStaffChangedAt" TIMESTAMP 
 ALTER TABLE cqc."Establishment"   ADD COLUMN "NumberOfStaffSavedBy" VARCHAR(120) NULL;
 ALTER TABLE cqc."Establishment"   ADD COLUMN "NumberOfStaffChangedBy" VARCHAR(120) NULL;
 
+ALTER TABLE cqc."Establishment"   ADD COLUMN "OtherServicesSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "OtherServicesChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "OtherServicesSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "OtherServicesChangedBy" VARCHAR(120) NULL;
+
+ALTER TABLE cqc."Establishment"   ADD COLUMN "CapacityServicesSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "CapacityServicesChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "CapacityServicesSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "CapacityServicesChangedBy" VARCHAR(120) NULL;
+
 
 -- default values for all employer type properties
 update
@@ -675,3 +685,42 @@ set
     "NumberOfStaffChangedBy" = 'admin'
 where
     "NumberOfStaffValue" is not null;        -- namely, the staff property has been given
+
+-- default values for all Other Services properties
+update
+    cqc."Establishment"
+set
+    "CapacityServicesSavedAt" = now(),
+    "CapacityServicesChangedAt" = now(),
+    "CapacityServicesSavedBy" = 'admin',
+    "CapacityServicesChangedBy" = 'admin'
+from
+	(select distinct "EstablishmentID" from cqc."EstablishmentCapacity") as "KnownEstablishmentsWithCapacityServices"
+where
+    "KnownEstablishmentsWithCapacityServices"."EstablishmentID" = "Establishment"."EstablishmentID"; 
+
+-- default values for all Other Services properties
+update
+    cqc."Establishment"
+set
+    "OtherServicesSavedAt" = now(),
+    "OtherServicesChangedAt" = now(),
+    "OtherServicesSavedBy" = 'admin',
+    "OtherServicesChangedBy" = 'admin'
+from
+	(select distinct "EstablishmentID" from cqc."EstablishmentServices") as "KnownEstablishmentsWithOtherServices"
+where
+    "KnownEstablishmentsWithOtherServices"."EstablishmentID" = "Establishment"."EstablishmentID";
+
+-- default values for all Capacity Services properties
+update
+    cqc."Establishment"
+set
+    "CapacityServicesSavedAt" = now(),
+    "CapacityServicesChangedAt" = now(),
+    "CapacityServicesSavedBy" = 'admin',
+    "CapacityServicesChangedBy" = 'admin'
+from
+	(select distinct "EstablishmentID" from cqc."EstablishmentCapacity") as "KnownEstablishmentsWithCapacityServices"
+where
+    "KnownEstablishmentsWithCapacityServices"."EstablishmentID" = "Establishment"."EstablishmentID";
