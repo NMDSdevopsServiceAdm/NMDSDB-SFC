@@ -496,6 +496,19 @@ CREATE TABLE IF NOT EXISTS cqc."UserAudit" (
 );
 CREATE INDEX "UserAudit_UserFK" on cqc."UserAudit" ("UserFK");
 
+-- hotfix - UserAudit "created" event https://trello.com/c/EUf96Enj
+insert into
+	cqc."UserAudit" ("UserFK", "Username", "When", "EventType")
+select "User"."RegistrationID", 'admin', now(), 'created'
+from cqc."User", cqc."Login"
+where "User"."RegistrationID" not in (
+		select distinct "UserFK"
+		from cqc."UserAudit"
+		where "EventType" = 'created'
+	)
+  and "Archived"=false
+  and "User"."RegistrationID" = "Login"."RegistrationID"
+
 -- DB Patch Schema - https://trello.com/c/pByUKSW3 - add UUID to User
 ALTER TABLE cqc."User" ADD COLUMN "UserUID" UUID NULL;
 
