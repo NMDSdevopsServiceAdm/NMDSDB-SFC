@@ -632,3 +632,13 @@ FROM (
 ) AS "ESTABLISHMENT_UUID"
 WHERE "ESTABLISHMENT_UUID"."RegID" = "Establishment"."EstablishmentID";
 ALTER TABLE cqc."Establishment" ALTER COLUMN "EstablishmentUID" SET NOT NULL;
+
+-- need to add "create" audit event for all existing Establishments
+insert into
+	cqc."EstablishmentAudit" ("EstablishmentFK", "Username", "When", "EventType")
+select "EstablishmentID", 'admin', now(), 'created'
+from cqc."Establishment"
+where "EstablishmentID" not in (
+	select distinct "EstablishmentFK" from cqc."EstablishmentAudit"
+	where "EventType" = 'created'
+	)
