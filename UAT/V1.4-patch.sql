@@ -690,19 +690,6 @@ where
 update
     cqc."Establishment"
 set
-    "CapacityServicesSavedAt" = now(),
-    "CapacityServicesChangedAt" = now(),
-    "CapacityServicesSavedBy" = 'admin',
-    "CapacityServicesChangedBy" = 'admin'
-from
-	(select distinct "EstablishmentID" from cqc."EstablishmentCapacity") as "KnownEstablishmentsWithCapacityServices"
-where
-    "KnownEstablishmentsWithCapacityServices"."EstablishmentID" = "Establishment"."EstablishmentID"; 
-
--- default values for all Other Services properties
-update
-    cqc."Establishment"
-set
     "OtherServicesSavedAt" = now(),
     "OtherServicesChangedAt" = now(),
     "OtherServicesSavedBy" = 'admin',
