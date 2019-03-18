@@ -72,18 +72,26 @@ ALTER TABLE cqc."NmdsID_seq" OWNER TO sfcadmin;
 CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "EstablishmentID" integer NOT NULL,
     "EstablishmentUID" UUID NOT NULL,
+    "NmdsID" character(8) NOT NULL,
     "Name" text NOT NULL,
     "Address" text,
     "LocationID" text,
     "PostCode" text,
     "IsRegulated" boolean NOT NULL,
     "MainServiceId" integer,
-    "EmployerType" cqc.est_employertype_enum,
+    "EmployerTypeValue" cqc.est_employertype_enum,
+    "EmployerTypeSavedAt" TIMESTAMP NULL;
+    "EmployerTypeChangedAt" TIMESTAMP NULL;
+    "EmployerTypeSavedBy" VARCHAR(120) NULL;
+    "EmployerTypeChangedBy" VARCHAR(120) NULL;
+    "NumberOfStaffValue" integer,
+    "NumberOfStaffSavedAt" TIMESTAMP NULL;
+    "NumberOfStaffChangedAt" TIMESTAMP NULL;
+    "NumberOfStaffSavedBy" VARCHAR(120) NULL;
+    "NumberOfStaffChangedBy" VARCHAR(120) NULL;
     "ShareDataWithCQC" boolean DEFAULT false,
     "ShareDataWithLA" boolean DEFAULT false,
     "ShareData" boolean DEFAULT false,
-    "NumberOfStaff" integer,
-    "NmdsID" character(8) NOT NULL,
     created timestamp without time zone NOT NULL DEFAULT now(),
     updated timestamp without time zone NOT NULL DEFAULT now(),
     updatedby character varying(120) COLLATE pg_catalog."default" NOT NULL
