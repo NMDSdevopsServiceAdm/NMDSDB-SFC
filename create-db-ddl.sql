@@ -72,10 +72,7 @@ ALTER TABLE cqc."NmdsID_seq" OWNER TO sfcadmin;
 CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "EstablishmentID" integer NOT NULL,
     "EstablishmentUID" UUID NOT NULL,
-<<<<<<< HEAD
     "NmdsID" character(8) NOT NULL,
-=======
->>>>>>> Introducing EstablishmentAudit and EstablishmentAuditChangeType, along with changes (original and patch) to add UID, created, updated and updatedBy to Establishment.
     "Name" text NOT NULL,
     "Address" text,
     "LocationID" text,
@@ -95,11 +92,6 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "ShareDataWithCQC" boolean DEFAULT false,
     "ShareDataWithLA" boolean DEFAULT false,
     "ShareData" boolean DEFAULT false,
-<<<<<<< HEAD
-=======
-    "NumberOfStaff" integer,
-    "NmdsID" character(8) NOT NULL,
->>>>>>> Introducing EstablishmentAudit and EstablishmentAuditChangeType, along with changes (original and patch) to add UID, created, updated and updatedBy to Establishment.
     created timestamp without time zone NOT NULL DEFAULT now(),
     updated timestamp without time zone NOT NULL DEFAULT now(),
     updatedby character varying(120) COLLATE pg_catalog."default" NOT NULL

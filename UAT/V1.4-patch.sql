@@ -711,3 +711,4 @@ from
 	(select distinct "EstablishmentID" from cqc."EstablishmentCapacity") as "KnownEstablishmentsWithCapacityServices"
 where
     "KnownEstablishmentsWithCapacityServices"."EstablishmentID" = "Establishment"."EstablishmentID";
+    
