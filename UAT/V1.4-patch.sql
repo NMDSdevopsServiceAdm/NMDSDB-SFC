@@ -628,4 +628,37 @@ from cqc."Establishment"
 where "EstablishmentID" not in (
 	select distinct "EstablishmentFK" from cqc."EstablishmentAudit"
 	where "EventType" = 'created'
-	)
+	);
+
+ALTER TABLE cqc."Establishment" RENAME COLUMN "EmployerType" TO "EmployerTypeValue";
+ALTER TABLE cqc."Establishment"   ADD COLUMN "EmployerTypeSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "EmployerTypeChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "EmployerTypeSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "EmployerTypeChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Establishment" RENAME COLUMN "NumberOfStaff" TO "NumberOfStaffValue";
+ALTER TABLE cqc."Establishment"   ADD COLUMN "NumberOfStaffSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "NumberOfStaffChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "NumberOfStaffSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "NumberOfStaffChangedBy" VARCHAR(120) NULL;
+
+
+-- default values for all employer type properties
+update
+    cqc."Establishment"
+set
+    "EmployerTypeSavedAt" = now(),
+    "EmployerTypeChangedAt" = now(),
+    "EmployerTypeSavedBy" = 'admin',
+    "EmployerTypeChangedBy" = 'admin'
+where
+    "EmployerTypeValue" is not null;        -- namely, the employer type property has been given
+-- default values for all staff properties
+update
+    cqc."Establishment"
+set
+    "NumberOfStaffSavedAt" = now(),
+    "NumberOfStaffChangedAt" = now(),
+    "NumberOfStaffSavedBy" = 'admin',
+    "NumberOfStaffChangedBy" = 'admin'
+where
+    "NumberOfStaffValue" is not null;        -- namely, the staff property has been given
