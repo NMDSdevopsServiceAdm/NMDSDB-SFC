@@ -697,7 +697,7 @@ set
 from
 	(select distinct "EstablishmentID" from cqc."EstablishmentServices") as "KnownEstablishmentsWithOtherServices"
 where
-    "KnownEstablishmentsWithOtherServices"."EstablishmentID" = "Establishment"."EstablishmentID";
+    "KnownEstablishmentsWithOtherServices"."EstablishmentID" = "Establishment"."EstablishmentID";        -- namely, there are known other services
 
 -- default values for all Capacity Services properties
 update
@@ -710,5 +710,4 @@ set
 from
 	(select distinct "EstablishmentID" from cqc."EstablishmentCapacity") as "KnownEstablishmentsWithCapacityServices"
 where
-    "KnownEstablishmentsWithCapacityServices"."EstablishmentID" = "Establishment"."EstablishmentID";
-    
+    "KnownEstablishmentsWithCapacityServices"."EstablishmentID" = "Establishment"."EstablishmentID";        -- namely, there are known capacity services
