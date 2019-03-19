@@ -89,6 +89,14 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "NumberOfStaffChangedAt" TIMESTAMP NULL;
     "NumberOfStaffSavedBy" VARCHAR(120) NULL;
     "NumberOfStaffChangedBy" VARCHAR(120) NULL;
+    "OtherServicesSavedAt" TIMESTAMP NULL;
+    "OtherServicesChangedAt" TIMESTAMP NULL;
+    "OtherServicesSavedBy" VARCHAR(120) NULL;
+    "OtherServicesChangedBy" VARCHAR(120) NULL;
+    "CapacityServicesSavedAt" TIMESTAMP NULL;
+    "CapacityServicesChangedAt" TIMESTAMP NULL;
+    "CapacityServicesSavedBy" VARCHAR(120) NULL;
+    "CapacityServicesChangedBy" VARCHAR(120) NULL;
     "ShareDataWithCQC" boolean DEFAULT false,
     "ShareDataWithLA" boolean DEFAULT false,
     "ShareData" boolean DEFAULT false,
