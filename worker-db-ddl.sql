@@ -840,6 +840,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"CompletedChangedBy" VARCHAR(120) NULL,
 	"Archived" BOOLEAN NOT NULL DEFAULT false,
 	"LeaveReasonFK" INTEGER NULL,
+	"LeaveReasonOther" TEXT NULL,
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
 	updatedby VARCHAR(120) NOT NULL,
@@ -908,4 +909,5 @@ INSERT INTO cqc."WorkerLeaveReasons" ("ID", "Seq", "Reason") VALUES
 	(9, 9, 'Not known');
 
 ALTER TABLE cqc."Worker" ADD COLUMN "LeaveReasonFK" INTEGER NULL;
+ALTER TABLE cqc."Worker" ADD COLUMN "LeaveReasonOther" TEXT NULL;
 ALTER TABLE cqc."Worker" ADD CONSTRAINT "Worker_leave_reason_fk" FOREIGN KEY ("LeaveReasonFK") REFERENCES cqc."WorkerLeaveReasons" ("ID");
