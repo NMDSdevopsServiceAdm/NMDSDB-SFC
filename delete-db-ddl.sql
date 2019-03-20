@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS cqc."Feedback";
 DROP TABLE IF EXISTS cqc."WorkerAudit";
 DROP TABLE IF EXISTS cqc."WorkerJobs";
 DROP TABLE IF EXISTS cqc."Worker";
+DROP TABLE IF EXISTS cqc."WorkerLeaveReasons";
 
 -- establishments
 DROP TABLE IF EXISTS cqc."EstablishmentServices";
