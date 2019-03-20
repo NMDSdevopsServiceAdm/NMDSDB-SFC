@@ -659,6 +659,22 @@ INSERT INTO cqc."Qualification" ("ID", "Seq", "Level") VALUES
 	(9,9, 'Level 8 or above'),
 	(10,10, 'Don''t know');
 
+CREATE TABLE IF NOT EXISTS cqc."WorkerLeaveReasons" (
+	"ID" INTEGER NOT NULL PRIMARY KEY,
+	"Seq" INTEGER NOT NULL, 	-- this is the order in which the Ethinicity will appear without impacting on primary key (existing foreign keys)
+	"Reason" TEXT NOT NULL
+);
+INSERT INTO cqc."WorkerLeaveReasons" ("ID", "Seq", "Reason") VALUES 
+	(1, 1, 'They moved to another adult social care employer'),
+	(2, 2, 'They moved to a role in the health sector'),
+	(3, 3, 'They moved to a different sector (e.g. retail)'),
+	(4, 4, 'They moved to another role in this organisation'),
+	(5, 5, 'The worker chose to leave (destination unknown)'),
+	(6, 6, 'The worker retired'),
+	(7, 7, 'Employer terminated their employment'),
+	(8, 8, 'Other'),
+	(9, 9, 'Not known');
+
 CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,
 	"WorkerUID" UUID NOT NULL,
@@ -822,11 +838,12 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"CompletedChangedAt" TIMESTAMP NULL,
 	"CompletedSavedBy" VARCHAR(120) NULL,
 	"CompletedChangedBy" VARCHAR(120) NULL,
+	"Archived" BOOLEAN NOT NULL DEFAULT false,
+	"LeaveReasonFK" INTEGER NULL,
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
 	updatedby VARCHAR(120) NOT NULL,
-	"Archived" BOOLEAN NOT NULL DEFAULT false,
-  	CONSTRAINT "Worker_Establishment_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "Worker_Establishment_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT "Worker_Job_mainjob_fk" FOREIGN KEY ("MainJobFKValue") REFERENCES cqc."Job" ("JobID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT "Worker_ethnicity_fk" FOREIGN KEY ("EthnicityFKValue") REFERENCES cqc."Ethnicity" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT "Worker_nationality_fk" FOREIGN KEY ("NationalityOtherFK") REFERENCES cqc."Nationality" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
@@ -834,6 +851,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	CONSTRAINT "Worker_social_care_qualification_fk" FOREIGN KEY ("SocialCareQualificationFKValue") REFERENCES cqc."Qualification" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT "Worker_highest_qualification_fk" FOREIGN KEY ("HighestQualificationFKValue") REFERENCES cqc."Qualification" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT "Worker_recruited_from_fk" FOREIGN KEY ("RecruitedFromOtherFK") REFERENCES cqc."RecruitedFrom" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT "Worker_leave_reason_fk" FOREIGN KEY ("LeaveReasonFK") REFERENCES cqc."WorkerLeaveReasons" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT "Worker_WorkerUID_unq" UNIQUE ("WorkerUID")
 );
 
@@ -870,3 +888,24 @@ CREATE TABLE IF NOT EXISTS cqc."WorkerJobs" (
 );
 CREATE INDEX "WorkerJobs_WorkerFK" on cqc."WorkerJobs" ("WorkerFK");
 CREATE INDEX "WorkerJobs_JobFK" on cqc."WorkerJobs" ("JobFK");
+
+-- Worker patch - https://trello.com/c/6bctXaoy
+-- Worker's Leave Reasons
+CREATE TABLE IF NOT EXISTS cqc."WorkerLeaveReasons" (
+	"ID" INTEGER NOT NULL PRIMARY KEY,
+	"Seq" INTEGER NOT NULL, 	-- this is the order in which the Ethinicity will appear without impacting on primary key (existing foreign keys)
+	"Reason" TEXT NOT NULL
+);
+INSERT INTO cqc."WorkerLeaveReasons" ("ID", "Seq", "Reason") VALUES 
+	(1, 1, 'They moved to another adult social care employer'),
+	(2, 2, 'They moved to a role in the health sector'),
+	(3, 3, 'They moved to a different sector (e.g. retail)'),
+	(4, 4, 'They moved to another role in this organisation'),
+	(5, 5, 'The worker chose to leave (destination unknown)'),
+	(6, 6, 'The worker retired'),
+	(7, 7, 'Employer terminated their employment'),
+	(8, 8, 'Other'),
+	(9, 9, 'Not known');
+
+ALTER TABLE cqc."Worker" ADD COLUMN "LeaveReasonFK" INTEGER NULL;
+ALTER TABLE cqc."Worker" ADD CONSTRAINT "Worker_leave_reason_fk" FOREIGN KEY ("LeaveReasonFK") REFERENCES cqc."WorkerLeaveReasons" ("ID");
