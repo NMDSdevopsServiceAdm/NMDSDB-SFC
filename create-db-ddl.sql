@@ -97,9 +97,13 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "CapacityServicesChangedAt" TIMESTAMP NULL;
     "CapacityServicesSavedBy" VARCHAR(120) NULL;
     "CapacityServicesChangedBy" VARCHAR(120) NULL;
+    "ShareDataValue"  boolean DEFAULT false,
+    "ShareDataSavedAt" TIMESTAMP NULL,
+    "ShareDataChangedAt" TIMESTAMP NULL,
+    "ShareDataSavedBy" VARCHAR(120) NULL,
+    "ShareDataChangedBy" VARCHAR(120) NULL,
     "ShareDataWithCQC" boolean DEFAULT false,
     "ShareDataWithLA" boolean DEFAULT false,
-    "ShareData" boolean DEFAULT false,
     created timestamp without time zone NOT NULL DEFAULT now(),
     updated timestamp without time zone NOT NULL DEFAULT now(),
     updatedby character varying(120) COLLATE pg_catalog."default" NOT NULL

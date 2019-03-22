@@ -664,8 +664,15 @@ ALTER TABLE cqc."Establishment"   ADD COLUMN "CapacityServicesChangedAt" TIMESTA
 ALTER TABLE cqc."Establishment"   ADD COLUMN "CapacityServicesSavedBy" VARCHAR(120) NULL;
 ALTER TABLE cqc."Establishment"   ADD COLUMN "CapacityServicesChangedBy" VARCHAR(120) NULL;
 
+ALTER TABLE cqc."Establishment" RENAME COLUMN "ShareData" TO "ShareDataValue";
+ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareDataSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareDataChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareDataSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareDataChangedBy" VARCHAR(120) NULL;
 
--- default values for all employer type properties
+
+
+-- default values for all employer type properyy
 update
     cqc."Establishment"
 set
@@ -675,7 +682,8 @@ set
     "EmployerTypeChangedBy" = 'admin'
 where
     "EmployerTypeValue" is not null;        -- namely, the employer type property has been given
--- default values for all staff properties
+
+-- default values for all staff property
 update
     cqc."Establishment"
 set
@@ -686,7 +694,7 @@ set
 where
     "NumberOfStaffValue" is not null;        -- namely, the staff property has been given
 
--- default values for all Other Services properties
+-- default values for all Other Services property
 update
     cqc."Establishment"
 set
@@ -699,7 +707,7 @@ from
 where
     "KnownEstablishmentsWithOtherServices"."EstablishmentID" = "Establishment"."EstablishmentID";        -- namely, there are known other services
 
--- default values for all Capacity Services properties
+-- default values for all Capacity Services property
 update
     cqc."Establishment"
 set
@@ -711,3 +719,15 @@ from
 	(select distinct "EstablishmentID" from cqc."EstablishmentCapacity") as "KnownEstablishmentsWithCapacityServices"
 where
     "KnownEstablishmentsWithCapacityServices"."EstablishmentID" = "Establishment"."EstablishmentID";        -- namely, there are known capacity services
+
+
+-- default values for all "share data" property
+update
+    cqc."Establishment"
+set
+    "ShareDataSavedAt" = now(),
+    "ShareDataChangedAt" = now(),
+    "ShareDataSavedBy" = 'admin',
+    "ShareDataChangedBy" = 'admin'
+where
+    "ShareDataValue" = true;        -- namely, share is any other than the default of false
