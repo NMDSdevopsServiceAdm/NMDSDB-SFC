@@ -80,23 +80,23 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "IsRegulated" boolean NOT NULL,
     "MainServiceId" integer,
     "EmployerTypeValue" cqc.est_employertype_enum,
-    "EmployerTypeSavedAt" TIMESTAMP NULL;
-    "EmployerTypeChangedAt" TIMESTAMP NULL;
-    "EmployerTypeSavedBy" VARCHAR(120) NULL;
-    "EmployerTypeChangedBy" VARCHAR(120) NULL;
+    "EmployerTypeSavedAt" TIMESTAMP NULL,
+    "EmployerTypeChangedAt" TIMESTAMP NULL,
+    "EmployerTypeSavedBy" VARCHAR(120) NULL,
+    "EmployerTypeChangedBy" VARCHAR(120) NULL,
     "NumberOfStaffValue" integer,
-    "NumberOfStaffSavedAt" TIMESTAMP NULL;
-    "NumberOfStaffChangedAt" TIMESTAMP NULL;
-    "NumberOfStaffSavedBy" VARCHAR(120) NULL;
-    "NumberOfStaffChangedBy" VARCHAR(120) NULL;
-    "OtherServicesSavedAt" TIMESTAMP NULL;
-    "OtherServicesChangedAt" TIMESTAMP NULL;
-    "OtherServicesSavedBy" VARCHAR(120) NULL;
-    "OtherServicesChangedBy" VARCHAR(120) NULL;
-    "CapacityServicesSavedAt" TIMESTAMP NULL;
-    "CapacityServicesChangedAt" TIMESTAMP NULL;
-    "CapacityServicesSavedBy" VARCHAR(120) NULL;
-    "CapacityServicesChangedBy" VARCHAR(120) NULL;
+    "NumberOfStaffSavedAt" TIMESTAMP NULL,
+    "NumberOfStaffChangedAt" TIMESTAMP NULL,
+    "NumberOfStaffSavedBy" VARCHAR(120) NULL,
+    "NumberOfStaffChangedBy" VARCHAR(120) NULL,
+    "OtherServicesSavedAt" TIMESTAMP NULL,
+    "OtherServicesChangedAt" TIMESTAMP NULL,
+    "OtherServicesSavedBy" VARCHAR(120) NULL,
+    "OtherServicesChangedBy" VARCHAR(120) NULL,
+    "CapacityServicesSavedAt" TIMESTAMP NULL,
+    "CapacityServicesChangedAt" TIMESTAMP NULL,
+    "CapacityServicesSavedBy" VARCHAR(120) NULL,
+    "CapacityServicesChangedBy" VARCHAR(120) NULL,
     "ShareDataValue"  boolean DEFAULT false,
     "ShareDataSavedAt" TIMESTAMP NULL,
     "ShareDataChangedAt" TIMESTAMP NULL,
@@ -104,6 +104,10 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "ShareDataChangedBy" VARCHAR(120) NULL,
     "ShareDataWithCQC" boolean DEFAULT false,
     "ShareDataWithLA" boolean DEFAULT false,
+    "ShareWithLASavedAt" TIMESTAMP NULL,
+    "ShareWithLAChangedAt" TIMESTAMP NULL,
+    "ShareWithLASavedBy" VARCHAR(120) NULL,
+    "ShareWithLAChangedBy" VARCHAR(120) NULL,
     created timestamp without time zone NOT NULL DEFAULT now(),
     updated timestamp without time zone NOT NULL DEFAULT now(),
     updatedby character varying(120) COLLATE pg_catalog."default" NOT NULL

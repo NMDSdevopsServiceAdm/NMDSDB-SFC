@@ -670,6 +670,10 @@ ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareDataChangedAt" TIMESTAMP NULL
 ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareDataSavedBy" VARCHAR(120) NULL;
 ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareDataChangedBy" VARCHAR(120) NULL;
 
+ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareWithLASavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareWithLAChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareWithLASavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareWithLAChangedBy" VARCHAR(120) NULL;
 
 
 -- default values for all employer type properyy
@@ -731,3 +735,16 @@ set
     "ShareDataChangedBy" = 'admin'
 where
     "ShareDataValue" = true;        -- namely, share is any other than the default of false
+
+-- default values for all Share with LA (local Authorities) property
+update
+    cqc."Establishment"
+set
+    "ShareWithLASavedAt" = now(),
+    "ShareWithLAChangedAt" = now(),
+    "ShareWithLASavedBy" = 'admin',
+    "ShareWithLAChangedBy" = 'admin'
+from
+	(select distinct "EstablishmentID" from cqc."EstablishmentLocalAuthority") as "KnownEstablishmentsWithLAs"
+where
+    "KnownEstablishmentsWithLAs"."EstablishmentID" = "Establishment"."EstablishmentID";        -- namely, there are known capacity services
