@@ -675,6 +675,23 @@ ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareWithLAChangedAt" TIMESTAMP NU
 ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareWithLASavedBy" VARCHAR(120) NULL;
 ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareWithLAChangedBy" VARCHAR(120) NULL;
 
+ALTER TABLE cqc."Establishment" RENAME COLUMN "Vacancies" TO "VacanciesValue";
+ALTER TABLE cqc."Establishment"   ADD COLUMN "VacanciesSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "VacanciesChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "VacanciesSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "VacanciesChangedBy" VARCHAR(120) NULL;
+
+ALTER TABLE cqc."Establishment" RENAME COLUMN "Starters" TO "StartersValue";
+ALTER TABLE cqc."Establishment"   ADD COLUMN "StartersSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "StartersChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "StartersSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "StartersChangedBy" VARCHAR(120) NULL;
+
+ALTER TABLE cqc."Establishment" RENAME COLUMN "Leavers" TO "LeaversValue";
+ALTER TABLE cqc."Establishment"   ADD COLUMN "LeaversSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "LeaversChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "LeaversSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "LeaversChangedBy" VARCHAR(120) NULL;
 
 -- default values for all employer type properyy
 update
@@ -748,3 +765,65 @@ from
 	(select distinct "EstablishmentID" from cqc."EstablishmentLocalAuthority") as "KnownEstablishmentsWithLAs"
 where
     "KnownEstablishmentsWithLAs"."EstablishmentID" = "Establishment"."EstablishmentID";        -- namely, there are known capacity services
+
+-- views are used to separate out Vacancies, Starters and Leavers upon the single EstablishmentJobs entity
+CREATE VIEW cqc."VacanciesVW" AS
+	SELECT
+		"EstablishmentJobID",
+		"EstablishmentID",
+		"JobID",
+		"JobType",
+		"Total"
+	FROM cqc."EstablishmentJobs"
+	WHERE "JobType" = 'Vacancies';
+CREATE VIEW cqc."StartersVW" AS
+	SELECT
+		"EstablishmentJobID",
+		"EstablishmentID",
+		"JobID",
+		"JobType",
+		"Total"
+	FROM cqc."EstablishmentJobs"
+	WHERE "JobType" = 'Starters';
+CREATE VIEW cqc."LeaversVW" AS
+	SELECT
+		"EstablishmentJobID",
+		"EstablishmentID",
+		"JobID",
+		"JobType",
+		"Total"
+	FROM cqc."EstablishmentJobs"
+	WHERE "JobType" = 'Leavers';
+
+-- default values for Vacancies property
+update
+    cqc."Establishment"
+set
+    "VacanciesSavedAt" = now(),
+    "VacanciesChangedAt" = now(),
+    "VacanciesSavedBy" = 'admin',
+    "VacanciesChangedBy" = 'admin'
+where
+    "VacanciesValue" is not null;        -- namely, there are no known Vacancies
+
+-- default values for Starters property
+update
+    cqc."Establishment"
+set
+    "StartersSavedAt" = now(),
+    "StartersChangedAt" = now(),
+    "StartersSavedBy" = 'admin',
+    "StartersChangedBy" = 'admin'
+where
+    "StartersValue" is not null;        -- namely, there are no known Starters
+
+-- default values for Leavers property
+update
+    cqc."Establishment"
+set
+    "LeaversSavedAt" = now(),
+    "LeaversChangedAt" = now(),
+    "LeaversSavedBy" = 'admin',
+    "LeaversChangedBy" = 'admin'
+where
+    "LeaversValue" is not null;        -- namely, there are no known Leavers

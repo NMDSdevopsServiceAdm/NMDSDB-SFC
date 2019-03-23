@@ -65,6 +65,12 @@ CREATE SEQUENCE IF NOT EXISTS cqc."NmdsID_seq"
     CACHE 1;
 ALTER TABLE cqc."NmdsID_seq" OWNER TO sfcadmin;
 
+CREATE TYPE cqc.job_declaration AS ENUM (
+    'None',
+    'Don''t know',
+	'With Jobs'
+);
+
 --
 -- Name: Establishment; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
 --
@@ -108,6 +114,21 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "ShareWithLAChangedAt" TIMESTAMP NULL,
     "ShareWithLASavedBy" VARCHAR(120) NULL,
     "ShareWithLAChangedBy" VARCHAR(120) NULL,
+    "VacanciesValue" cqc.job_declaration NULL,
+    "StartersValue" cqc.job_declaration NULL,
+    "LeaversValue" cqc.job_declaration NULL,
+    "VacanciesSavedAt" TIMESTAMP NULL,
+    "VacanciesChangedAt" TIMESTAMP NULL,
+    "VacanciesSavedBy" VARCHAR(120) NULL,
+    "VacanciesChangedBy" VARCHAR(120) NULL,
+    "StartersSavedAt" TIMESTAMP NULL,
+    "StartersChangedAt" TIMESTAMP NULL,
+    "StartersSavedBy" VARCHAR(120) NULL,
+    "StartersChangedBy" VARCHAR(120) NULL,
+    "LeaversSavedAt" TIMESTAMP NULL,
+    "LeaversChangedAt" TIMESTAMP NULL,
+    "LeaversSavedBy" VARCHAR(120) NULL,
+    "LeaversChangedBy" VARCHAR(120) NULL,
     created timestamp without time zone NOT NULL DEFAULT now(),
     updated timestamp without time zone NOT NULL DEFAULT now(),
     updatedby character varying(120) COLLATE pg_catalog."default" NOT NULL
@@ -192,6 +213,34 @@ ALTER TABLE cqc."EstablishmentJobs_EstablishmentJobID_seq" OWNER TO sfcadmin;
 --
 
 ALTER SEQUENCE IF EXISTS cqc."EstablishmentJobs_EstablishmentJobID_seq" OWNED BY cqc."EstablishmentJobs"."EstablishmentJobID";
+
+CREATE VIEW cqc."VacanciesVW" AS
+	SELECT
+		"EstablishmentJobID",
+		"EstablishmentID",
+		"JobID",
+		"JobType",
+		"Total"
+	FROM cqc."EstablishmentJobs"
+	WHERE "JobType" = 'Vacancies';
+CREATE VIEW cqc."StartersVW" AS
+	SELECT
+		"EstablishmentJobID",
+		"EstablishmentID",
+		"JobID",
+		"JobType",
+		"Total"
+	FROM cqc."EstablishmentJobs"
+	WHERE "JobType" = 'Starters';
+CREATE VIEW cqc."LeaversVW" AS
+	SELECT
+		"EstablishmentJobID",
+		"EstablishmentID",
+		"JobID",
+		"JobType",
+		"Total"
+	FROM cqc."EstablishmentJobs"
+	WHERE "JobType" = 'Leavers';
 
 ---CSSR TABLE CREATION 
 CREATE TABLE cqc."Cssr"
@@ -855,16 +904,6 @@ insert into cqc."Job" ("JobID", "JobName") values (27, 'Social Worker');
 insert into cqc."Job" ("JobID", "JobName") values (28, 'Supervisor');
 insert into cqc."Job" ("JobID", "JobName") values (29, 'Technician');
 
-
-CREATE TYPE cqc.job_declaration AS ENUM (
-    'None',
-    'Don''t know',
-	'With Jobs'
-);
-
-ALTER TABLE cqc."Establishment" add column "Vacancies" cqc.job_declaration NULL;
-ALTER TABLE cqc."Establishment" add column "Starters" cqc.job_declaration NULL;
-ALTER TABLE cqc."Establishment" add column "Leavers" cqc.job_declaration NULL;
 
 -- https://trello.com/c/LgdigwUb - duplicate establishment
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
