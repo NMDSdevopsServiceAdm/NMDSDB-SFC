@@ -1,6 +1,34 @@
 -- this is an accummulative patch sql file that will be built up on each successive deployment in to sfctstdb
 --  making it easier to apply patches to UAT DB after multiple deploys into sfctstdb
 
+-- correct bad data in the UAT target database
+delete from cqc."Login" where "RegistrationID" in (select "RegistrationID" from cqc."User" where "EstablishmentID" in (select "EstablishmentID" from cqc."Establishment" where "PostCode" = 'MK18 2LB'));
+
+delete from cqc."UserAudit" where "UserFK" in (select "RegistrationID" from cqc."User" where "EstablishmentID" in (select "EstablishmentID" from cqc."Establishment" where "PostCode" = 'MK18 2LB'));
+delete from cqc."User" where "EstablishmentID" in (select "EstablishmentID" from cqc."Establishment" where "PostCode" = 'MK18 2LB');
+delete from cqc."Establishment" where "PostCode" = 'MK18 2LB';
+
+
+delete from cqc."Login" where "RegistrationID"=351;
+delete from cqc."UserAudit" where "UserFK"=351;
+delete from cqc."User" where "EstablishmentID"=371;
+delete from cqc."EstablishmentCapacity" where "EstablishmentID"=371;
+delete from cqc."EstablishmentJobs" where "EstablishmentID"=371;
+delete from cqc."EstablishmentLocalAuthority" where "EstablishmentID"=371;
+delete from cqc."EstablishmentServices" where "EstablishmentID"=371;
+delete from cqc."Establishment" where "EstablishmentID"=371;
+
+delete from cqc."Login" where "RegistrationID"=343;
+delete from cqc."UserAudit" where "UserFK"=343;
+delete from cqc."User" where "EstablishmentID"=363;
+delete from cqc."EstablishmentCapacity" where "EstablishmentID"=363;
+delete from cqc."EstablishmentJobs" where "EstablishmentID"=363;
+delete from cqc."EstablishmentLocalAuthority" where "EstablishmentID"=363;
+delete from cqc."EstablishmentServices" where "EstablishmentID"=363;
+delete from cqc."Establishment" where "EstablishmentID"=363;
+
+update cqc."Establishment" set "PostCode" = 'DN4 6HB' where "EstablishmentID"=309;
+
 --- to apply DB patach for https://trello.com/c/BqSXEWI5
 ALTER TABLE cqc."EstablishmentLocalAuthority" DROP CONSTRAINT localauthrity_establishmentlocalauthority_fk;
 DROP TABLE cqc."LocalAuthority";
