@@ -4,13 +4,16 @@
 -- correct bad data in the UAT target database
 delete from cqc."Login" where "RegistrationID" in (select "RegistrationID" from cqc."User" where "EstablishmentID" in (select "EstablishmentID" from cqc."Establishment" where "PostCode" = 'MK18 2LB'));
 
-delete from cqc."UserAudit" where "UserFK" in (select "RegistrationID" from cqc."User" where "EstablishmentID" in (select "EstablishmentID" from cqc."Establishment" where "PostCode" = 'MK18 2LB'));
+
 delete from cqc."User" where "EstablishmentID" in (select "EstablishmentID" from cqc."Establishment" where "PostCode" = 'MK18 2LB');
+delete from cqc."EstablishmentCapacity" where "EstablishmentID" in (select "EstablishmentID" from cqc."Establishment" where "PostCode" = 'MK18 2LB');
+delete from cqc."EstablishmentJobs" where "EstablishmentID" in (select "EstablishmentID" from cqc."Establishment" where "PostCode" = 'MK18 2LB');
+delete from cqc."EstablishmentLocalAuthority" where "EstablishmentID" in (select "EstablishmentID" from cqc."Establishment" where "PostCode" = 'MK18 2LB');
+delete from cqc."EstablishmentServices" where "EstablishmentID" in (select "EstablishmentID" from cqc."Establishment" where "PostCode" = 'MK18 2LB');
 delete from cqc."Establishment" where "PostCode" = 'MK18 2LB';
 
 
 delete from cqc."Login" where "RegistrationID"=351;
-delete from cqc."UserAudit" where "UserFK"=351;
 delete from cqc."User" where "EstablishmentID"=371;
 delete from cqc."EstablishmentCapacity" where "EstablishmentID"=371;
 delete from cqc."EstablishmentJobs" where "EstablishmentID"=371;
@@ -19,7 +22,6 @@ delete from cqc."EstablishmentServices" where "EstablishmentID"=371;
 delete from cqc."Establishment" where "EstablishmentID"=371;
 
 delete from cqc."Login" where "RegistrationID"=343;
-delete from cqc."UserAudit" where "UserFK"=343;
 delete from cqc."User" where "EstablishmentID"=363;
 delete from cqc."EstablishmentCapacity" where "EstablishmentID"=363;
 delete from cqc."EstablishmentJobs" where "EstablishmentID"=363;
@@ -33,7 +35,7 @@ update cqc."Establishment" set "PostCode" = 'DN4 6HB' where "EstablishmentID"=30
 ALTER TABLE cqc."EstablishmentLocalAuthority" DROP CONSTRAINT localauthrity_establishmentlocalauthority_fk;
 DROP TABLE cqc."LocalAuthority";
 
----CSSR TABLE CREATION 
+---CSSR TABLE CREATION
 CREATE TABLE cqc."Cssr"
 (
     "CssrID" INTEGER NOT NULL,
@@ -49,9 +51,9 @@ WITH (
     OIDS = FALSE
 )
 TABLESPACE pg_default;
-ALTER TABLE cqc."Cssr" OWNER TO sfcadmin;
+--ALTER TABLE cqc."Cssr" OWNER TO sfcadmin;
 
-INSERT INTO cqc."Cssr" ("CssrID", "CssR", "LocalAuthority", "LocalCustodianCode", "Region", "RegionID", "NmdsIDLetter") VALUES 
+INSERT INTO cqc."Cssr" ("CssrID", "CssR", "LocalAuthority", "LocalCustodianCode", "Region", "RegionID", "NmdsIDLetter") VALUES
 (807, 'West Sussex', 'Adur', 3805, 'South East', 6, 'H'),
 (102, 'Cumbria', 'Allerdale', 905, 'North West', 5, 'F'),
 (506, 'Derbyshire', 'Amber Valley', 1005, 'East Midlands', 2, 'C'),
@@ -401,7 +403,7 @@ ALTER TABLE cqc."EstablishmentLocalAuthority" ALTER COLUMN "CssrID" SET NOT NULL
 ALTER TABLE cqc."EstablishmentLocalAuthority" ALTER COLUMN "CssR" SET NOT NULL;
 ALTER TABLE cqc."EstablishmentLocalAuthority" DROP COLUMN "LocalCustodianCode";
 
--- and now update 
+-- and now update
 update cqc."Establishment"
 set "NmdsID" = "CssrNmdsLetter"."NmdsIDLetter" || nextval('cqc."NmdsID_seq"')
 from (
@@ -416,7 +418,6 @@ from (
 ) as "CssrNmdsLetter"
 where "CssrNmdsLetter"."EstablishmentID" = "Establishment"."EstablishmentID"
 and "Establishment"."NmdsID" is null;
-
 update
     cqc."Establishment"
 set
@@ -428,7 +429,7 @@ update
     cqc."Establishment"
 set
     "NmdsID" = 'H1000999',
-    "PostCode" = "ME7 4QE"
+    "PostCode" = 'ME7 4QE'
 where
     "EstablishmentID"=318;
 
@@ -443,10 +444,9 @@ update
     cqc."Establishment"
 set
     "NmdsID" = 'E1000998',
-    "PostCode" = "TF4 2SG"
+    "PostCode" = 'TF4 2SG'
 where
     "EstablishmentID"=403;
-
 ALTER TABLE cqc."Establishment" ALTER COLUMN "NmdsID" SET NOT NULL;
 
 
@@ -459,7 +459,7 @@ CREATE SEQUENCE IF NOT EXISTS cqc."PasswdResetTracking_seq"
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-    
+
 CREATE TABLE IF NOT EXISTS cqc."PasswdResetTracking" (
     "ID" INTEGER NOT NULL PRIMARY KEY,
     "UserFK" INTEGER NOT NULL,
@@ -478,7 +478,7 @@ UPDATE
     cqc."User"
 SET
     "SecurityQuestion" = login."SecurityQuestion",
-    "SecurityQuestionAnswer" = login."SecurityQuestionAnswer"	
+    "SecurityQuestionAnswer" = login."SecurityQuestionAnswer"
 FROM
     cqc."Login" as login
 WHERE
@@ -556,25 +556,28 @@ CREATE TABLE IF NOT EXISTS cqc."UserAudit" (
 CREATE INDEX "UserAudit_UserFK" on cqc."UserAudit" ("UserFK");
 
 -- hotfix - UserAudit "created" event https://trello.com/c/EUf96Enj
+ ALTER TABLE cqc."User" ADD COLUMN "Archived" BOOLEAN DEFAULT false;
 insert into
-	cqc."UserAudit" ("UserFK", "Username", "When", "EventType")
+        cqc."UserAudit" ("UserFK", "Username", "When", "EventType")
 select "User"."RegistrationID", 'admin', now(), 'created'
 from cqc."User", cqc."Login"
 where "User"."RegistrationID" not in (
-		select distinct "UserFK"
-		from cqc."UserAudit"
-		where "EventType" = 'created'
-	)
+                select distinct "UserFK"
+                from cqc."UserAudit"
+                where "EventType" = 'created'
+        )
   and "Archived"=false
-  and "User"."RegistrationID" = "Login"."RegistrationID"
+  and "User"."RegistrationID" = "Login"."RegistrationID";
 
 -- DB Patch Schema - https://trello.com/c/pByUKSW3 - add UUID to User
-ALTER TABLE cqc."User" ADD COLUMN "UserUID" UUID NULL;
+--ALTER TABLE cqc."User" ADD COLUMN "UserUID" UUID NULL;
+
+ALTER  TABLE  cqc."User" ADD COLUMN  "UserUID"  UUID  NULL;
 
 -- unfortunately, without the postgres extension "uuid-ossp", need an alternative method to
 --  update existing User records with UUID
 UPDATE
-    cqc."User" 
+    cqc."User"
 SET
     "UserUID" = "USER_UUID"."UIDv4"
 FROM (
@@ -591,8 +594,8 @@ WHERE "USER_UUID"."RegID" = "User"."RegistrationID";
 ALTER TABLE cqc."User" ALTER COLUMN "UserUID" SET NOT NULL;
 
 -- https://trello.com/c/1f4RSnlu defect fix
-DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
-DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
+--DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
+--DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
 CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode", "LocationID");
 CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode") WHERE "LocationID" IS NULL;
 
@@ -635,254 +638,17 @@ CREATE SEQUENCE IF NOT EXISTS cqc."AddUserTracking_seq"
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-    
+
 CREATE TABLE IF NOT EXISTS cqc."AddUserTracking" (
     "ID" INTEGER NOT NULL PRIMARY KEY,
-	"UserFK" INTEGER NOT NULL,
+        "UserFK" INTEGER NOT NULL,
     "Created" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
     "Expires" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW() + INTERVAL '3 days',
     "AddUuid"  UUID NOT NULL,
     "RegisteredBy" VARCHAR(120) NOT NULL,
     "Completed" TIMESTAMP NULL,
-	CONSTRAINT "AddUserTracking_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+        CONSTRAINT "AddUserTracking_User_fk" FOREIGN KEY ("UserFK") REFERENCES cqc."User" ("RegistrationID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 ALTER TABLE cqc."AddUserTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc."AddUserTracking_seq"');
 
-ALTER TABLE cqc."User" ADD COLUMN "Archived" BOOLEAN DEFAULT false;
-
--- Establishment auditing - https://trello.com/c/jaqBQdQg
-ALTER TABLE cqc."Establishment" ADD COLUMN created timestamp without time zone NOT NULL DEFAULT now();
-ALTER TABLE cqc."Establishment" ADD COLUMN updated timestamp without time zone NOT NULL DEFAULT now();
-ALTER TABLE cqc."Establishment" ADD COLUMN updatedby character varying(120) COLLATE pg_catalog."default" NOT NULL DEFAULT 'admin';
-
-CREATE TYPE cqc."EstablishmentAuditChangeType" AS ENUM (
-    'created',
-    'updated',
-    'saved',
-    'changed',
-    'deleted'
-);
-CREATE TABLE IF NOT EXISTS cqc."EstablishmentAudit" (
-    "ID" SERIAL NOT NULL PRIMARY KEY,
-    "EstablishmentFK" INTEGER NOT NULL,
-    "Username" VARCHAR(120) NOT NULL,
-    "When" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
-    "EventType" cqc."EstablishmentAuditChangeType" NOT NULL,
-    "PropertyName" VARCHAR(100) NULL,
-    "ChangeEvents" JSONB NULL,
-    CONSTRAINT "EstablishmentAudit_User_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
-);
-CREATE INDEX "EstablshmentAudit_EstablishmentFK" on cqc."EstablishmentAudit" ("EstablishmentFK");
-
-ALTER TABLE cqc."Establishment" ADD COLUMN "EstablishmentUID" UUID NULL;
--- unfortunately, without the postgres extension "uuid-ossp", need an alternative method to
---  update existing User records with UUID
-UPDATE
-    cqc."Establishment" 
-SET
-    "EstablishmentUID" = "ESTABLISHMENT_UUID"."UIDv4"
-FROM (
-    SELECT CAST(substr(CAST(myuuids."UID" AS TEXT), 0, 15) || '4' || substr(CAST(myuuids."UID" AS TEXT), 16, 3) || '-89' || substr(CAST(myuuids."UID" AS TEXT), 22, 36) AS UUID) "UIDv4", "RegID"
-    FROM (
-        SELECT uuid_in(md5(random()::text || clock_timestamp()::text)::cstring) "UID",
-                "Establishment"."EstablishmentID" "RegID"
-        FROM cqc."Establishment"
-    ) AS MyUUIDs
-) AS "ESTABLISHMENT_UUID"
-WHERE "ESTABLISHMENT_UUID"."RegID" = "Establishment"."EstablishmentID";
-ALTER TABLE cqc."Establishment" ALTER COLUMN "EstablishmentUID" SET NOT NULL;
-
--- need to add "create" audit event for all existing Establishments
-insert into
-	cqc."EstablishmentAudit" ("EstablishmentFK", "Username", "When", "EventType")
-select "EstablishmentID", 'admin', now(), 'created'
-from cqc."Establishment"
-where "EstablishmentID" not in (
-	select distinct "EstablishmentFK" from cqc."EstablishmentAudit"
-	where "EventType" = 'created'
-	);
-
-ALTER TABLE cqc."Establishment" RENAME COLUMN "EmployerType" TO "EmployerTypeValue";
-ALTER TABLE cqc."Establishment"   ADD COLUMN "EmployerTypeSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "EmployerTypeChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "EmployerTypeSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "EmployerTypeChangedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Establishment" RENAME COLUMN "NumberOfStaff" TO "NumberOfStaffValue";
-ALTER TABLE cqc."Establishment"   ADD COLUMN "NumberOfStaffSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "NumberOfStaffChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "NumberOfStaffSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "NumberOfStaffChangedBy" VARCHAR(120) NULL;
-
-ALTER TABLE cqc."Establishment"   ADD COLUMN "OtherServicesSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "OtherServicesChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "OtherServicesSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "OtherServicesChangedBy" VARCHAR(120) NULL;
-
-ALTER TABLE cqc."Establishment"   ADD COLUMN "CapacityServicesSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "CapacityServicesChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "CapacityServicesSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "CapacityServicesChangedBy" VARCHAR(120) NULL;
-
-ALTER TABLE cqc."Establishment" RENAME COLUMN "ShareData" TO "ShareDataValue";
-ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareDataSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareDataChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareDataSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareDataChangedBy" VARCHAR(120) NULL;
-
-ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareWithLASavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareWithLAChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareWithLASavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "ShareWithLAChangedBy" VARCHAR(120) NULL;
-
-ALTER TABLE cqc."Establishment" RENAME COLUMN "Vacancies" TO "VacanciesValue";
-ALTER TABLE cqc."Establishment"   ADD COLUMN "VacanciesSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "VacanciesChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "VacanciesSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "VacanciesChangedBy" VARCHAR(120) NULL;
-
-ALTER TABLE cqc."Establishment" RENAME COLUMN "Starters" TO "StartersValue";
-ALTER TABLE cqc."Establishment"   ADD COLUMN "StartersSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "StartersChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "StartersSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "StartersChangedBy" VARCHAR(120) NULL;
-
-ALTER TABLE cqc."Establishment" RENAME COLUMN "Leavers" TO "LeaversValue";
-ALTER TABLE cqc."Establishment"   ADD COLUMN "LeaversSavedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "LeaversChangedAt" TIMESTAMP NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "LeaversSavedBy" VARCHAR(120) NULL;
-ALTER TABLE cqc."Establishment"   ADD COLUMN "LeaversChangedBy" VARCHAR(120) NULL;
-
--- default values for all employer type properyy
-update
-    cqc."Establishment"
-set
-    "EmployerTypeSavedAt" = now(),
-    "EmployerTypeChangedAt" = now(),
-    "EmployerTypeSavedBy" = 'admin',
-    "EmployerTypeChangedBy" = 'admin'
-where
-    "EmployerTypeValue" is not null;        -- namely, the employer type property has been given
-
--- default values for all staff property
-update
-    cqc."Establishment"
-set
-    "NumberOfStaffSavedAt" = now(),
-    "NumberOfStaffChangedAt" = now(),
-    "NumberOfStaffSavedBy" = 'admin',
-    "NumberOfStaffChangedBy" = 'admin'
-where
-    "NumberOfStaffValue" is not null;        -- namely, the staff property has been given
-
--- default values for all Other Services property
-update
-    cqc."Establishment"
-set
-    "OtherServicesSavedAt" = now(),
-    "OtherServicesChangedAt" = now(),
-    "OtherServicesSavedBy" = 'admin',
-    "OtherServicesChangedBy" = 'admin'
-from
-	(select distinct "EstablishmentID" from cqc."EstablishmentServices") as "KnownEstablishmentsWithOtherServices"
-where
-    "KnownEstablishmentsWithOtherServices"."EstablishmentID" = "Establishment"."EstablishmentID";        -- namely, there are known other services
-
--- default values for all Capacity Services property
-update
-    cqc."Establishment"
-set
-    "CapacityServicesSavedAt" = now(),
-    "CapacityServicesChangedAt" = now(),
-    "CapacityServicesSavedBy" = 'admin',
-    "CapacityServicesChangedBy" = 'admin'
-from
-	(select distinct "EstablishmentID" from cqc."EstablishmentCapacity") as "KnownEstablishmentsWithCapacityServices"
-where
-    "KnownEstablishmentsWithCapacityServices"."EstablishmentID" = "Establishment"."EstablishmentID";        -- namely, there are known capacity services
-
-
--- default values for all "share data" property
-update
-    cqc."Establishment"
-set
-    "ShareDataSavedAt" = now(),
-    "ShareDataChangedAt" = now(),
-    "ShareDataSavedBy" = 'admin',
-    "ShareDataChangedBy" = 'admin'
-where
-    "ShareDataValue" = true;        -- namely, share is any other than the default of false
-
--- default values for all Share with LA (local Authorities) property
-update
-    cqc."Establishment"
-set
-    "ShareWithLASavedAt" = now(),
-    "ShareWithLAChangedAt" = now(),
-    "ShareWithLASavedBy" = 'admin',
-    "ShareWithLAChangedBy" = 'admin'
-from
-	(select distinct "EstablishmentID" from cqc."EstablishmentLocalAuthority") as "KnownEstablishmentsWithLAs"
-where
-    "KnownEstablishmentsWithLAs"."EstablishmentID" = "Establishment"."EstablishmentID";        -- namely, there are known capacity services
-
--- views are used to separate out Vacancies, Starters and Leavers upon the single EstablishmentJobs entity
-CREATE VIEW cqc."VacanciesVW" AS
-	SELECT
-		"EstablishmentJobID",
-		"EstablishmentID",
-		"JobID",
-		"JobType",
-		"Total"
-	FROM cqc."EstablishmentJobs"
-	WHERE "JobType" = 'Vacancies';
-CREATE VIEW cqc."StartersVW" AS
-	SELECT
-		"EstablishmentJobID",
-		"EstablishmentID",
-		"JobID",
-		"JobType",
-		"Total"
-	FROM cqc."EstablishmentJobs"
-	WHERE "JobType" = 'Starters';
-CREATE VIEW cqc."LeaversVW" AS
-	SELECT
-		"EstablishmentJobID",
-		"EstablishmentID",
-		"JobID",
-		"JobType",
-		"Total"
-	FROM cqc."EstablishmentJobs"
-	WHERE "JobType" = 'Leavers';
-
--- default values for Vacancies property
-update
-    cqc."Establishment"
-set
-    "VacanciesSavedAt" = now(),
-    "VacanciesChangedAt" = now(),
-    "VacanciesSavedBy" = 'admin',
-    "VacanciesChangedBy" = 'admin'
-where
-    "VacanciesValue" is not null;        -- namely, there are no known Vacancies
-
--- default values for Starters property
-update
-    cqc."Establishment"
-set
-    "StartersSavedAt" = now(),
-    "StartersChangedAt" = now(),
-    "StartersSavedBy" = 'admin',
-    "StartersChangedBy" = 'admin'
-where
-    "StartersValue" is not null;        -- namely, there are no known Starters
-
--- default values for Leavers property
-update
-    cqc."Establishment"
-set
-    "LeaversSavedAt" = now(),
-    "LeaversChangedAt" = now(),
-    "LeaversSavedBy" = 'admin',
-    "LeaversChangedBy" = 'admin'
-where
-    "LeaversValue" is not null;        -- namely, there are no known Leavers
+--ALTER TABLE cqc."User" ADD COLUMN "Archived" BOOLEAN DEFAULT false;
