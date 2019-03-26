@@ -827,3 +827,36 @@ set
     "LeaversChangedBy" = 'admin'
 where
     "LeaversValue" is not null;        -- namely, there are no known Leavers
+
+-- patch SQL for "Service Users Question" - https://trello.com/c/6j4x0gui
+-- Service Users Reference Data
+CREATE TABLE IF NOT EXISTS cqc."ServiceUsers" (
+	"ID" INTEGER NOT NULL PRIMARY KEY,
+	"Seq" INTEGER NOT NULL, 	-- this is the order in which the Ethinicity will appear without impacting on primary key (existing foreign keys)
+	"ServiceGroup" TEXT NOT NULL,
+	"Service" TEXT NOT NULL
+);
+INSERT INTO cqc."ServiceUsers" ("ID", "Seq", "ServiceGroup", "Service") VALUES 
+	(1, 1, 'Older people', 'Older people with dementia'),
+	(2, 2, 'Older people', 'Older people with mental disorders or infirmities, excluding learning disability or dementia'),
+	(3, 3, 'Older people', 'Older people detained under the Mental Health Act'),
+	(4, 4, 'Older people', 'Older people with learning disabilities and/or autism'),
+	(5, 5, 'Older people', 'Older people with physical disabilities'),
+	(6, 6, 'Older people', 'Older people with sensory impairment(s)'),
+	(7, 7, 'Older people', 'Older people who misuse alcohol/drugs'),
+	(8, 8, 'Older people', 'Older people with an eating disorder'),
+	(9, 9, 'Older people', 'Older people not in above categories'),
+	(10, 101, 'Adults', 'Adults with dementia'),
+	(11, 102, 'Adults', 'Adults with mental disorders or infirmities, excluding learning disability or dementia'),
+	(12, 103, 'Adults', 'Adults detained under the Mental Health Act'),
+	(13, 104, 'Adults', 'Adults with learning disabilities and/or autism'),
+	(14, 105, 'Adults', 'Adults with physical disabilities'),
+	(15, 106, 'Adults', 'Adults with sensory impairments'),
+	(16, 107, 'Adults', 'Adults who misuse alcohol/drugs'),
+	(17, 108, 'Adults', 'Adults with an eating disorder'),
+	(18, 109, 'Adults', 'Adults not in above categories'),
+	(19, 201, 'Children and young people', 'Any children and young people'),
+    (20, 301, 'Carers', 'Carers of older people'),
+    (21, 302, 'Carers', 'Carers of adults'),
+    (22, 303, 'Carers', 'Carers of children and young people'),
+    (23, 401, 'Other', 'Any others not in above categories');
