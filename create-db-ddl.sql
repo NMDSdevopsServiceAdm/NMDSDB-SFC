@@ -65,24 +65,105 @@ CREATE SEQUENCE IF NOT EXISTS cqc."NmdsID_seq"
     CACHE 1;
 ALTER TABLE cqc."NmdsID_seq" OWNER TO sfcadmin;
 
+CREATE TYPE cqc.job_declaration AS ENUM (
+    'None',
+    'Don''t know',
+	'With Jobs'
+);
+
+-- Service Users Reference Data
+CREATE TABLE IF NOT EXISTS cqc."ServiceUsers" (
+	"ID" INTEGER NOT NULL PRIMARY KEY,
+	"Seq" INTEGER NOT NULL, 	-- this is the order in which the Ethinicity will appear without impacting on primary key (existing foreign keys)
+	"ServiceGroup" TEXT NOT NULL,
+	"Service" TEXT NOT NULL
+);
+INSERT INTO cqc."ServiceUsers" ("ID", "Seq", "ServiceGroup", "Service") VALUES 
+	(1, 1, 'Older people', 'Older people with dementia'),
+	(2, 2, 'Older people', 'Older people with mental disorders or infirmities, excluding learning disability or dementia'),
+	(3, 3, 'Older people', 'Older people detained under the Mental Health Act'),
+	(4, 4, 'Older people', 'Older people with learning disabilities and/or autism'),
+	(5, 5, 'Older people', 'Older people with physical disabilities'),
+	(6, 6, 'Older people', 'Older people with sensory impairment(s)'),
+	(7, 7, 'Older people', 'Older people who misuse alcohol/drugs'),
+	(8, 8, 'Older people', 'Older people with an eating disorder'),
+	(9, 9, 'Older people', 'Older people not in above categories'),
+	(10, 101, 'Adults', 'Adults with dementia'),
+	(11, 102, 'Adults', 'Adults with mental disorders or infirmities, excluding learning disability or dementia'),
+	(12, 103, 'Adults', 'Adults detained under the Mental Health Act'),
+	(13, 104, 'Adults', 'Adults with learning disabilities and/or autism'),
+	(14, 105, 'Adults', 'Adults with physical disabilities'),
+	(15, 106, 'Adults', 'Adults with sensory impairments'),
+	(16, 107, 'Adults', 'Adults who misuse alcohol/drugs'),
+	(17, 108, 'Adults', 'Adults with an eating disorder'),
+	(18, 109, 'Adults', 'Adults not in above categories'),
+	(19, 201, 'Children and young people', 'Any children and young people'),
+    (20, 301, 'Carers', 'Carers of older people'),
+    (21, 302, 'Carers', 'Carers of adults'),
+    (22, 303, 'Carers', 'Carers of children and young people'),
+    (23, 401, 'Other', 'Any others not in above categories');
+
 --
 -- Name: Establishment; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
 --
 
 CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "EstablishmentID" integer NOT NULL,
+    "EstablishmentUID" UUID NOT NULL,
+    "NmdsID" character(8) NOT NULL,
     "Name" text NOT NULL,
     "Address" text,
     "LocationID" text,
     "PostCode" text,
     "IsRegulated" boolean NOT NULL,
     "MainServiceId" integer,
-    "EmployerType" cqc.est_employertype_enum,
+    "EmployerTypeValue" cqc.est_employertype_enum,
+    "EmployerTypeSavedAt" TIMESTAMP NULL,
+    "EmployerTypeChangedAt" TIMESTAMP NULL,
+    "EmployerTypeSavedBy" VARCHAR(120) NULL,
+    "EmployerTypeChangedBy" VARCHAR(120) NULL,
+    "NumberOfStaffValue" integer,
+    "NumberOfStaffSavedAt" TIMESTAMP NULL,
+    "NumberOfStaffChangedAt" TIMESTAMP NULL,
+    "NumberOfStaffSavedBy" VARCHAR(120) NULL,
+    "NumberOfStaffChangedBy" VARCHAR(120) NULL,
+    "OtherServicesSavedAt" TIMESTAMP NULL,
+    "OtherServicesChangedAt" TIMESTAMP NULL,
+    "OtherServicesSavedBy" VARCHAR(120) NULL,
+    "OtherServicesChangedBy" VARCHAR(120) NULL,
+    "CapacityServicesSavedAt" TIMESTAMP NULL,
+    "CapacityServicesChangedAt" TIMESTAMP NULL,
+    "CapacityServicesSavedBy" VARCHAR(120) NULL,
+    "CapacityServicesChangedBy" VARCHAR(120) NULL,
+    "ShareDataValue"  boolean DEFAULT false,
+    "ShareDataSavedAt" TIMESTAMP NULL,
+    "ShareDataChangedAt" TIMESTAMP NULL,
+    "ShareDataSavedBy" VARCHAR(120) NULL,
+    "ShareDataChangedBy" VARCHAR(120) NULL,
     "ShareDataWithCQC" boolean DEFAULT false,
     "ShareDataWithLA" boolean DEFAULT false,
-    "ShareData" boolean DEFAULT false,
-    "NumberOfStaff" integer,
-    "NmdsID" character(8) NOT NULL
+    "ShareWithLASavedAt" TIMESTAMP NULL,
+    "ShareWithLAChangedAt" TIMESTAMP NULL,
+    "ShareWithLASavedBy" VARCHAR(120) NULL,
+    "ShareWithLAChangedBy" VARCHAR(120) NULL,
+    "VacanciesValue" cqc.job_declaration NULL,
+    "StartersValue" cqc.job_declaration NULL,
+    "LeaversValue" cqc.job_declaration NULL,
+    "VacanciesSavedAt" TIMESTAMP NULL,
+    "VacanciesChangedAt" TIMESTAMP NULL,
+    "VacanciesSavedBy" VARCHAR(120) NULL,
+    "VacanciesChangedBy" VARCHAR(120) NULL,
+    "StartersSavedAt" TIMESTAMP NULL,
+    "StartersChangedAt" TIMESTAMP NULL,
+    "StartersSavedBy" VARCHAR(120) NULL,
+    "StartersChangedBy" VARCHAR(120) NULL,
+    "LeaversSavedAt" TIMESTAMP NULL,
+    "LeaversChangedAt" TIMESTAMP NULL,
+    "LeaversSavedBy" VARCHAR(120) NULL,
+    "LeaversChangedBy" VARCHAR(120) NULL,
+    created timestamp without time zone NOT NULL DEFAULT now(),
+    updated timestamp without time zone NOT NULL DEFAULT now(),
+    updatedby character varying(120) COLLATE pg_catalog."default" NOT NULL
 );
 
 
@@ -164,6 +245,34 @@ ALTER TABLE cqc."EstablishmentJobs_EstablishmentJobID_seq" OWNER TO sfcadmin;
 --
 
 ALTER SEQUENCE IF EXISTS cqc."EstablishmentJobs_EstablishmentJobID_seq" OWNED BY cqc."EstablishmentJobs"."EstablishmentJobID";
+
+CREATE VIEW cqc."VacanciesVW" AS
+	SELECT
+		"EstablishmentJobID",
+		"EstablishmentID",
+		"JobID",
+		"JobType",
+		"Total"
+	FROM cqc."EstablishmentJobs"
+	WHERE "JobType" = 'Vacancies';
+CREATE VIEW cqc."StartersVW" AS
+	SELECT
+		"EstablishmentJobID",
+		"EstablishmentID",
+		"JobID",
+		"JobType",
+		"Total"
+	FROM cqc."EstablishmentJobs"
+	WHERE "JobType" = 'Starters';
+CREATE VIEW cqc."LeaversVW" AS
+	SELECT
+		"EstablishmentJobID",
+		"EstablishmentID",
+		"JobID",
+		"JobType",
+		"Total"
+	FROM cqc."EstablishmentJobs"
+	WHERE "JobType" = 'Leavers';
 
 ---CSSR TABLE CREATION 
 CREATE TABLE cqc."Cssr"
@@ -828,16 +937,6 @@ insert into cqc."Job" ("JobID", "JobName") values (28, 'Supervisor');
 insert into cqc."Job" ("JobID", "JobName") values (29, 'Technician');
 
 
-CREATE TYPE cqc.job_declaration AS ENUM (
-    'None',
-    'Don''t know',
-	'With Jobs'
-);
-
-ALTER TABLE cqc."Establishment" add column "Vacancies" cqc.job_declaration NULL;
-ALTER TABLE cqc."Establishment" add column "Starters" cqc.job_declaration NULL;
-ALTER TABLE cqc."Establishment" add column "Leavers" cqc.job_declaration NULL;
-
 -- https://trello.com/c/LgdigwUb - duplicate establishment
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
@@ -1237,4 +1336,21 @@ CREATE TABLE IF NOT EXISTS cqc."AddUserTracking" (
 );
 ALTER TABLE cqc."AddUserTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc."AddUserTracking_seq"');
 
-
+CREATE TYPE cqc."EstablishmentAuditChangeType" AS ENUM (
+    'created',
+    'updated',
+    'saved',
+    'changed',
+    'deleted'
+);
+CREATE TABLE IF NOT EXISTS cqc."EstablishmentAudit" (
+    "ID" SERIAL NOT NULL PRIMARY KEY,
+    "EstablishmentFK" INTEGER NOT NULL,
+    "Username" VARCHAR(120) NOT NULL,
+    "When" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    "EventType" cqc."EstablishmentAuditChangeType" NOT NULL,
+    "PropertyName" VARCHAR(100) NULL,
+    "ChangeEvents" JSONB NULL,
+    CONSTRAINT "EstablishmentAudit_User_fk" FOREIGN KEY ("EstablishmentFK") REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+CREATE INDEX "EstablshmentAudit_EstablishmentFK" on cqc."EstablishmentAudit" ("EstablishmentFK");

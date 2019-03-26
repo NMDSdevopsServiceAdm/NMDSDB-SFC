@@ -1,3 +1,7 @@
+-- views
+DROP VIEW IF EXISTS cqc."VacanciesVW";
+DROP VIEW IF EXISTS cqc."StartersVW";
+DROP VIEW IF EXISTS cqc."LeaversVW";
 -- other
 DROP TABLE IF EXISTS cqc."Feedback";
 
@@ -19,7 +23,7 @@ DROP TABLE IF EXISTS cqc."PasswdResetTracking";
 DROP TABLE IF EXISTS cqc."UserAudit";
 
 -- registration
---DROP TABLE IF EXISTS cqc."CqcLog";
+DROP TABLE IF EXISTS cqc."EstablishmentAudit";
 DROP TABLE IF EXISTS cqc."Login";
 DROP TABLE IF EXISTS cqc."User";
 DROP TABLE IF EXISTS cqc."Establishment";
@@ -70,6 +74,7 @@ DROP TYPE IF EXISTS cqc."WorkerYearArrived";
 DROP TYPE IF EXISTS cqc."WorkerZeroHoursContract";
 DROP TYPE IF EXISTS cqc."WorkerRecruitedFrom";
 DROP TYPE IF EXISTS cqc."user_role";
+DROP TYPE IF EXISTS cqc."EstablishmentAuditChangeType";
 
 -- sequences
 DROP SEQUENCE IF EXISTS cqc."EstablishmentCapacity_EstablishmentCapacityID_seq";
