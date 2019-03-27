@@ -111,12 +111,20 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "EstablishmentID" integer NOT NULL,
     "EstablishmentUID" UUID NOT NULL,
     "NmdsID" character(8) NOT NULL,
-    "Name" text NOT NULL,
     "Address" text,
     "LocationID" text,
     "PostCode" text,
     "IsRegulated" boolean NOT NULL,
-    "MainServiceId" integer,
+    "NameValue" text NOT NULL,
+    "NameSavedAt" TIMESTAMP NULL,
+    "NameChangedAt" TIMESTAMP NULL,
+    "NameSavedBy" VARCHAR(120) NULL,
+    "NameChangedBy" VARCHAR(120) NULL,
+    "MainServiceFKValue" integer,
+    "MainServiceFKSavedAt" TIMESTAMP NULL,
+    "MainServiceFKChangedAt" TIMESTAMP NULL,
+    "MainServiceFKSavedBy" VARCHAR(120) NULL,
+    "MainServiceFKChangedBy" VARCHAR(120) NULL,
     "EmployerTypeValue" cqc.est_employertype_enum,
     "EmployerTypeSavedAt" TIMESTAMP NULL,
     "EmployerTypeChangedAt" TIMESTAMP NULL,
@@ -131,6 +139,10 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "OtherServicesChangedAt" TIMESTAMP NULL,
     "OtherServicesSavedBy" VARCHAR(120) NULL,
     "OtherServicesChangedBy" VARCHAR(120) NULL,
+    "ServiceUsersSavedAt" TIMESTAMP NULL,
+    "ServiceUsersChangedAt" TIMESTAMP NULL,
+    "ServiceUsersSavedBy" VARCHAR(120) NULL,
+    "ServiceUsersChangedBy" VARCHAR(120) NULL,
     "CapacityServicesSavedAt" TIMESTAMP NULL,
     "CapacityServicesChangedAt" TIMESTAMP NULL,
     "CapacityServicesSavedBy" VARCHAR(120) NULL,
@@ -341,6 +353,12 @@ CREATE TABLE IF NOT EXISTS cqc."EstablishmentServices" (
 
 
 ALTER TABLE cqc."EstablishmentServices" OWNER TO sfcadmin;
+
+
+CREATE TABLE IF NOT EXISTS cqc."EstablishmentServiceUsers" (
+    "EstablishmentID" integer NOT NULL,
+    "ServiceUserID" integer NOT NULL
+);
 
 --
 -- Name: Establishment_EstablishmentID_seq; Type: SEQUENCE; Schema: cqc; Owner: sfcadmin

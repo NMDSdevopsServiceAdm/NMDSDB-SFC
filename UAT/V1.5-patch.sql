@@ -267,3 +267,28 @@ INSERT INTO cqc."ServiceUsers" ("ID", "Seq", "ServiceGroup", "Service") VALUES
     (21, 302, 'Carers', 'Carers of adults'),
     (22, 303, 'Carers', 'Carers of children and young people'),
     (23, 401, 'Other', 'Any others not in above categories');
+
+CREATE TABLE IF NOT EXISTS cqc."EstablishmentServiceUsers" (
+    "EstablishmentID" integer NOT NULL,
+    "ServiceUserID" integer NOT NULL
+);
+
+-- Service Users property - https://trello.com/c/6j4x0gui
+-- this is a new property, so no patching upon existing data
+ALTER TABLE cqc."Establishment"   ADD COLUMN "ServiceUsersSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "ServiceUsersChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "ServiceUsersSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "ServiceUsersChangedBy" VARCHAR(120) NULL;
+
+-- Change Name and Main Service to managed properties for edit and audit - https://trello.com/c/6y2OTQmB
+-- these are previously fixed properties, so no patching upon existing data
+ALTER TABLE cqc."Establishment" RENAME COLUMN "Name" TO "NameValue";
+ALTER TABLE cqc."Establishment"   ADD COLUMN "NameSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "NameChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "NameSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "NameChangedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Establishment" RENAME COLUMN "MainServiceId" TO "MainServiceFKValue";
+ALTER TABLE cqc."Establishment"   ADD COLUMN "MainServiceFKSavedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "MainServiceFKChangedAt" TIMESTAMP NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "MainServiceFKSavedBy" VARCHAR(120) NULL;
+ALTER TABLE cqc."Establishment"   ADD COLUMN "MainServiceFKChangedBy" VARCHAR(120) NULL;
