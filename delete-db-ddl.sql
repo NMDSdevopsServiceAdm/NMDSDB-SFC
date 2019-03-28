@@ -13,6 +13,7 @@ DROP TABLE IF EXISTS cqc."WorkerLeaveReasons";
 
 -- establishments
 DROP TABLE IF EXISTS cqc."EstablishmentServices";
+DROP TABLE IF EXISTS cqc."EstablishmentServiceUsers";
 DROP TABLE IF EXISTS cqc."EstablishmentLocalAuthority";
 DROP TABLE IF EXISTS cqc."EstablishmentJobs";
 DROP TABLE IF EXISTS cqc."EstablishmentCapacity";
@@ -32,6 +33,7 @@ DROP TABLE IF EXISTS cqc."Establishment";
 DROP TABLE IF EXISTS cqc."Job";
 DROP TABLE IF EXISTS cqc."Cssr";
 DROP TABLE IF EXISTS cqc."ServicesCapacity";
+DROP TABLE IF EXISTS cqc."ServiceUsers";
 DROP TABLE IF EXISTS cqc.services;
 DROP TABLE IF EXISTS cqc."Country";
 DROP TABLE IF EXISTS cqc."Ethnicity";
