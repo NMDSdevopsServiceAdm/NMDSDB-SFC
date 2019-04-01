@@ -155,7 +155,7 @@ CREATE TYPE cqc."WorkerQualificationType" AS ENUM (
 
 --DROP TABLE IF EXISTS cqc."WorkerQualifications";
 CREATE TABLE IF NOT EXISTS cqc."WorkerQualifications" (
-	"ID" INTEGER NOT NULL PRIMARY KEY,
+	"ID" SERIAL NOT NULL PRIMARY KEY,
   "UID" UUID NOT NULL,
   "WorkerFK" INTEGER NOT NULL,
   "QualificationsFK" INTEGER NOT NULL,
@@ -224,7 +224,7 @@ INSERT INTO cqc."TrainingCategories" ("ID", "Seq", "Category") VALUES
 
 DROP TABLE IF EXISTS cqc."WorkerTraining";
 CREATE TABLE IF NOT EXISTS cqc."WorkerTraining" (
-	"ID" INTEGER NOT NULL PRIMARY KEY,
+	"ID"  SERIAL NOT NULL PRIMARY KEY,
   "UID" UUID NOT NULL,
   "WorkerFK" INTEGER NOT NULL,
   "CategoryFK" INTEGER NOT NULL,
