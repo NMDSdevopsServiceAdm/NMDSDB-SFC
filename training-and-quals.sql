@@ -214,9 +214,31 @@ INSERT INTO cqc."TrainingCategories" ("ID", "Seq", "Category") VALUES
 (29, 29, 'Continence Care'),
 (30, 30, 'Duty of care'),
 (31, 31, 'Supervision / Performance management'),
-(33, 33, 'Stroke'),
+(32, 32, 'Stroke'),
 (33, 33, 'Complaints handling/conflict resolution'),
 (34, 34, 'Personal Care'),
 (35, 35, 'Activity provision/Well-being'),
 (36, 36, 'Sensory disability'),
 (37, 37, 'Childrens / young people''s related training');
+
+
+DROP TABLE IF EXISTS cqc."WorkerTraining";
+CREATE TABLE IF NOT EXISTS cqc."WorkerTraining" (
+	"ID" INTEGER NOT NULL PRIMARY KEY,
+  "UID" UUID NOT NULL,
+  "WorkerFK" INTEGER NOT NULL,
+  "CategoryFK" INTEGER NOT NULL,
+  "Title" VARCHAR(120) NOT NULL,
+  "Accredited" BOOLEAN NOT NULL,
+  "Completed" DATE NOT NULL,
+  "Expires" DATE NOT NULL,
+  "Notes" TEXT NULL,
+  created timestamp without time zone NOT NULL DEFAULT now(),
+  updated timestamp without time zone NOT NULL DEFAULT now(),
+  updatedby character varying(120) COLLATE pg_catalog."default" NOT NULL,
+  CONSTRAINT "WorkerTraining_Worker_fk" FOREIGN KEY ("WorkerFK") REFERENCES cqc."Worker" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "WorkerTraining_Training_Category_fk" FOREIGN KEY ("CategoryFK") REFERENCES cqc."TrainingCategories" ("ID") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "WorkerTraining_UID_unq" UNIQUE ("UID")
+);
+CREATE INDEX "WorkerTraining_WorkerFK" on cqc."WorkerTraining" ("WorkerFK");
+CREATE INDEX "WorkerTraining_QualificationsFK" on cqc."WorkerTraining" ("CategoryFK");
