@@ -153,7 +153,6 @@ CREATE TYPE cqc."WorkerQualificationType" AS ENUM (
   'Apprenticeship'
 );
 
---DROP TABLE IF EXISTS cqc."WorkerQualifications";
 CREATE TABLE IF NOT EXISTS cqc."WorkerQualifications" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,
   "UID" UUID NOT NULL,
@@ -221,8 +220,6 @@ INSERT INTO cqc."TrainingCategories" ("ID", "Seq", "Category") VALUES
 (36, 36, 'Sensory disability'),
 (37, 37, 'Childrens / young people''s related training');
 
-
-DROP TABLE IF EXISTS cqc."WorkerTraining";
 CREATE TABLE IF NOT EXISTS cqc."WorkerTraining" (
 	"ID"  SERIAL NOT NULL PRIMARY KEY,
   "UID" UUID NOT NULL,
