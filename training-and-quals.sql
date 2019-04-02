@@ -231,7 +231,7 @@ CREATE TABLE IF NOT EXISTS cqc."WorkerTraining" (
   "Title" VARCHAR(120) NOT NULL,
   "Accredited" BOOLEAN NOT NULL,
   "Completed" DATE NOT NULL,
-  "Expires" DATE NOT NULL,
+  "Expires" DATE NULL,
   "Notes" TEXT NULL,
   created timestamp without time zone NOT NULL DEFAULT now(),
   updated timestamp without time zone NOT NULL DEFAULT now(),
