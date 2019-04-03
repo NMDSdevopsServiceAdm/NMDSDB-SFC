@@ -6,6 +6,8 @@ DROP VIEW IF EXISTS cqc."LeaversVW";
 DROP TABLE IF EXISTS cqc."Feedback";
 
 -- workers
+DROP TABLE IF EXISTS cqc."WorkerTraining";
+DROP TABLE IF EXISTS cqc."WorkerQualifications";
 DROP TABLE IF EXISTS cqc."WorkerAudit";
 DROP TABLE IF EXISTS cqc."WorkerJobs";
 DROP TABLE IF EXISTS cqc."Worker";
@@ -34,13 +36,15 @@ DROP TABLE IF EXISTS cqc."Job";
 DROP TABLE IF EXISTS cqc."Cssr";
 DROP TABLE IF EXISTS cqc."ServicesCapacity";
 DROP TABLE IF EXISTS cqc."ServiceUsers";
-DROP TABLE IF EXISTS cqc.services;
+DROP TABLE IF EXISTS cqc."services";
 DROP TABLE IF EXISTS cqc."Country";
 DROP TABLE IF EXISTS cqc."Ethnicity";
 DROP TABLE IF EXISTS cqc."LocalAuthority";
 DROP TABLE IF EXISTS cqc."Nationality";
 DROP TABLE IF EXISTS cqc."Qualification";
 DROP TABLE IF EXISTS cqc."RecruitedFrom";
+DROP TABLE IF EXISTS cqc."Qualifications";
+DROP TABLE IF EXISTS cqc."TrainingCategories";
 
 
 -- large external reference - do not drop!
@@ -77,6 +81,7 @@ DROP TYPE IF EXISTS cqc."WorkerZeroHoursContract";
 DROP TYPE IF EXISTS cqc."WorkerRecruitedFrom";
 DROP TYPE IF EXISTS cqc."user_role";
 DROP TYPE IF EXISTS cqc."EstablishmentAuditChangeType";
+DROP TYPE IF EXISTS cqc."WorkerQualificationType";
 
 -- sequences
 DROP SEQUENCE IF EXISTS cqc."EstablishmentCapacity_EstablishmentCapacityID_seq";
