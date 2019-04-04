@@ -81,7 +81,6 @@ DROP TYPE IF EXISTS cqc."WorkerZeroHoursContract";
 DROP TYPE IF EXISTS cqc."WorkerRecruitedFrom";
 DROP TYPE IF EXISTS cqc."user_role";
 DROP TYPE IF EXISTS cqc."EstablishmentAuditChangeType";
-DROP TYPE IF EXISTS cqc."WorkerQualificationType";
 
 -- sequences
 DROP SEQUENCE IF EXISTS cqc."EstablishmentCapacity_EstablishmentCapacityID_seq";
