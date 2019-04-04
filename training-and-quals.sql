@@ -146,17 +146,6 @@ INSERT INTO cqc."Qualifications" ("ID", "Seq", "Group", "Title", "Code", "From",
   (132, 1240, 'Apprenticeship','Physiotherapist', 313, NULL, NULL,'6', 'No', 'No', 'QL313ACHQ6'),
   (133, 1250, 'Apprenticeship','Any other apprenticeship framework or standard', 311, NULL, NULL,NULL, 'No', 'No', 'QL311ACHQ');
 
-CREATE TYPE cqc."WorkerQualificationType" AS ENUM (
-	'NVQ',
-  'Any other qualification',
-  'Certificate',
-  'Degree',
-  'Assessor and mentoring',
-  'Award', 
-  'Diploma',
-  'Apprenticeship'
-);
-
 CREATE TABLE IF NOT EXISTS cqc."WorkerQualifications" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,
   "UID" UUID NOT NULL,
