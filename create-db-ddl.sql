@@ -93,7 +93,7 @@ INSERT INTO cqc."ServiceUsers" ("ID", "Seq", "ServiceGroup", "Service") VALUES
 	(12, 103, 'Adults', 'Adults detained under the Mental Health Act'),
 	(13, 104, 'Adults', 'Adults with learning disabilities and/or autism'),
 	(14, 105, 'Adults', 'Adults with physical disabilities'),
-	(15, 106, 'Adults', 'Adults with sensory impairments'),
+	(15, 106, 'Adults', 'Adults with sensory impairment(s)'),
 	(16, 107, 'Adults', 'Adults who misuse alcohol/drugs'),
 	(17, 108, 'Adults', 'Adults with an eating disorder'),
 	(18, 109, 'Adults', 'Adults not in above categories'),
