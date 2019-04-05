@@ -211,14 +211,18 @@ INSERT INTO cqc."TrainingCategories" ("ID", "Seq", "Category") VALUES
   (36, 360,  'Supervision / Performance management'),
   (37, 370,  'Any other not in the above categories');
 
-
+CREATE TYPE cqc."WorkerTrainingAccreditation" AS ENUM (
+    'Yes',
+    'No',
+    'Don''t know'
+);
 CREATE TABLE IF NOT EXISTS cqc."WorkerTraining" (
 	"ID"  SERIAL NOT NULL PRIMARY KEY,
   "UID" UUID NOT NULL,
   "WorkerFK" INTEGER NOT NULL,
   "CategoryFK" INTEGER NOT NULL,
   "Title" VARCHAR(120) NULL,
-  "Accredited" BOOLEAN NULL,
+  "Accredited" cqc."WorkerTrainingAccreditation" NULL,
   "Completed" DATE NULL,
   "Expires" DATE NULL,
   "Notes" TEXT NULL,
