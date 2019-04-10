@@ -2,6 +2,8 @@
 DROP VIEW IF EXISTS cqc."VacanciesVW";
 DROP VIEW IF EXISTS cqc."StartersVW";
 DROP VIEW IF EXISTS cqc."LeaversVW";
+DROP VIEW IF EXISTS cqc."AllEstablishmentAndWorkersVW";
+
 -- other
 DROP TABLE IF EXISTS cqc."Feedback";
 
