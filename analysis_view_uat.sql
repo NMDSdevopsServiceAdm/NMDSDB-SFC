@@ -12,7 +12,7 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
     "Establishment"."NumberOfStaff",
     (select count(0) from cqc."EstablishmentServices" where "EstablishmentServices"."EstablishmentID" = "Establishment"."EstablishmentID") AS "OtherServices",
     (select count(0) from cqc."EstablishmentCapacity" where "EstablishmentCapacity"."EstablishmentID" = "Establishment"."EstablishmentID") AS "Capacities",
-    null AS "ServiceUsers"
+    null AS "ServiceUsers",
     "Establishment"."ShareData",
     "Establishment"."ShareDataWithCQC",
     "Establishment"."ShareDataWithLA",
