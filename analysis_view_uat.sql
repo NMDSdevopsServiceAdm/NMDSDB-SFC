@@ -130,4 +130,5 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
   from
     cqc."Establishment", cqc."Worker"
   where
-    "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK";
+    "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK"
+  order by "EstablishmentCreated", "WorkerCreated";
