@@ -1,5 +1,6 @@
+DROP VIEW "cqc"."AllEstablishmentAndWorkersVW";
 CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
-  select
+  SELECT
     "Establishment"."EstablishmentID",
     "Establishment"."EstablishmentUID",
     "Establishment"."NmdsID",
@@ -36,9 +37,9 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
     (select count(0) from cqc."EstablishmentLocalAuthority" where "EstablishmentLocalAuthority"."EstablishmentID" = "Establishment"."EstablishmentID") AS "LocalAuthorities",
     "Establishment"."ShareWithLASavedAt",
     "Establishment"."ShareWithLAChangedAt",
-    "Establishment"."VacanciesValue",
-    "Establishment"."StartersValue",
-    "Establishment"."LeaversValue",
+	case when "Establishment"."VacanciesValue" = 'With Jobs' then "VacanciesStartersLeavers"."TotalVacancies"::text else "Establishment"."VacanciesValue"::text end AS "VacanciesValue",
+	case when "Establishment"."StartersValue" = 'With Jobs' then "VacanciesStartersLeavers"."TotalStarters"::text else "Establishment"."StartersValue"::text end AS "StartersValue",
+	case when "Establishment"."LeaversValue" = 'With Jobs' then "VacanciesStartersLeavers"."TotalLeavers"::text else "Establishment"."LeaversValue"::text end AS  "LeaversValue",
     "Establishment"."VacanciesSavedAt",
     "Establishment"."VacanciesChangedAt",
     "Establishment"."StartersSavedAt",
@@ -153,7 +154,15 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
     "Worker".created AS "WorkerCreated",
     "Worker".updated As "WorkerUpdated"
   from
-    cqc."Establishment", cqc."Worker"
-  where
-    "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK"
-  order by "EstablishmentCreated", "WorkerCreated";
+    cqc."Establishment"
+		INNER JOIN cqc."Worker" ON "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK"
+		LEFT JOIN
+			(SELECT
+				"Establishment"."EstablishmentID" "EstablishmentID",
+				sum(case when "JobType" = 'Vacancies' then "Total" end) "TotalVacancies",
+				sum(case when "JobType" = 'Starters' then "Total" end) "TotalStarters",
+				sum(case when "JobType" = 'Leavers' then "Total" end) "TotalLeavers"
+			FROM cqc."EstablishmentJobs", cqc."Establishment",cqc."User"
+			WHERE "Establishment"."EstablishmentID" = "EstablishmentJobs"."EstablishmentID" and "Establishment"."EstablishmentID"="User"."EstablishmentID"
+			GROUP BY "Establishment"."EstablishmentID") "VacanciesStartersLeavers" ON "Establishment"."EstablishmentID" = "VacanciesStartersLeavers"."EstablishmentID" 
+  ORDER BY "Establishment"."EstablishmentID", "WorkerUpdated";
