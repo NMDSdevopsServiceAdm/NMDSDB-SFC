@@ -116,7 +116,6 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "PostCode" text,
     "IsRegulated" boolean NOT NULL,
     "OverallWdfEligibility" timestamp without time zone NULL,
-    "CurrentWdfEligibiity" BOOLEAN NOT NULL DEFAULT FALSE,
     "LastWdfEligibility" timestamp without time zone NULL,
     "NameValue" text NOT NULL,
     "NameSavedAt" TIMESTAMP NULL,
@@ -1362,7 +1361,9 @@ CREATE TYPE cqc."EstablishmentAuditChangeType" AS ENUM (
     'updated',
     'saved',
     'changed',
-    'deleted'
+    'deleted',
+    'wdfEligible',
+    'overalWdfEligible'
 );
 CREATE TABLE IF NOT EXISTS cqc."EstablishmentAudit" (
     "ID" SERIAL NOT NULL PRIMARY KEY,

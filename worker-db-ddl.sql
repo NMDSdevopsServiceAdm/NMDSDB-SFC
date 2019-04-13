@@ -679,7 +679,6 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,
 	"WorkerUID" UUID NOT NULL,
 	"EstablishmentFK" INTEGER NOT NULL,
-	"CurrentWdfEligibiity" BOOLEAN NOT NULL DEFAULT FALSE,
 	"LastWdfEligibility" timestamp without time zone NULL,
 	"NameOrIdValue" VARCHAR(50) NOT NULL,
 	"NameOrIdSavedAt" TIMESTAMP NULL,
@@ -867,7 +866,8 @@ CREATE TYPE cqc."WorkerAuditChangeType" AS ENUM (
 	'updated',
 	'saved',
 	'changed',
-	'deleted'
+	'deleted',
+	'wdfEligible'
 );
 CREATE TABLE IF NOT EXISTS cqc."WorkerAudit" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,
