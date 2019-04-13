@@ -1,4 +1,4 @@
-DROP VIEW "cqc"."AllEstablishmentAndWorkersVW";
+DROP VIEW IF EXISTS "cqc"."AllEstablishmentAndWorkersVW";
 CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
   SELECT
     "Establishment"."EstablishmentID",
@@ -8,6 +8,8 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
     "Establishment"."LocationID",
     "Establishment"."PostCode",
     "Establishment"."IsRegulated",
+    "Establishment"."OverallWdfEligibility",
+    "Establishment"."LastWdfEligibility" AS "EstablishmentLastWdfEligibility",
     "Establishment"."NameValue",
     "Establishment"."NameSavedAt",
     "Establishment"."NameChangedAt",
@@ -50,6 +52,7 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
     "Establishment".updated AS "EstablishmentUpdated",
     "Worker"."WorkerUID",
     "Worker"."EstablishmentFK",
+    "Worker"."LastWdfEligibility"  AS "WorkerLastWdfEligibility",
     "Worker"."NameOrIdSavedAt",
     "Worker"."NameOrIdChangedAt",
     "Worker"."ContractValue",
