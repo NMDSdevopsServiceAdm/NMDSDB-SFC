@@ -158,7 +158,7 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
     "Worker".updated As "WorkerUpdated"
   from
     cqc."Establishment"
-		INNER JOIN cqc."Worker" ON "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK"
+		LEFT JOIN cqc."Worker" ON "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK"
 		LEFT JOIN
 			(SELECT
 				"Establishment"."EstablishmentID" "EstablishmentID",
