@@ -82,8 +82,7 @@ CREATE OR REPLACE VIEW cqc."AnnS" AS
     "Worker".created AS "WorkerCreated",
     "Worker".updated AS "WorkerUpdated"
    FROM cqc."Establishment"
-    LEFT JOIN cqc."Worker" on "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK"
-  WHERE "Worker"."Archived" IS FALSE
+    LEFT JOIN cqc."Worker" on "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK" AND "Worker"."Archived" IS FALSE
   ORDER BY "Establishment"."EstablishmentID", "Worker"."WorkerUID";
 
 DROP VIEW IF EXISTS cqc."EstablishmentMainServicesWithCapacitiesVW";
