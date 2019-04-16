@@ -114,7 +114,6 @@ FROM (
 					INNER JOIN cqc.services on "Establishment"."MainServiceFKValue" = services.id
 					LEFT JOIN cqc."EstablishmentCapacity" on "Establishment"."EstablishmentID" = "EstablishmentCapacity"."EstablishmentID"
 				WHERE "ServicesCapacity"."ServiceID" = services.id
-				  AND services.id in (SELECT DISTINCT "ServiceID" FROM cqc."ServicesCapacity" GROUP BY "ServiceID" HAVING COUNT(0) > 1)
 				GROUP BY "Establishment"."EstablishmentID", "ServicesCapacity"."ServiceCapacityID", "ServicesCapacity"."Sequence"
 				ORDER BY "Establishment"."EstablishmentID", "ServicesCapacity"."Sequence"
 			) "AllEstablishmentCapacityQuestions"
