@@ -1,9 +1,3 @@
-DROP TABLE IF EXISTS cqc."WorkerQualifications";
-DROP TABLE IF EXISTS cqc."Qualifications";
-DROP TABLE IF EXISTS cqc."WorkerTraining";
-DROP TABLE IF EXISTS cqc."TrainingCategories";
-DROP TYPE IF EXISTS cqc."WorkerQualificationType";
-
 -- Qualifications Reference Data
 CREATE TABLE IF NOT EXISTS cqc."Qualifications" (
 	"ID" INTEGER NOT NULL PRIMARY KEY,
