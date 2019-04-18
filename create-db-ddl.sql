@@ -110,6 +110,7 @@ INSERT INTO cqc."ServiceUsers" ("ID", "Seq", "ServiceGroup", "Service") VALUES
 CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "EstablishmentID" integer NOT NULL,
     "EstablishmentUID" UUID NOT NULL,
+    "TribalID" INTEGER NULL,
     "NmdsID" character(8) NOT NULL,
     "Address" text,
     "LocationID" text,
@@ -471,7 +472,13 @@ CREATE TYPE cqc.user_role AS ENUM (
 CREATE TABLE IF NOT EXISTS cqc."User" (
     "RegistrationID" integer NOT NULL,
     "UserUID" UUID NOT NULL,
-    "UserRole" cqc.user_role NOT NULL DEFAULT 'Edit',
+    "IsPrimary" BOOLEAN NOT NULL DEFAULT true,
+    "TribalID" INTEGER NULL,
+    "UserRoleValue" cqc.user_role NOT NULL DEFAULT 'Edit',
+    "UserRoleSavedAt" TIMESTAMP NULL,
+    "UserRoleChangedAt" TIMESTAMP NULL,
+    "UserRoleSavedBy" VARCHAR(120) NULL,
+    "UserRoleChangedBy" VARCHAR(120) NULL,
     "EstablishmentID" integer NOT NULL,
     "Archived" BOOLEAN DEFAULT false,
     "FullNameValue" character varying(120) NOT NULL,
