@@ -8,6 +8,7 @@ ALTER TABLE cqc."User" ALTER COLUMN "EstablishmentID" DROP NOT NULL;
 
 
 
+
 CREATE OR REPLACE FUNCTION cqc.MigrateUsers()
 	RETURNS void AS $$
 DECLARE
@@ -22,11 +23,13 @@ DECLARE
   FullName VARCHAR(120);
   ThisRegistrationID INTEGER;
   MigrationTimestamp timestamp without time zone;
+  DuffHash VARCHAR(10);
 BEGIN
 	NotMapped := 'Not Mapped';
 	MappedEmpty := 'Was empty';
 	MigrationUser := 'migration';
 	MigrationTimestamp := clock_timestamp();
+	DuffHash := 'To Fix';
 	
   -- first clean up any already migrated data
   -- TODO - tidy up UserAudit records
@@ -65,9 +68,8 @@ BEGIN
 		WHEN NULL THEN
 			NewJobTitle = MappedEmpty;
 		ELSE
-			NewUserRole = CurrentUser.jobtitle;
+			NewJobTitle = CurrentUser.jobtitle;
 	END CASE;
-	
 	
     SELECT nextval('cqc."User_RegistrationID_seq"') INTO ThisRegistrationID;
     INSERT INTO cqc."User" (
@@ -92,7 +94,7 @@ BEGIN
         uuid(CurrentUser.uniqueid),
         false,
         FullName,
-        NewJobTitle,
+        COALESCE(CurrentUser.jobtitle, 'Empty'),
         CurrentUser.loweremail,
         NotMapped,
         CurrentUser.passwordquestion,
@@ -104,6 +106,26 @@ BEGIN
         false,
 		NewIsPrimary
       );
+	  
+	insert into cqc."Login" (
+	 	"RegistrationID",
+		"Username",
+		"Active",
+		"InvalidAttempt",
+		"Hash",
+		"FirstLogin",
+		"LastLoggedIn",
+		"PasswdLastChanged"
+	) VALUES (
+		ThisRegistrationID,
+		CurrentUser.lowerusername,
+		true,
+		0,
+		DuffHash,
+		null,
+		CurrentUser.lastlogindate,
+		CurrentUser.lastpasswordchangeddate
+	);
   END LOOP;
 
 END;
