@@ -3,12 +3,6 @@ ALTER TABLE cqc."User" ADD COLUMN "TribalID" INTEGER NULL;
 ALTER TABLE cqc."Establishment" ADD COLUMN "TribalID" INTEGER NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "TribalID" INTEGER NULL;
 
--- temporary disable EstablishmentID
-ALTER TABLE cqc."User" ALTER COLUMN "EstablishmentID" DROP NOT NULL;
-
-
-
-
 CREATE OR REPLACE FUNCTION cqc.MigrateUsers()
 	RETURNS void AS $$
 DECLARE
@@ -36,11 +30,11 @@ BEGIN
   DELETE FROM cqc."Login" where "RegistrationID" in (select "RegistrationID" from cqc."User" where "TribalID" is not null);
   DELETE FROM cqc."User" where "TribalID" is not null;
 
-  OPEN AllUsers FOR select establishment.id AS "TribalEstablishmentID",users.*, establishment_user.*
+  OPEN AllUsers FOR select cqc."Establishment"."EstablishmentID" AS establishmentid, users.*, establishment_user.*
     from
       users
         inner join establishment_user on establishment_user.user_id = users.id
-    			inner join establishment on establishment.id = establishment_user.establishment_id
+    			inner join cqc."Establishment" on "Establishment"."TribalID" = establishment_user.establishment_id
     where users.mustchangepassword = 0;
 
   LOOP
@@ -76,6 +70,7 @@ BEGIN
       "RegistrationID",
       "TribalID",
       "UserUID",
+      "EstablishmentID",
       "AdminUser",
       "FullNameValue",
       "JobTitleValue",
@@ -92,6 +87,7 @@ BEGIN
         ThisRegistrationID,
         CurrentUser.id,
         uuid(CurrentUser.uniqueid),
+        CurrentUser.establishmentid,
         false,
         FullName,
         COALESCE(CurrentUser.jobtitle, 'Empty'),
