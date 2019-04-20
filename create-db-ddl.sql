@@ -360,7 +360,15 @@ ALTER TABLE cqc."EstablishmentServices" OWNER TO sfcadmin;
 
 CREATE TABLE IF NOT EXISTS cqc."EstablishmentServiceUsers" (
     "EstablishmentID" integer NOT NULL,
-    "ServiceUserID" integer NOT NULL
+    "ServiceUserID" integer NOT NULL,
+    CONSTRAINT establishment_establishmentserviceusers_fk FOREIGN KEY ("EstablishmentID")
+        REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT serviceusers_establishmentserviceusers_fk FOREIGN KEY ("ServiceUserID")
+        REFERENCES cqc."ServiceUSers" ("ID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
 );
 
 --
