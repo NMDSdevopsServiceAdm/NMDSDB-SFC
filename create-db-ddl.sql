@@ -110,6 +110,7 @@ INSERT INTO cqc."ServiceUsers" ("ID", "Seq", "ServiceGroup", "Service") VALUES
 CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "EstablishmentID" integer NOT NULL,
     "EstablishmentUID" UUID NOT NULL,
+    "TribalID" INTEGER NULL,
     "NmdsID" character(8) NOT NULL,
     "Address" text,
     "LocationID" text,
@@ -359,7 +360,15 @@ ALTER TABLE cqc."EstablishmentServices" OWNER TO sfcadmin;
 
 CREATE TABLE IF NOT EXISTS cqc."EstablishmentServiceUsers" (
     "EstablishmentID" integer NOT NULL,
-    "ServiceUserID" integer NOT NULL
+    "ServiceUserID" integer NOT NULL,
+    CONSTRAINT establishment_establishmentserviceusers_fk FOREIGN KEY ("EstablishmentID")
+        REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT serviceusers_establishmentserviceusers_fk FOREIGN KEY ("ServiceUserID")
+        REFERENCES cqc."ServiceUSers" ("ID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
 );
 
 --
@@ -471,7 +480,13 @@ CREATE TYPE cqc.user_role AS ENUM (
 CREATE TABLE IF NOT EXISTS cqc."User" (
     "RegistrationID" integer NOT NULL,
     "UserUID" UUID NOT NULL,
-    "UserRole" cqc.user_role NOT NULL DEFAULT 'Edit',
+    "IsPrimary" BOOLEAN NOT NULL DEFAULT true,
+    "TribalID" INTEGER NULL,
+    "UserRoleValue" cqc.user_role NOT NULL DEFAULT 'Edit',
+    "UserRoleSavedAt" TIMESTAMP NULL,
+    "UserRoleChangedAt" TIMESTAMP NULL,
+    "UserRoleSavedBy" VARCHAR(120) NULL,
+    "UserRoleChangedBy" VARCHAR(120) NULL,
     "EstablishmentID" integer NOT NULL,
     "Archived" BOOLEAN DEFAULT false,
     "FullNameValue" character varying(120) NOT NULL,
