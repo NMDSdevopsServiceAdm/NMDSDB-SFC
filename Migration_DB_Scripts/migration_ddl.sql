@@ -211,6 +211,7 @@ BEGIN
       PERFORM cqc.establishment_other_services(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
       PERFORM cqc.establishment_capacities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
       PERFORM cqc.establishment_service_users(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
+      PERFORM cqc.establishment_local_authorities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
     ELSE
       -- we have not yet migrated this record because there is no "newestablishmentid" - prepare a basic Establishment for inserting
       FullAddress = CurrentEstablishment.address1 || ', ' || CurrentEstablishment.address2 || ', ' || CurrentEstablishment.address3 || ', ' || CurrentEstablishment.town;
@@ -291,6 +292,7 @@ BEGIN
       PERFORM cqc.establishment_other_services(CurrentEstablishment.id, ThisEstablishmentID);
       PERFORM cqc.establishment_capacities(CurrentEstablishment.id, ThisEstablishmentID);
       PERFORM cqc.establishment_service_users(CurrentEstablishment.id, ThisEstablishmentID);
+      PERFORM cqc.establishment_local_authorities(CurrentEstablishment.id, ThisEstablishmentID);
 
     END IF;
 
