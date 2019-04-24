@@ -134,3 +134,53 @@ BEGIN
   END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+DROP FUNCTION IF EXISTS cqc.establishment_service_users;
+CREATE OR REPLACE FUNCTION cqc.establishment_service_users(_tribalId INTEGER, _sfcid INTEGER)
+  RETURNS void AS $$
+DECLARE
+  MyServiceUsers REFCURSOR;
+  CurrrentServiceUser RECORD;
+  TotalServiceUsers INTEGER;
+BEGIN
+  RAISE NOTICE '... mapping service users';
+
+  -- now add any "other services"
+  OPEN MyServiceUsers FOR SELECT ms.sfcid
+    FROM establishment e
+      INNER JOIN provision p
+        inner join provision_usertype
+          inner join usertype
+            inner join migration.serviceusers ms on ms.tribalid = usertype.id
+            on usertype.id = provision_usertype.usertype_id
+          on provision_usertype.provision_id = p.id
+        ON p.establishment_id = e.id
+    WHERE e.id=_tribalId;
+
+  -- first delete any existing "service users"
+  DELETE FROM cqc."EstablishmentServiceUsers" WHERE "EstablishmentID" = _sfcid;
+
+  LOOP
+    BEGIN
+      FETCH MyServiceUsers INTO CurrrentServiceUser;
+      EXIT WHEN NOT FOUND;
+
+      INSERT INTO cqc."EstablishmentServiceUsers" ("EstablishmentID", "ServiceUserID") VALUES (_sfcid, CurrrentServiceUser.sfcid);
+
+      EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Failed to process service users: % (%)', _tribalId, _sfcid;
+    END;
+  END LOOP;
+
+  -- update the Establishment's ServiceUsers change property
+  SELECT count(0) FROM cqc."EstablishmentServiceUsers" WHERE "EstablishmentID" = _sfcid INTO TotalServiceUsers;
+  IF (TotalServiceUsers > 0) THEN
+    UPDATE
+      cqc."Establishment"
+    SET
+      "ServiceUsersSavedAt" = now(),
+      "ServiceUsersSavedBy" = 'migration'
+    WHERE
+      "EstablishmentID" = _sfcid;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;

@@ -210,6 +210,7 @@ BEGIN
       -- we have already migrated this record - prepare to enrich/embellish the Establishment
       PERFORM cqc.establishment_other_services(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
       PERFORM cqc.establishment_capacities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
+      PERFORM cqc.establishment_service_users(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
     ELSE
       -- we have not yet migrated this record because there is no "newestablishmentid" - prepare a basic Establishment for inserting
       FullAddress = CurrentEstablishment.address1 || ', ' || CurrentEstablishment.address2 || ', ' || CurrentEstablishment.address3 || ', ' || CurrentEstablishment.town;
@@ -284,7 +285,13 @@ BEGIN
         CurrentEstablishment.createddate,
         MigrationTimestamp,
         MigrationUser
-        );        
+        );
+
+      -- having inserted the new establishment, adorn with additional properties
+      PERFORM cqc.establishment_other_services(CurrentEstablishment.id, ThisEstablishmentID);
+      PERFORM cqc.establishment_capacities(CurrentEstablishment.id, ThisEstablishmentID);
+      PERFORM cqc.establishment_service_users(CurrentEstablishment.id, ThisEstablishmentID);
+
     END IF;
 
     --EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Skipping establishment with id: %', CurrentEstablishment.id;
@@ -530,3 +537,54 @@ insert into migration.jobs (tribalid, sfcid) values
   (143, 7),
   (144, 8),
   (145, 9);
+
+-- from usertype to serviceusers
+drop table if exists migration.serviceusers;
+create table migration.serviceusers (
+	tribalid INTEGER NOT NULL,
+	sfcid INTEGER NOT NULL
+);
+insert into migration.serviceusers (tribalid, sfcid) values 
+  (1, 1),
+  (2, 2),
+  (3, 9),
+  (4, 5),
+  (5, 4),
+  (6, 2),
+  (7, 6),
+  (8, 16),
+  (9, 18),
+  (10, 19),
+  (11, 19),
+  (12, 19),
+  (13, 19),
+  (14, 19),
+  (15, 19),
+  (16, 19),
+  (17, 19),
+  (18, 20),
+  (19, 21),
+  (20, 22),
+  (21, 23),
+  (22, 3),
+  (23, 4),
+  (24, 4),
+  (25, 5),
+  (26, 6),
+  (27, 7),
+  (28, 10),
+  (29, 12),
+  (30, 13),
+  (31, 17),
+  (33, 19),
+  (34, 19),
+  (35, 19),
+  (36, 9),
+  (37, 9),
+  (38, 9),
+  (39, 18),
+  (40, 18),
+  (41, 18),
+  (42, 19),
+  (43, 19),
+  (44, 19);
