@@ -42,104 +42,103 @@ BEGIN
   MigrationTimestamp := clock_timestamp();
   DuffHash := 'To Fix';
   
-  -- first clean up any already migrated data
-  -- TODO - tidy up UserAudit records
-  DELETE FROM cqc."Login" where "RegistrationID" in (select "RegistrationID" from cqc."User" where "TribalID" is not null);
-  DELETE FROM cqc."User" where "TribalID" is not null;
-
-  OPEN AllUsers FOR select cqc."Establishment"."EstablishmentID" AS establishmentid, users.*, establishment_user.*
+  OPEN AllUsers FOR select cqc."Establishment"."EstablishmentID" AS establishmentid, "User"."TribalID" AS newuserid, users.*, establishment_user.*
     from
       users
         inner join establishment_user on establishment_user.user_id = users.id
           inner join cqc."Establishment" on "Establishment"."TribalID" = establishment_user.establishment_id
+		    left join cqc."User" on "User"."TribalID" = users.id
     where users.mustchangepassword = 0
-      and establishment_user.establishment_id in (248,217042,2142,15222,232083,1245,6448,216002,165513,18245,13790,184420,168088,22545,159562,232144,179838,83383,14403,191318,232342,224883,18345,214883,9187,202300,9196,209335,182439,217662,47542,11714,7680,225383,139905,217683,179959,235804,624,7901,236463,8052,208164,222542,17769,189859,178562,234964,199662);
+      and establishment_user.establishment_id in (248,189859,225383,59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842);
 
   LOOP
     FETCH AllUsers INTO CurrentUser;
     EXIT WHEN NOT FOUND;
-  
-  FullName := CurrentUser.firstname || ' ' || CurrentUser.lastname;
-  
-  CASE CurrentUser.isreadonly
-    WHEN 1 THEN
-      NewUserRole = 'Read';
-    ELSE
-      NewUserRole = 'Edit';
-  END CASE;
-  
-  CASE CurrentUser.isprimary
-    WHEN 1 THEN
-      NewIsPrimary = true;
-    ELSE
-      NewIsPrimary = false;
-  END CASE;
-  
-  -- handle null job title
-  CASE CurrentUser.jobtitle
-    WHEN NULL THEN
-      NewJobTitle = MappedEmpty;
-    ELSE
-      NewJobTitle = CurrentUser.jobtitle;
-  END CASE;
-  
-    SELECT nextval('cqc."User_RegistrationID_seq"') INTO ThisRegistrationID;
-    INSERT INTO cqc."User" (
-      "RegistrationID",
-      "TribalID",
-      "UserUID",
-      "EstablishmentID",
-      "AdminUser",
-      "FullNameValue",
-      "JobTitleValue",
-      "EmailValue",
-      "PhoneValue",
-      "SecurityQuestionValue",
-      "SecurityQuestionAnswerValue",
-    "UserRoleValue",
-      "created",
-      "updated",
-      "updatedby",
-      "Archived",
-      "IsPrimary") VALUES (
+
+    IF CurrentUser.newuserid IS NULL THEN
+      FullName := CurrentUser.firstname || ' ' || CurrentUser.lastname;
+      
+      CASE CurrentUser.isreadonly
+        WHEN 1 THEN
+          NewUserRole = 'Read';
+        ELSE
+          NewUserRole = 'Edit';
+      END CASE;
+      
+      CASE CurrentUser.isprimary
+        WHEN 1 THEN
+          NewIsPrimary = true;
+        ELSE
+          NewIsPrimary = false;
+      END CASE;
+      
+      -- handle null job title
+      CASE CurrentUser.jobtitle
+        WHEN NULL THEN
+          NewJobTitle = MappedEmpty;
+        ELSE
+          NewJobTitle = CurrentUser.jobtitle;
+      END CASE;
+      
+      SELECT nextval('cqc."User_RegistrationID_seq"') INTO ThisRegistrationID;
+      INSERT INTO cqc."User" (
+        "RegistrationID",
+        "TribalID",
+        "UserUID",
+        "EstablishmentID",
+        "AdminUser",
+        "FullNameValue",
+        "JobTitleValue",
+        "EmailValue",
+        "PhoneValue",
+        "SecurityQuestionValue",
+        "SecurityQuestionAnswerValue",
+      "UserRoleValue",
+        "created",
+        "updated",
+        "updatedby",
+        "Archived",
+        "IsPrimary") VALUES (
+          ThisRegistrationID,
+          CurrentUser.id,
+          uuid(CurrentUser.uniqueid),
+          CurrentUser.establishmentid,
+          false,
+          FullName,
+          COALESCE(CurrentUser.jobtitle, 'Empty'),
+          CurrentUser.loweremail,
+          NotMapped,
+          CurrentUser.passwordquestion,
+          NotMapped,
+      NewUserRole::cqc.user_role,
+          CurrentUser.creationdate,
+          MigrationTimestamp,
+          MigrationUser,
+          false,
+      NewIsPrimary
+        );
+        
+      INSERT INTO cqc."Login" (
+        "RegistrationID",
+        "Username",
+        "Active",
+        "InvalidAttempt",
+        "Hash",
+        "FirstLogin",
+        "LastLoggedIn",
+        "PasswdLastChanged"
+      ) VALUES (
         ThisRegistrationID,
-        CurrentUser.id,
-        uuid(CurrentUser.uniqueid),
-        CurrentUser.establishmentid,
-        false,
-        FullName,
-        COALESCE(CurrentUser.jobtitle, 'Empty'),
-        CurrentUser.loweremail,
-        NotMapped,
-        CurrentUser.passwordquestion,
-        NotMapped,
-    NewUserRole::cqc.user_role,
-        CurrentUser.creationdate,
-        MigrationTimestamp,
-        MigrationUser,
-        false,
-    NewIsPrimary
+        CurrentUser.lowerusername,
+        true,
+        0,
+        DuffHash,
+        null,
+        CurrentUser.lastlogindate,
+        CurrentUser.lastpasswordchangeddate
       );
-    
-  insert into cqc."Login" (
-     "RegistrationID",
-    "Username",
-    "Active",
-    "InvalidAttempt",
-    "Hash",
-    "FirstLogin",
-    "LastLoggedIn",
-    "PasswdLastChanged"
-  ) VALUES (
-    ThisRegistrationID,
-    CurrentUser.lowerusername,
-    true,
-    0,
-    DuffHash,
-    null,
-    CurrentUser.lastlogindate,
-    CurrentUser.lastpasswordchangeddate
-  );
+    END IF;
+
   END LOOP;
 
 END;
@@ -197,7 +196,7 @@ BEGIN
           on pst.provision_id = p.id and pst.ismainservice = 1
         on p.establishment_id = e.id
 	  left join cqc."Establishment" on "Establishment"."TribalID" = e.id
-     where e.id in (248,217042,2142,15222,232083,1245,6448,216002,165513,18245,13790,184420,168088,22545,159562,232144,179838,83383,14403,191318,232342,224883,18345,214883,9187,202300,9196,209335,182439,217662,47542,11714,7680,225383,139905,217683,179959,235804,624,7901,236463,8052,208164,222542,17769,189859,178562,234964,199662)
+     where e.id in (248,189859,225383,59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
      order by e.id asc;
 
   LOOP
