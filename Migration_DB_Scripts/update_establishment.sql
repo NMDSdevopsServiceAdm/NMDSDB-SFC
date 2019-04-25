@@ -273,3 +273,173 @@ BEGIN
   END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+DROP FUNCTION IF EXISTS cqc.establishment_jobs;
+CREATE OR REPLACE FUNCTION cqc.establishment_jobs(_tribalId INTEGER, _sfcid INTEGER)
+  RETURNS void AS $$
+DECLARE
+  MyJobs REFCURSOR;
+  CurrrentJob RECORD;
+  TotalVacancies INTEGER;
+  TotalStarters INTEGER;
+  TotalLeavers INTEGER;
+BEGIN
+  RAISE NOTICE '... mapping jobs (vacancies, starters and leavers)';
+
+  OPEN MyJobs FOR SELECT
+        provision.totalvacancies,
+        provision.totalstarters,
+        provision.totalleavers,
+        "Job"."JobID" AS jobid,
+        sum(pjr.startedcount) AS starters,
+        sum(pjr.stoppedcount) AS leavers,
+        sum(pjr.vacanciescount) AS vacancies
+      FROM establishment
+        INNER JOIN provision ON provision.establishment_id = establishment.id
+          LEFT JOIN provision_jobrole pjr
+            INNER JOIN migration.jobs ms
+              INNER JOIN cqc."Job" ON ms.sfcid = "Job"."JobID"
+              ON pjr.jobrole = ms.tribalid
+            ON pjr.provision_id = provision.id
+      WHERE establishment.id =_tribalId
+      GROUP BY establishment.id, provision.totalvacancies, provision.totalstarters, provision.totalleavers, "Job"."JobID";
+
+  -- first delete any existing "jobs"
+  DELETE FROM cqc."EstablishmentJobs" WHERE "EstablishmentID" = _sfcid;
+
+  LOOP
+    BEGIN
+      FETCH MyJobs INTO CurrrentJob;
+      EXIT WHEN NOT FOUND;
+
+      -- the totals will be the same for every job type record
+      TotalVacancies = CurrrentJob.totalvacancies;
+      TotalStarters = CurrrentJob.totalstarters;
+      TotalLeavers = CurrrentJob.totalleavers;
+
+      -- note - CurrrentJob.vacanciescount, CurrrentJob.startedcount and CurrrentJob.stoppedcount are never null
+      --        and the same CurrentJob could have none, one, two or all three of vacancies, started and stopped counts
+      IF (CurrrentJob.totalvacancies IS NOT NULL AND
+          CurrrentJob.totalvacancies > 0 AND
+          CurrrentJob.vacancies > 0) THEN
+        INSERT INTO cqc."EstablishmentJobs" ("EstablishmentID", "JobID", "JobType", "Total")
+          VALUES (_sfcid, CurrrentJob.jobid, 'Vacancies', CurrrentJob.vacancies);
+      END IF;
+
+      IF (CurrrentJob.totalstarters IS NOT NULL AND
+          CurrrentJob.totalstarters > 0 AND
+          CurrrentJob.starters > 0) THEN
+        INSERT INTO cqc."EstablishmentJobs" ("EstablishmentID", "JobID", "JobType", "Total")
+          VALUES (_sfcid, CurrrentJob.jobid, 'Starters', CurrrentJob.starters);
+      END IF;
+         
+      IF (CurrrentJob.totalleavers IS NOT NULL AND
+          CurrrentJob.totalleavers > 0 AND
+          CurrrentJob.leavers > 0) THEN
+        INSERT INTO cqc."EstablishmentJobs" ("EstablishmentID", "JobID", "JobType", "Total")
+          VALUES (_sfcid, CurrrentJob.jobid, 'Leavers', CurrrentJob.leavers);
+      END IF;
+
+      EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Failed to process Job with target role: % (%) - %', _tribalId, _sfcid, CurrrentJob.jobid;
+    END;
+  END LOOP;
+
+  -- update the Establishment's Vacancies, Starters and Leavers change properties
+  IF (TotalVacancies IS NOT NULL AND TotalVacancies > 0) THEN
+    RAISE NOTICE '...... have vacancies';
+    UPDATE
+      cqc."Establishment"
+    SET
+      "VacanciesSavedAt" = now(),
+      "VacanciesSavedBy" = 'migration',
+      "VacanciesValue" = 'With Jobs'
+    WHERE
+      "EstablishmentID" = _sfcid;
+  ELSIF (TotalVacancies IS NOT NULL AND TotalVacancies = 0) THEN
+    RAISE NOTICE '...... have no vacancies';
+    UPDATE
+      cqc."Establishment"
+    SET
+      "VacanciesSavedAt" = now(),
+      "VacanciesSavedBy" = 'migration',
+      "VacanciesValue" = 'None'
+    WHERE
+      "EstablishmentID" = _sfcid;
+  ELSIF (TotalVacancies IS NOT NULL AND TotalVacancies = -1) THEN
+    RAISE NOTICE '...... have unknown vacancies';
+    UPDATE
+      cqc."Establishment"
+    SET
+      "VacanciesSavedAt" = now(),
+      "VacanciesSavedBy" = 'migration',
+      "VacanciesValue" = 'Don''t know'
+    WHERE
+      "EstablishmentID" = _sfcid;
+  END IF;
+
+  IF (TotalStarters IS NOT NULL AND TotalStarters > 0) THEN
+    RAISE NOTICE '...... have starters';
+    UPDATE
+      cqc."Establishment"
+    SET
+      "StartersSavedAt" = now(),
+      "StartersSavedBy" = 'migration',
+      "StartersValue" = 'With Jobs'
+    WHERE
+      "EstablishmentID" = _sfcid;
+  ELSIF (TotalStarters IS NOT NULL AND TotalStarters = 0) THEN
+    RAISE NOTICE '...... have no starters';
+    UPDATE
+      cqc."Establishment"
+    SET
+      "StartersSavedAt" = now(),
+      "StartersSavedBy" = 'migration',
+      "StartersValue" = 'None'
+    WHERE
+      "EstablishmentID" = _sfcid;
+  ELSIF (TotalStarters IS NOT NULL AND TotalStarters = -1) THEN
+    RAISE NOTICE '...... have unknown starters';
+    UPDATE
+      cqc."Establishment"
+    SET
+      "StartersSavedAt" = now(),
+      "StartersSavedBy" = 'migration',
+      "StartersValue" = 'Don''t know'
+    WHERE
+      "EstablishmentID" = _sfcid;
+  END IF;
+
+  IF (TotalLeavers IS NOT NULL AND TotalLeavers > 0) THEN
+    RAISE NOTICE '...... have leavers';
+    UPDATE
+      cqc."Establishment"
+    SET
+      "LeaversSavedAt" = now(),
+      "LeaversSavedBy" = 'migration',
+      "LeaversValue" = 'With Jobs'
+    WHERE
+      "EstablishmentID" = _sfcid;
+  ELSIF (TotalLeavers IS NOT NULL AND TotalLeavers = 0) THEN
+    RAISE NOTICE '...... have no leavers';
+    UPDATE
+      cqc."Establishment"
+    SET
+      "LeaversSavedAt" = now(),
+      "LeaversSavedBy" = 'migration',
+      "LeaversValue" = 'None'
+    WHERE
+      "EstablishmentID" = _sfcid;
+  ELSIF (TotalLeavers IS NOT NULL AND TotalLeavers = -1) THEN
+    RAISE NOTICE '...... have unknown leavers';
+    UPDATE
+      cqc."Establishment"
+    SET
+      "LeaversSavedAt" = now(),
+      "LeaversSavedBy" = 'migration',
+      "LeaversValue" = 'Don''t know'
+    WHERE
+      "EstablishmentID" = _sfcid;
+  END IF;
+
+END;
+$$ LANGUAGE plpgsql;

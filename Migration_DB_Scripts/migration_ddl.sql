@@ -211,6 +211,7 @@ BEGIN
       PERFORM cqc.establishment_capacities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
       PERFORM cqc.establishment_service_users(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
       PERFORM cqc.establishment_local_authorities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
+      PERFORM cqc.establishment_jobs(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
     ELSE
       -- we have not yet migrated this record because there is no "newestablishmentid" - prepare a basic Establishment for inserting
       FullAddress = CurrentEstablishment.address1 || ', ' || CurrentEstablishment.address2 || ', ' || CurrentEstablishment.address3 || ', ' || CurrentEstablishment.town;
@@ -292,10 +293,11 @@ BEGIN
       PERFORM cqc.establishment_capacities(CurrentEstablishment.id, ThisEstablishmentID);
       PERFORM cqc.establishment_service_users(CurrentEstablishment.id, ThisEstablishmentID);
       PERFORM cqc.establishment_local_authorities(CurrentEstablishment.id, ThisEstablishmentID);
+      PERFORM cqc.establishment_jobs(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
 
     END IF;
 
-    --EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Skipping establishment with id: %', CurrentEstablishment.id;
+    EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Skipping establishment with id: %', CurrentEstablishment.id;
   END;
   END LOOP;
 
@@ -405,7 +407,7 @@ BEGIN
       );
     END IF;
 
-    --EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Skipping worker with id: %', CurrentWorker.id;
+    EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Skipping worker with id: %', CurrentWorker.id;
   END;
   END LOOP;
 END;
