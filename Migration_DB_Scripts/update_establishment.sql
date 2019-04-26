@@ -68,7 +68,7 @@ BEGIN
     FROM establishment e
       INNER JOIN provision p
         INNER JOIN provision_servicetype pst INNER JOIN migration.services ms ON pst.servicetype_id = ms.tribalid
-          ON pst.provision_id = p.id and pst.ismainservice = 0
+          ON pst.provision_id = p.id
         ON p.establishment_id = e.id
     WHERE e.id=_tribalId;
 
