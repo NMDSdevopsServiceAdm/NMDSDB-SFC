@@ -16,6 +16,10 @@ DECLARE
   Gender VARCHAR(10);
   YearArrivedValue VARCHAR(5);
   YearArrivedYear INTEGER;
+  IsBritshCitizen VARCHAR(10);
+  ZeroHourContract VARCHAR(10);
+  SocialCareQualification VARCHAR(10);
+  NonSocialCareQualification VARCHAR(10);
 BEGIN
   RAISE NOTICE '... mapping easy properties (Approved Mental Health Worker, Gender, Disability, British Citizenship....): %(%) - %', _sfcid, _tribalId, _workerRecord;
 
@@ -47,9 +51,58 @@ BEGIN
     Gender = 'Other';
   END IF;
 
+  IsBritshCitizen = null;
+  IF (_workerRecord.isbritishcitizen=1) THEN
+    IsBritshCitizen = 'Yes';
+  ELSIF (_workerRecord.isbritishcitizen=0) THEN
+    IsBritshCitizen = 'No';
+  ELSIF (_workerRecord.isbritishcitizen=-1) THEN
+    IsBritshCitizen = 'Don''t know';
+  END IF;
+  
+  ZeroHourContract = null;
+  IF (_workerRecord.ZeroHourContract=1) THEN
+    ZeroHourContract = 'Yes';
+  ELSIF (_workerRecord.ZeroHourContract=0) THEN
+    ZeroHourContract = 'No';
+  ELSIF (_workerRecord.ZeroHourContract=-1) THEN
+    ZeroHourContract = 'Don''t know';
+  END IF;
+
+  SocialCareQualification = null;
+  IF (_workerRecord.socialcarequalification=1) THEN
+    SocialCareQualification = 'Yes';
+  ELSIF (_workerRecord.socialcarequalification=0) THEN
+    SocialCareQualification = 'No';
+  ELSIF (_workerRecord.socialcarequalification=-1) THEN
+    SocialCareQualification = 'Don''t know';
+  END IF;
+
+  NonSocialCareQualification = null;
+  IF (_workerRecord.nonsocialcarequalification=1) THEN
+    NonSocialCareQualification = 'Yes';
+  ELSIF (_workerRecord.nonsocialcarequalification=0) THEN
+    NonSocialCareQualification = 'No';
+  ELSIF (_workerRecord.nonsocialcarequalification=-1) THEN
+    NonSocialCareQualification = 'Don''t know';
+  END IF;
+
+
   UPDATE
     cqc."Worker"
   SET
+    "QualificationInSocialCareValue" = CASE WHEN IsBritshCitizen IS NOT NULL THEN IsBritshCitizen::cqc."WorkerQualificationInSocialCare" ELSE NULL END,
+    "QualificationInSocialCareSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN now() ELSE NULL END,
+    "QualificationInSocialCareSavedBy" = CASE WHEN IsBritshCitizen IS NOT NULL THEN 'migration' ELSE NULL END,
+    "OtherQualificationsValue" = CASE WHEN IsBritshCitizen IS NOT NULL THEN IsBritshCitizen::cqc."WorkerOtherQualifications" ELSE NULL END,
+    "OtherQualificationsSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN now() ELSE NULL END,
+    "OtherQualificationsSavedBy" = CASE WHEN IsBritshCitizen IS NOT NULL THEN 'migration' ELSE NULL END,
+    "ZeroHoursContractValue" = CASE WHEN IsBritshCitizen IS NOT NULL THEN IsBritshCitizen::cqc."WorkerZeroHoursContract" ELSE NULL END,
+    "ZeroHoursContractSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN now() ELSE NULL END,
+    "ZeroHoursContractSavedBy" = CASE WHEN IsBritshCitizen IS NOT NULL THEN 'migration' ELSE NULL END,
+    "BritishCitizenshipValue" = CASE WHEN IsBritshCitizen IS NOT NULL THEN IsBritshCitizen::cqc."WorkerBritishCitizenship" ELSE NULL END,
+    "BritishCitizenshipSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN now() ELSE NULL END,
+    "BritishCitizenshipSavedBy" = CASE WHEN IsBritshCitizen IS NOT NULL THEN 'migration' ELSE NULL END,
     "YearArrivedValue" = CASE WHEN YearArrivedValue IS NOT NULL THEN YearArrivedValue::cqc."WorkerYearArrived" ELSE NULL END,
     "YearArrivedYear" = CASE WHEN YearArrivedYear IS NOT NULL THEN YearArrivedYear ELSE NULL END,
     "YearArrivedSavedAt" = CASE WHEN YearArrivedValue IS NOT NULL THEN now() ELSE NULL END,
