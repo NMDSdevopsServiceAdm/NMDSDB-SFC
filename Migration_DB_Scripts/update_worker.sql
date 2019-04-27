@@ -32,6 +32,8 @@ DECLARE
   Apprenticeship VARCHAR(10);
   RecruitedFromValue VARCHAR(10);
   RecruitedFromOtherFK INTEGER;
+  EthnicityFK INTEGER;
+  NowTimestamp TIMESTAMP;
 BEGIN
   RAISE NOTICE '... mapping easy properties (Gender, Disability, British Citizenship....)';
 
@@ -255,61 +257,111 @@ BEGIN
   END IF;
 
 
+  EthnicityFK = NULL;
+  IF (_workerRecord.ethnicity IS NOT NULL) THEN
+    IF (_workerRecord.ethnicity = 31) THEN
+      EthnicityFK = 1;
+    ELSIF (_workerRecord.ethnicity = 99) THEN
+      EthnicityFK = 2;
+    ELSIF (_workerRecord.ethnicity = 32) THEN
+      EthnicityFK = 3;
+    ELSIF (_workerRecord.ethnicity = 33) THEN
+      EthnicityFK = 4;
+    ELSIF (_workerRecord.ethnicity = 34) THEN
+      EthnicityFK = 5;
+    ELSIF (_workerRecord.ethnicity = 35) THEN
+      EthnicityFK = 6;
+    ELSIF (_workerRecord.ethnicity = 36) THEN
+      EthnicityFK = 7;
+    ELSIF (_workerRecord.ethnicity = 37) THEN
+      EthnicityFK = 8;
+    ELSIF (_workerRecord.ethnicity = 38) THEN
+      EthnicityFK = 9;
+    ELSIF (_workerRecord.ethnicity = 39) THEN
+      EthnicityFK = 10;
+    ELSIF (_workerRecord.ethnicity = 40) THEN
+      EthnicityFK = 11;
+    ELSIF (_workerRecord.ethnicity = 41) THEN
+      EthnicityFK = 12;
+    ELSIF (_workerRecord.ethnicity = 42) THEN
+      EthnicityFK = 13;
+    ELSIF (_workerRecord.ethnicity = 43) THEN
+      EthnicityFK = 14;
+    ELSIF (_workerRecord.ethnicity = 44) THEN
+      EthnicityFK = 15;
+    ELSIF (_workerRecord.ethnicity = 45) THEN
+      EthnicityFK = 16;
+    ELSIF (_workerRecord.ethnicity = 46) THEN
+      EthnicityFK = 17;
+    ELSIF (_workerRecord.ethnicity = 47) THEN
+      EthnicityFK = 18;
+    ELSIF (_workerRecord.ethnicity = 48) THEN
+      EthnicityFK = 19;
+    ELSIF (_workerRecord.ethnicity = -1) THEN
+      EthnicityFK = 2;
+    END IF;
+  END IF;
+
+  -- update the Worker record
+  select now() INTO NowTimestamp;
   UPDATE
     cqc."Worker"
   SET
     "QualificationInSocialCareValue" = CASE WHEN IsBritshCitizen IS NOT NULL THEN IsBritshCitizen::cqc."WorkerQualificationInSocialCare" ELSE NULL END,
-    "QualificationInSocialCareSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN now() ELSE NULL END,
+    "QualificationInSocialCareSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "QualificationInSocialCareSavedBy" = CASE WHEN IsBritshCitizen IS NOT NULL THEN 'migration' ELSE NULL END,
     "SocialCareQualificationFKValue" = CASE WHEN SocialCareQualificationFK IS NOT NULL THEN SocialCareQualificationFK ELSE NULL END,
-    "SocialCareQualificationFKSavedAt" = CASE WHEN SocialCareQualificationFK IS NOT NULL THEN now() ELSE NULL END,
+    "SocialCareQualificationFKSavedAt" = CASE WHEN SocialCareQualificationFK IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "SocialCareQualificationFKSavedBy" = CASE WHEN SocialCareQualificationFK IS NOT NULL THEN 'migration' ELSE NULL END,
     "OtherQualificationsValue" = CASE WHEN IsBritshCitizen IS NOT NULL THEN IsBritshCitizen::cqc."WorkerOtherQualifications" ELSE NULL END,
-    "OtherQualificationsSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN now() ELSE NULL END,
+    "OtherQualificationsSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "OtherQualificationsSavedBy" = CASE WHEN IsBritshCitizen IS NOT NULL THEN 'migration' ELSE NULL END,
     "HighestQualificationFKValue" = CASE WHEN NonSocialCareQualificationFK IS NOT NULL THEN NonSocialCareQualificationFK ELSE NULL END,
-    "HighestQualificationFKSavedAt" = CASE WHEN NonSocialCareQualificationFK IS NOT NULL THEN now() ELSE NULL END,
+    "HighestQualificationFKSavedAt" = CASE WHEN NonSocialCareQualificationFK IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "HighestQualificationFKSavedBy" = CASE WHEN NonSocialCareQualificationFK IS NOT NULL THEN 'migration' ELSE NULL END,
     "ZeroHoursContractValue" = CASE WHEN IsBritshCitizen IS NOT NULL THEN IsBritshCitizen::cqc."WorkerZeroHoursContract" ELSE NULL END,
-    "ZeroHoursContractSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN now() ELSE NULL END,
+    "ZeroHoursContractSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "ZeroHoursContractSavedBy" = CASE WHEN IsBritshCitizen IS NOT NULL THEN 'migration' ELSE NULL END,
     "BritishCitizenshipValue" = CASE WHEN IsBritshCitizen IS NOT NULL THEN IsBritshCitizen::cqc."WorkerBritishCitizenship" ELSE NULL END,
-    "BritishCitizenshipSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN now() ELSE NULL END,
+    "BritishCitizenshipSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "BritishCitizenshipSavedBy" = CASE WHEN IsBritshCitizen IS NOT NULL THEN 'migration' ELSE NULL END,
     "YearArrivedValue" = CASE WHEN YearArrivedValue IS NOT NULL THEN YearArrivedValue::cqc."WorkerYearArrived" ELSE NULL END,
     "YearArrivedYear" = CASE WHEN YearArrivedYear IS NOT NULL THEN YearArrivedYear ELSE NULL END,
-    "YearArrivedSavedAt" = CASE WHEN YearArrivedValue IS NOT NULL THEN now() ELSE NULL END,
+    "YearArrivedSavedAt" = CASE WHEN YearArrivedValue IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "YearArrivedSavedBy" = CASE WHEN YearArrivedValue IS NOT NULL THEN 'migration' ELSE NULL END,
     "SocialCareStartDateValue" = CASE WHEN SocialCareStartDateValue IS NOT NULL THEN SocialCareStartDateValue::cqc."WorkerSocialCareStartDate" ELSE NULL END,
     "SocialCareStartDateYear" = CASE WHEN SocialCareStartDateYear IS NOT NULL THEN SocialCareStartDateYear ELSE NULL END,
-    "SocialCareStartDateSavedAt" = CASE WHEN SocialCareStartDateValue IS NOT NULL THEN now() ELSE NULL END,
+    "SocialCareStartDateSavedAt" = CASE WHEN SocialCareStartDateValue IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "SocialCareStartDateSavedBy" = CASE WHEN SocialCareStartDateValue IS NOT NULL THEN 'migration' ELSE NULL END,
     "DaysSickValue" = CASE WHEN DaysSickValue IS NOT NULL THEN DaysSickValue::cqc."WorkerDaysSick" ELSE NULL END,
     "DaysSickDays" = CASE WHEN DaysSickDays IS NOT NULL THEN DaysSickDays ELSE NULL END,
-    "DaysSickSavedAt" = CASE WHEN DaysSickValue IS NOT NULL THEN now() ELSE NULL END,
+    "DaysSickSavedAt" = CASE WHEN DaysSickValue IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "DaysSickSavedBy" = CASE WHEN DaysSickValue IS NOT NULL THEN 'migration' ELSE NULL END,
     "PostcodeValue" = CASE WHEN PostCode IS NOT NULL THEN PostCode ELSE NULL END,
-    "PostcodeSavedAt" = CASE WHEN PostCode IS NOT NULL THEN now() ELSE NULL END,
+    "PostcodeSavedAt" = CASE WHEN PostCode IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "PostcodeSavedBy" = CASE WHEN PostCode IS NOT NULL THEN 'migration' ELSE NULL END,
     "DisabilityValue" = CASE WHEN Disability IS NOT NULL THEN Disability::cqc."WorkerDisability" ELSE NULL END,
-    "DisabilitySavedAt" = CASE WHEN Disability IS NOT NULL THEN now() ELSE NULL END,
+    "DisabilitySavedAt" = CASE WHEN Disability IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "DisabilitySavedBy" = CASE WHEN Disability IS NOT NULL THEN 'migration' ELSE NULL END,
     "GenderValue" = CASE WHEN Gender IS NOT NULL THEN Gender::cqc."WorkerGender" ELSE NULL END,
-    "GenderSavedAt" = CASE WHEN Gender IS NOT NULL THEN now() ELSE NULL END,
+    "GenderSavedAt" = CASE WHEN Gender IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "GenderSavedBy" = CASE WHEN Gender IS NOT NULL THEN 'migration' ELSE NULL END,
     "MainJobStartDateValue" = CASE WHEN Gender IS NOT NULL THEN MainJobStartDate ELSE NULL END,
-    "MainJobStartDateSavedAt" = CASE WHEN Gender IS NOT NULL THEN now() ELSE NULL END,
+    "MainJobStartDateSavedAt" = CASE WHEN Gender IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "MainJobStartDateSavedBy" = CASE WHEN Gender IS NOT NULL THEN 'migration' ELSE NULL END,
     "CareCertificateValue" = CASE WHEN Gender IS NOT NULL THEN CareCertificate::cqc."WorkerCareCertificate" ELSE NULL END,
-    "CareCertificateSavedAt" = CASE WHEN Gender IS NOT NULL THEN now() ELSE NULL END,
+    "CareCertificateSavedAt" = CASE WHEN Gender IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "CareCertificateSavedBy" = CASE WHEN Gender IS NOT NULL THEN 'migration' ELSE NULL END,
     "ApprenticeshipTrainingValue" = CASE WHEN Apprenticeship IS NOT NULL THEN Apprenticeship::cqc."WorkerApprenticeshipTraining" ELSE NULL END,
-    "ApprenticeshipTrainingSavedAt" = CASE WHEN Apprenticeship IS NOT NULL THEN now() ELSE NULL END,
+    "ApprenticeshipTrainingSavedAt" = CASE WHEN Apprenticeship IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "ApprenticeshipTrainingSavedBy" = CASE WHEN Apprenticeship IS NOT NULL THEN 'migration' ELSE NULL END,
     "RecruitedFromValue" = CASE WHEN RecruitedFromValue IS NOT NULL THEN RecruitedFromValue::cqc."WorkerRecruitedFrom" ELSE NULL END,
     "RecruitedFromOtherFK" = CASE WHEN RecruitedFromOtherFK IS NOT NULL THEN RecruitedFromOtherFK ELSE NULL END,
-    "RecruitedFromSavedAt" = CASE WHEN RecruitedFromValue IS NOT NULL THEN now() ELSE NULL END,
-    "RecruitedFromSavedBy" = CASE WHEN RecruitedFromValue IS NOT NULL THEN 'migration' ELSE NULL END
+    "RecruitedFromSavedAt" = CASE WHEN RecruitedFromValue IS NOT NULL THEN NowTimestamp ELSE NULL END,
+    "RecruitedFromSavedBy" = CASE WHEN RecruitedFromValue IS NOT NULL THEN 'migration' ELSE NULL END,
+    "EthnicityFKValue" = CASE WHEN EthnicityFK IS NOT NULL THEN EthnicityFK ELSE NULL END,
+    "EthnicityFKSavedAt" = CASE WHEN EthnicityFK IS NOT NULL THEN NowTimestamp ELSE NULL END,
+    "EthnicityFKSavedBy" = CASE WHEN EthnicityFK IS NOT NULL THEN 'migration' ELSE NULL END
   WHERE
     "ID" = _sfcid;
 END;
