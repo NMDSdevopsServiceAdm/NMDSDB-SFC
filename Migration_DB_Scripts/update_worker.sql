@@ -14,14 +14,17 @@ CREATE OR REPLACE FUNCTION cqc.worker_easy_properties(_tribalId INTEGER, _sfcid 
 DECLARE
   PostCode VARCHAR(20);
   Gender VARCHAR(10);
+  Disability VARCHAR(10);
   YearArrivedValue VARCHAR(5);
   YearArrivedYear INTEGER;
+  DaysSickValue VARCHAR(5);
+  DaysSickDays INTEGER;
   IsBritshCitizen VARCHAR(10);
   ZeroHourContract VARCHAR(10);
   SocialCareQualification VARCHAR(10);
   NonSocialCareQualification VARCHAR(10);
 BEGIN
-  RAISE NOTICE '... mapping easy properties (Approved Mental Health Worker, Gender, Disability, British Citizenship....): %(%) - %', _sfcid, _tribalId, _workerRecord;
+  RAISE NOTICE '... mapping easy properties (Gender, Disability, British Citizenship....)';
 
   -- map postcode - a straight map
   PostCode = NULL;
@@ -39,7 +42,25 @@ BEGIN
       YearArrivedYear = _workerRecord.yearofentry;
     END IF;
   END IF;
+
+  DaysSickValue = NULL;
+  DaysSickDays = NULL;
+  IF (_workerRecord.dayssick IS NOT NULL) THEN
+    IF (_workerRecord.dayssick = -1) THEN
+      DaysSickValue = 'No';
+    ELSIF (_workerRecord.dayssick > -1) THEN
+      DaysSickValue = 'Yes';
+      DaysSickDays = _workerRecord.dayssick;
+    END IF;
+  END IF;
   
+  Disability = NULL;
+  IF (_workerRecord.disabled=0) THEN
+    Disability = 'No';
+  ELSIF (_workerRecord.disabled=1) THEN
+    Disability = 'Yes';
+  END IF;
+
   Gender = NULL;
   IF (_workerRecord.gender=1) THEN
     Gender = 'Male';
@@ -50,6 +71,7 @@ BEGIN
   ELSIF (_workerRecord.gender=3) THEN
     Gender = 'Other';
   END IF;
+
 
   IsBritshCitizen = null;
   IF (_workerRecord.isbritishcitizen=1) THEN
@@ -107,9 +129,16 @@ BEGIN
     "YearArrivedYear" = CASE WHEN YearArrivedYear IS NOT NULL THEN YearArrivedYear ELSE NULL END,
     "YearArrivedSavedAt" = CASE WHEN YearArrivedValue IS NOT NULL THEN now() ELSE NULL END,
     "YearArrivedSavedBy" = CASE WHEN YearArrivedValue IS NOT NULL THEN 'migration' ELSE NULL END,
+    "DaysSickValue" = CASE WHEN DaysSickValue IS NOT NULL THEN DaysSickValue::cqc."WorkerDaysSick" ELSE NULL END,
+    "DaysSickDays" = CASE WHEN DaysSickDays IS NOT NULL THEN DaysSickDays ELSE NULL END,
+    "DaysSickSavedAt" = CASE WHEN DaysSickValue IS NOT NULL THEN now() ELSE NULL END,
+    "DaysSickSavedBy" = CASE WHEN DaysSickValue IS NOT NULL THEN 'migration' ELSE NULL END,
     "PostcodeValue" = CASE WHEN PostCode IS NOT NULL THEN PostCode ELSE NULL END,
     "PostcodeSavedAt" = CASE WHEN PostCode IS NOT NULL THEN now() ELSE NULL END,
     "PostcodeSavedBy" = CASE WHEN PostCode IS NOT NULL THEN 'migration' ELSE NULL END,
+    "DisabilityValue" = CASE WHEN Disability IS NOT NULL THEN Disability::cqc."WorkerDisability" ELSE NULL END,
+    "DisabilitySavedAt" = CASE WHEN Disability IS NOT NULL THEN now() ELSE NULL END,
+    "DisabilitySavedBy" = CASE WHEN Disability IS NOT NULL THEN 'migration' ELSE NULL END,
     "GenderValue" = CASE WHEN Gender IS NOT NULL THEN Gender::cqc."WorkerGender" ELSE NULL END,
     "GenderSavedAt" = CASE WHEN Gender IS NOT NULL THEN now() ELSE NULL END,
     "GenderSavedBy" = CASE WHEN Gender IS NOT NULL THEN 'migration' ELSE NULL END
