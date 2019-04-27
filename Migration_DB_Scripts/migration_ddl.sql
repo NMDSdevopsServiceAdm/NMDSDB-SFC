@@ -1,3 +1,4 @@
+DROP FUNCTION IF EXISTS cqc.DeleteAllTransactional;
 CREATE OR REPLACE FUNCTION cqc.DeleteAllTransactional()
   RETURNS void AS $$
 DECLARE
@@ -20,6 +21,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP FUNCTION IF EXISTS cqc.MigrateUsers;
 CREATE OR REPLACE FUNCTION cqc.MigrateUsers()
   RETURNS void AS $$
 DECLARE
@@ -145,6 +147,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+DROP FUNCTION IF EXISTS cqc.migrateestablishments;
 CREATE OR REPLACE FUNCTION cqc.migrateestablishments(
 	)
     RETURNS void
@@ -304,7 +307,7 @@ BEGIN
 END;
 $BODY$;
 
-
+DROP FUNCTION IF EXISTS cqc.migrateworkers;
 CREATE OR REPLACE FUNCTION cqc.migrateworkers(
 	)
     RETURNS void
@@ -338,6 +341,10 @@ BEGIN
       createddate,
       "Job"."JobID" as jobid,
       "Worker"."ID" as newworkerid,
+      originalcountrycode,
+      targetcountryid,
+      originalnationalitycode,
+      targetnationalityid,
       w.*
     from worker w
       inner join cqc."Establishment" on w.establishment_id = "Establishment"."TribalID"
@@ -347,6 +354,18 @@ BEGIN
           on mj.tribalid = wp.jobrole
         on w.id = wp.worker_id
       left join cqc."Worker" on "Worker"."TribalID" = w.id
+      left join (SELECT country.numeric AS originalcountrycode, "ID" AS targetcountryid
+                 FROM country
+                  LEFT JOIN migration.country AS migrationcountry
+                    INNER JOIN cqc."Country" ON migrationcountry.sfcid = "Country"."ID"
+                    ON migrationcountry.tribalid = country.id
+                ) AS MappedCountries ON MappedCountries.originalcountrycode = w.countryofbirth
+	    left join (SELECT country.numeric AS originalnationalitycode, "ID" AS targetnationalityid
+                 FROM country
+                  LEFT JOIN migration.nationality as migrationnationality
+                    INNER JOIN cqc."Nationality" on migrationnationality.sfcid = "Nationality"."ID"
+                    ON migrationnationality.tribalid = country.id
+                ) AS MappedNationalities ON MappedNationalities.originalnationalitycode = w.nationality
     where (w.employmentstatus is not null or w.localidentifier is not null);
 
   LOOP

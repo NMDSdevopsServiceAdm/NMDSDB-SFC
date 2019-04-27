@@ -34,6 +34,10 @@ DECLARE
   RecruitedFromOtherFK INTEGER;
   EthnicityFK INTEGER;
   NowTimestamp TIMESTAMP;
+  CountryOfBirth VARCHAR(25);
+  CountryOfBirthFK INTEGER;
+  Nationality VARCHAR(25);
+  NationalityFK INTEGER;
 BEGIN
   RAISE NOTICE '... mapping easy properties (Gender, Disability, British Citizenship....)';
 
@@ -302,6 +306,45 @@ BEGIN
     END IF;
   END IF;
 
+
+  -- country of birth mapping - the source, although they look like numbers they are strings
+  CountryOfBirth = NULL;
+  CountryOfBirthFK = NULL;
+  IF (_workerRecord.countryofbirth IS NOT NULL) THEN
+    IF (_workerRecord.countryofbirth = '826') THEN
+      CountryOfBirth = 'United Kingdom';
+      CountryOfBirthFK = NULL;
+    ELSIF (_workerRecord.countryofbirth = '999') THEN
+      CountryOfBirth = 'Other';
+      CountryOfBirthFK = NULL;
+    ELSIF (_workerRecord.countryofbirth = '998') THEN
+      CountryOfBirth = 'Don''t know';
+      CountryOfBirthFK = NULL;
+    ELSE
+      CountryOfBirth = 'Other';
+      CountryOfBirthFK = _workerRecord.targetcountryid;
+    END IF;
+  END IF;
+
+  -- nationality mapping - the source, although they look like numbers they are strings
+  Nationality = NULL;
+  NationalityFK = NULL;
+  IF (_workerRecord.nationality IS NOT NULL) THEN
+    IF (_workerRecord.nationality in ('826', '833', '86', '612', '831', '832', '238', '92')) THEN
+      Nationality = 'British';
+      NationalityFK = NULL;
+    ELSIF (_workerRecord.nationality = '999') THEN
+      Nationality = 'Other';
+      NationalityFK = NULL;
+    ELSIF (_workerRecord.nationality = '998') THEN
+      Nationality = 'Don''t know';
+      NationalityFK = NULL;
+    ELSE
+      Nationality = 'Other';
+      NationalityFK = _workerRecord.targetnationalityid;
+    END IF;
+  END IF;
+
   -- update the Worker record
   select now() INTO NowTimestamp;
   UPDATE
@@ -361,7 +404,15 @@ BEGIN
     "RecruitedFromSavedBy" = CASE WHEN RecruitedFromValue IS NOT NULL THEN 'migration' ELSE NULL END,
     "EthnicityFKValue" = CASE WHEN EthnicityFK IS NOT NULL THEN EthnicityFK ELSE NULL END,
     "EthnicityFKSavedAt" = CASE WHEN EthnicityFK IS NOT NULL THEN NowTimestamp ELSE NULL END,
-    "EthnicityFKSavedBy" = CASE WHEN EthnicityFK IS NOT NULL THEN 'migration' ELSE NULL END
+    "EthnicityFKSavedBy" = CASE WHEN EthnicityFK IS NOT NULL THEN 'migration' ELSE NULL END,
+    "CountryOfBirthValue" = CASE WHEN CountryOfBirth IS NOT NULL THEN CountryOfBirth::cqc."WorkerCountryOfBirth" ELSE NULL END,
+    "CountryOfBirthOtherFK" = CASE WHEN CountryOfBirthFK IS NOT NULL THEN CountryOfBirthFK ELSE NULL END,
+    "CountryOfBirthSavedAt" = CASE WHEN CountryOfBirth IS NOT NULL THEN NowTimestamp ELSE NULL END,
+    "CountryOfBirthSavedBy" = CASE WHEN CountryOfBirth IS NOT NULL THEN 'migration' ELSE NULL END,
+    "NationalityValue" = CASE WHEN Nationality IS NOT NULL THEN Nationality::cqc."WorkerNationality" ELSE NULL END,
+    "NationalityOtherFK" = CASE WHEN Nationality IS NOT NULL THEN NationalityFK ELSE NULL END,
+    "NationalitySavedAt" = CASE WHEN Nationality IS NOT NULL THEN NowTimestamp ELSE NULL END,
+    "NationalitySavedBy" = CASE WHEN Nationality IS NOT NULL THEN 'migration' ELSE NULL END
   WHERE
     "ID" = _sfcid;
 END;
