@@ -1,5 +1,5 @@
 -- this is a set of functions/stored procedures for migrating a single worker
-
+DROP FUNCTION IF EXISTS cqc.worker_other_jobs;
 CREATE OR REPLACE FUNCTION cqc.worker_other_jobs(tribalId INTEGER, sfcid INTEGER)
   RETURNS void AS $$
 DECLARE
@@ -17,12 +17,17 @@ DECLARE
   Disability VARCHAR(10);
   YearArrivedValue VARCHAR(5);
   YearArrivedYear INTEGER;
+  SocialCareStartDateValue VARCHAR(5);
+  SocialCareStartDateYear INTEGER;
   DaysSickValue VARCHAR(5);
   DaysSickDays INTEGER;
   IsBritshCitizen VARCHAR(10);
   ZeroHourContract VARCHAR(10);
   SocialCareQualification VARCHAR(10);
   NonSocialCareQualification VARCHAR(10);
+  MainJobStartDate DATE;
+  CareCertificate VARCHAR(50);
+  Apprenticeship VARCHAR(10);
 BEGIN
   RAISE NOTICE '... mapping easy properties (Gender, Disability, British Citizenship....)';
 
@@ -53,6 +58,13 @@ BEGIN
       DaysSickDays = _workerRecord.dayssick;
     END IF;
   END IF;
+
+  SocialCareStartDateValue = NULL;
+  SocialCareStartDateYear = NULL;
+  IF (_workerRecord.startedinsector IS NOT NULL) THEN
+    SocialCareStartDateValue = 'Yes';
+    SocialCareStartDateYear = _workerRecord.startedinsector;
+  END IF;
   
   Disability = NULL;
   IF (_workerRecord.disabled=0) THEN
@@ -73,7 +85,7 @@ BEGIN
   END IF;
 
 
-  IsBritshCitizen = null;
+  IsBritshCitizen = NULL;
   IF (_workerRecord.isbritishcitizen=1) THEN
     IsBritshCitizen = 'Yes';
   ELSIF (_workerRecord.isbritishcitizen=0) THEN
@@ -82,7 +94,7 @@ BEGIN
     IsBritshCitizen = 'Don''t know';
   END IF;
   
-  ZeroHourContract = null;
+  ZeroHourContract = NULL;
   IF (_workerRecord.ZeroHourContract=1) THEN
     ZeroHourContract = 'Yes';
   ELSIF (_workerRecord.ZeroHourContract=0) THEN
@@ -91,7 +103,7 @@ BEGIN
     ZeroHourContract = 'Don''t know';
   END IF;
 
-  SocialCareQualification = null;
+  SocialCareQualification = NULL;
   IF (_workerRecord.socialcarequalification=1) THEN
     SocialCareQualification = 'Yes';
   ELSIF (_workerRecord.socialcarequalification=0) THEN
@@ -100,7 +112,7 @@ BEGIN
     SocialCareQualification = 'Don''t know';
   END IF;
 
-  NonSocialCareQualification = null;
+  NonSocialCareQualification = NULL;
   IF (_workerRecord.nonsocialcarequalification=1) THEN
     NonSocialCareQualification = 'Yes';
   ELSIF (_workerRecord.nonsocialcarequalification=0) THEN
@@ -109,6 +121,30 @@ BEGIN
     NonSocialCareQualification = 'Don''t know';
   END IF;
 
+  MainJobStartDate = NULL;
+  IF (_workerRecord.startdate IS NOT NULL) THEN
+    MainJobStartDate = _workerRecord.startdate::DATE;
+  END IF;
+
+  CareCertificate = NULL;
+  IF (_workerRecord.carecertificate IS NOT NULL) THEN
+    IF (_workerRecord.carecertificate = 802) THEN
+      CareCertificate = 'Yes, completed';
+    ELSIF (_workerRecord.carecertificate = 803) THEN
+      CareCertificate = 'No';
+    ELSIF (_workerRecord.carecertificate = 804) THEN
+      CareCertificate = 'Yes, in progress or partially completed';
+    END IF;
+  END IF;
+
+  Apprenticeship = NULL;
+  IF (_workerRecord.isapprentice=1) THEN
+    Apprenticeship = 'Yes';
+  ELSIF (_workerRecord.isapprentice=0) THEN
+    Apprenticeship = 'No';
+  ELSIF (_workerRecord.isapprentice=-1) THEN
+    Apprenticeship = 'Don''t know';
+  END IF;
 
   UPDATE
     cqc."Worker"
@@ -129,6 +165,10 @@ BEGIN
     "YearArrivedYear" = CASE WHEN YearArrivedYear IS NOT NULL THEN YearArrivedYear ELSE NULL END,
     "YearArrivedSavedAt" = CASE WHEN YearArrivedValue IS NOT NULL THEN now() ELSE NULL END,
     "YearArrivedSavedBy" = CASE WHEN YearArrivedValue IS NOT NULL THEN 'migration' ELSE NULL END,
+    "SocialCareStartDateValue" = CASE WHEN SocialCareStartDateValue IS NOT NULL THEN SocialCareStartDateValue::cqc."WorkerSocialCareStartDate" ELSE NULL END,
+    "SocialCareStartDateYear" = CASE WHEN SocialCareStartDateYear IS NOT NULL THEN SocialCareStartDateYear ELSE NULL END,
+    "SocialCareStartDateSavedAt" = CASE WHEN SocialCareStartDateValue IS NOT NULL THEN now() ELSE NULL END,
+    "SocialCareStartDateSavedBy" = CASE WHEN SocialCareStartDateValue IS NOT NULL THEN 'migration' ELSE NULL END,
     "DaysSickValue" = CASE WHEN DaysSickValue IS NOT NULL THEN DaysSickValue::cqc."WorkerDaysSick" ELSE NULL END,
     "DaysSickDays" = CASE WHEN DaysSickDays IS NOT NULL THEN DaysSickDays ELSE NULL END,
     "DaysSickSavedAt" = CASE WHEN DaysSickValue IS NOT NULL THEN now() ELSE NULL END,
@@ -141,7 +181,16 @@ BEGIN
     "DisabilitySavedBy" = CASE WHEN Disability IS NOT NULL THEN 'migration' ELSE NULL END,
     "GenderValue" = CASE WHEN Gender IS NOT NULL THEN Gender::cqc."WorkerGender" ELSE NULL END,
     "GenderSavedAt" = CASE WHEN Gender IS NOT NULL THEN now() ELSE NULL END,
-    "GenderSavedBy" = CASE WHEN Gender IS NOT NULL THEN 'migration' ELSE NULL END
+    "GenderSavedBy" = CASE WHEN Gender IS NOT NULL THEN 'migration' ELSE NULL END,
+    "MainJobStartDateValue" = CASE WHEN Gender IS NOT NULL THEN MainJobStartDate ELSE NULL END,
+    "MainJobStartDateSavedAt" = CASE WHEN Gender IS NOT NULL THEN now() ELSE NULL END,
+    "MainJobStartDateSavedBy" = CASE WHEN Gender IS NOT NULL THEN 'migration' ELSE NULL END,
+    "CareCertificateValue" = CASE WHEN Gender IS NOT NULL THEN CareCertificate::cqc."WorkerCareCertificate" ELSE NULL END,
+    "CareCertificateSavedAt" = CASE WHEN Gender IS NOT NULL THEN now() ELSE NULL END,
+    "CareCertificateSavedBy" = CASE WHEN Gender IS NOT NULL THEN 'migration' ELSE NULL END,
+    "ApprenticeshipTrainingValue" = CASE WHEN Apprenticeship IS NOT NULL THEN Apprenticeship::cqc."WorkerApprenticeshipTraining" ELSE NULL END,
+    "ApprenticeshipTrainingSavedAt" = CASE WHEN Apprenticeship IS NOT NULL THEN now() ELSE NULL END,
+    "ApprenticeshipTrainingSavedBy" = CASE WHEN Apprenticeship IS NOT NULL THEN 'migration' ELSE NULL END
   WHERE
     "ID" = _sfcid;
 END;
