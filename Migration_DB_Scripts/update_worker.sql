@@ -25,6 +25,8 @@ DECLARE
   ZeroHourContract VARCHAR(10);
   SocialCareQualification VARCHAR(10);
   NonSocialCareQualification VARCHAR(10);
+  SocialCareQualificationFK INTEGER;
+  NonSocialCareQualificationFK INTEGER;
   MainJobStartDate DATE;
   CareCertificate VARCHAR(50);
   Apprenticeship VARCHAR(10);
@@ -112,6 +114,31 @@ BEGIN
     SocialCareQualification = 'Don''t know';
   END IF;
 
+  SocialCareQualificationFK = NULL;
+  IF (_workerRecord.socialcarequallevel IS NOT NULL) THEN
+    IF (_workerRecord.socialcarequallevel = -1) THEN
+      SocialCareQualificationFK = 10;
+    ELSIF (_workerRecord.socialcarequallevel = 621) THEN
+      SocialCareQualificationFK = 1;
+    ELSIF (_workerRecord.socialcarequallevel = 622) THEN
+      SocialCareQualificationFK = 2;
+    ELSIF (_workerRecord.socialcarequallevel = 623) THEN
+      SocialCareQualificationFK = 3;
+    ELSIF (_workerRecord.socialcarequallevel = 624) THEN
+      SocialCareQualificationFK = 4;
+    ELSIF (_workerRecord.socialcarequallevel = 625) THEN
+      SocialCareQualificationFK = 5;
+    ELSIF (_workerRecord.socialcarequallevel = 626) THEN
+      SocialCareQualificationFK = 6;
+    ELSIF (_workerRecord.socialcarequallevel = 627) THEN
+      SocialCareQualificationFK = 7;
+    ELSIF (_workerRecord.socialcarequallevel = 628) THEN
+      SocialCareQualificationFK = 8;
+    ELSIF (_workerRecord.socialcarequallevel = 629) THEN
+      SocialCareQualificationFK = 9;
+    END IF;
+  END IF;
+
   NonSocialCareQualification = NULL;
   IF (_workerRecord.nonsocialcarequalification=1) THEN
     NonSocialCareQualification = 'Yes';
@@ -119,6 +146,31 @@ BEGIN
     NonSocialCareQualification = 'No';
   ELSIF (_workerRecord.nonsocialcarequalification=-1) THEN
     NonSocialCareQualification = 'Don''t know';
+  END IF;
+
+  NonSocialCareQualificationFK = NULL;
+  IF (_workerRecord.nonsocialcarequallevel IS NOT NULL) THEN
+    IF (_workerRecord.nonsocialcarequallevel = -1) THEN
+      NonSocialCareQualificationFK = 10;
+    ELSIF (_workerRecord.nonsocialcarequallevel = 621) THEN
+      NonSocialCareQualificationFK = 1;
+    ELSIF (_workerRecord.nonsocialcarequallevel = 622) THEN
+      NonSocialCareQualificationFK = 2;
+    ELSIF (_workerRecord.nonsocialcarequallevel = 623) THEN
+      NonSocialCareQualificationFK = 3;
+    ELSIF (_workerRecord.nonsocialcarequallevel = 624) THEN
+      NonSocialCareQualificationFK = 4;
+    ELSIF (_workerRecord.nonsocialcarequallevel = 625) THEN
+      NonSocialCareQualificationFK = 5;
+    ELSIF (_workerRecord.nonsocialcarequallevel = 626) THEN
+      NonSocialCareQualificationFK = 6;
+    ELSIF (_workerRecord.nonsocialcarequallevel = 627) THEN
+      NonSocialCareQualificationFK = 7;
+    ELSIF (_workerRecord.nonsocialcarequallevel = 628) THEN
+      NonSocialCareQualificationFK = 8;
+    ELSIF (_workerRecord.nonsocialcarequallevel = 629) THEN
+      NonSocialCareQualificationFK = 9;
+    END IF;
   END IF;
 
   MainJobStartDate = NULL;
@@ -146,15 +198,22 @@ BEGIN
     Apprenticeship = 'Don''t know';
   END IF;
 
+
   UPDATE
     cqc."Worker"
   SET
     "QualificationInSocialCareValue" = CASE WHEN IsBritshCitizen IS NOT NULL THEN IsBritshCitizen::cqc."WorkerQualificationInSocialCare" ELSE NULL END,
     "QualificationInSocialCareSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN now() ELSE NULL END,
     "QualificationInSocialCareSavedBy" = CASE WHEN IsBritshCitizen IS NOT NULL THEN 'migration' ELSE NULL END,
+    "SocialCareQualificationFKValue" = CASE WHEN SocialCareQualificationFK IS NOT NULL THEN SocialCareQualificationFK ELSE NULL END,
+    "SocialCareQualificationFKSavedAt" = CASE WHEN SocialCareQualificationFK IS NOT NULL THEN now() ELSE NULL END,
+    "SocialCareQualificationFKSavedBy" = CASE WHEN SocialCareQualificationFK IS NOT NULL THEN 'migration' ELSE NULL END,
     "OtherQualificationsValue" = CASE WHEN IsBritshCitizen IS NOT NULL THEN IsBritshCitizen::cqc."WorkerOtherQualifications" ELSE NULL END,
     "OtherQualificationsSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN now() ELSE NULL END,
     "OtherQualificationsSavedBy" = CASE WHEN IsBritshCitizen IS NOT NULL THEN 'migration' ELSE NULL END,
+    "HighestQualificationFKValue" = CASE WHEN NonSocialCareQualificationFK IS NOT NULL THEN NonSocialCareQualificationFK ELSE NULL END,
+    "HighestQualificationFKSavedAt" = CASE WHEN NonSocialCareQualificationFK IS NOT NULL THEN now() ELSE NULL END,
+    "HighestQualificationFKSavedBy" = CASE WHEN NonSocialCareQualificationFK IS NOT NULL THEN 'migration' ELSE NULL END,
     "ZeroHoursContractValue" = CASE WHEN IsBritshCitizen IS NOT NULL THEN IsBritshCitizen::cqc."WorkerZeroHoursContract" ELSE NULL END,
     "ZeroHoursContractSavedAt" = CASE WHEN IsBritshCitizen IS NOT NULL THEN now() ELSE NULL END,
     "ZeroHoursContractSavedBy" = CASE WHEN IsBritshCitizen IS NOT NULL THEN 'migration' ELSE NULL END,
