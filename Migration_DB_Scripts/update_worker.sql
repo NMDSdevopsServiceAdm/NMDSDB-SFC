@@ -1,6 +1,6 @@
 -- this is a set of functions/stored procedures for migrating a single worker
 DROP FUNCTION IF EXISTS cqc.worker_other_jobs;
-CREATE OR REPLACE FUNCTION cqc.worker_other_jobs(tribalId INTEGER, sfcid INTEGER)
+CREATE OR REPLACE FUNCTION cqc.worker_other_jobs(_tribalId INTEGER, _sfcid INTEGER)
   RETURNS void AS $$
 DECLARE
 BEGIN
@@ -30,6 +30,8 @@ DECLARE
   MainJobStartDate DATE;
   CareCertificate VARCHAR(50);
   Apprenticeship VARCHAR(10);
+  RecruitedFromValue VARCHAR(10);
+  RecruitedFromOtherFK INTEGER;
 BEGIN
   RAISE NOTICE '... mapping easy properties (Gender, Disability, British Citizenship....)';
 
@@ -199,6 +201,60 @@ BEGIN
   END IF;
 
 
+  RecruitedFromValue = NULL;
+  RecruitedFromOtherFK = NULL;
+  IF (_workerRecord.sourcerecruited IS NOT NULL) THEN
+    IF (_workerRecord.sourcerecruited = 225) THEN
+      RecruitedFromValue = 'No';
+    ELSIF (_workerRecord.sourcerecruited = 210) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 1;
+    ELSIF (_workerRecord.sourcerecruited = 211) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 2;
+    ELSIF (_workerRecord.sourcerecruited = 212) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 4;
+    ELSIF (_workerRecord.sourcerecruited = 213) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 4;
+    ELSIF (_workerRecord.sourcerecruited = 214) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 3;
+    ELSIF (_workerRecord.sourcerecruited = 215) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 5;
+    ELSIF (_workerRecord.sourcerecruited = 216) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 5;
+    ELSIF (_workerRecord.sourcerecruited = 217) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 6;
+    ELSIF (_workerRecord.sourcerecruited = 218) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 10;
+    ELSIF (_workerRecord.sourcerecruited = 219) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 7;
+    ELSIF (_workerRecord.sourcerecruited = 220) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 10;
+    ELSIF (_workerRecord.sourcerecruited = 221) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 8;
+    ELSIF (_workerRecord.sourcerecruited = 222) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 10;
+    ELSIF (_workerRecord.sourcerecruited = 223) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 10;
+    ELSIF (_workerRecord.sourcerecruited = 224) THEN
+      RecruitedFromValue = 'Yes';
+      RecruitedFromOtherFK = 10;
+    END IF;
+  END IF;
+
+
   UPDATE
     cqc."Worker"
   SET
@@ -249,7 +305,11 @@ BEGIN
     "CareCertificateSavedBy" = CASE WHEN Gender IS NOT NULL THEN 'migration' ELSE NULL END,
     "ApprenticeshipTrainingValue" = CASE WHEN Apprenticeship IS NOT NULL THEN Apprenticeship::cqc."WorkerApprenticeshipTraining" ELSE NULL END,
     "ApprenticeshipTrainingSavedAt" = CASE WHEN Apprenticeship IS NOT NULL THEN now() ELSE NULL END,
-    "ApprenticeshipTrainingSavedBy" = CASE WHEN Apprenticeship IS NOT NULL THEN 'migration' ELSE NULL END
+    "ApprenticeshipTrainingSavedBy" = CASE WHEN Apprenticeship IS NOT NULL THEN 'migration' ELSE NULL END,
+    "RecruitedFromValue" = CASE WHEN RecruitedFromValue IS NOT NULL THEN RecruitedFromValue::cqc."WorkerRecruitedFrom" ELSE NULL END,
+    "RecruitedFromOtherFK" = CASE WHEN RecruitedFromOtherFK IS NOT NULL THEN RecruitedFromOtherFK ELSE NULL END,
+    "RecruitedFromSavedAt" = CASE WHEN RecruitedFromValue IS NOT NULL THEN now() ELSE NULL END,
+    "RecruitedFromSavedBy" = CASE WHEN RecruitedFromValue IS NOT NULL THEN 'migration' ELSE NULL END
   WHERE
     "ID" = _sfcid;
 END;
