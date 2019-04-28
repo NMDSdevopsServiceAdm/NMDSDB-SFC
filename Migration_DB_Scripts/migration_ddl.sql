@@ -345,6 +345,8 @@ BEGIN
       targetcountryid,
       originalnationalitycode,
       targetnationalityid,
+      wp.contractedhours,
+      wp.hourlyrate,
       w.*
     from worker w
       inner join cqc."Establishment" on w.establishment_id = "Establishment"."TribalID"

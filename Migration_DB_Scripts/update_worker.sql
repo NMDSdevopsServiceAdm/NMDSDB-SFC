@@ -38,6 +38,10 @@ DECLARE
   CountryOfBirthFK INTEGER;
   Nationality VARCHAR(25);
   NationalityFK INTEGER;
+  WeeklyHoursContractedValue VARCHAR(5);
+  WeeklyHoursContractedHours NUMERIC;
+  AnnualHourlyPayValue VARCHAR(10);
+  AnnualHourlyPayRate NUMERIC;
 BEGIN
   RAISE NOTICE '... mapping easy properties (Gender, Disability, British Citizenship....)';
 
@@ -345,6 +349,42 @@ BEGIN
     END IF;
   END IF;
 
+
+  -- contracted hours
+  WeeklyHoursContractedValue = NULL;
+  WeeklyHoursContractedHours = NULL;
+  IF (_workerRecord.contractedhours IS NOT NULL) THEN
+    IF (_workerRecord.contractedhours = -1) THEN
+      WeeklyHoursContractedValue = NULL;
+      WeeklyHoursContractedHours = NULL;
+    ELSIF (_workerRecord.contractedhours = 0) THEN
+      WeeklyHoursContractedValue = 'No';
+      WeeklyHoursContractedHours = NULL;
+    ELSIF (_workerRecord.contractedhours > 0) THEN
+      WeeklyHoursContractedValue = 'Yes';
+      WeeklyHoursContractedHours = _workerRecord.contractedhours;
+    END IF;
+  END IF;
+
+  -- annual/hourly pay rate
+  AnnualHourlyPayValue = NULL;
+  AnnualHourlyPayRate = NULL;
+  IF (_workerRecord.salaryinterval IS NOT NULL) THEN
+    IF (_workerRecord.salaryinterval = 253) THEN    -- unpaid
+      AnnualHourlyPayValue = NULL;
+      AnnualHourlyPayRate = NULL;
+    ELSIF (_workerRecord.salaryinterval = 250) THEN
+      AnnualHourlyPayValue = 'Annually';
+      AnnualHourlyPayRate = _workerRecord.hourlyrate;
+    ELSIF (_workerRecord.salaryinterval = 252) THEN
+      AnnualHourlyPayValue = 'Hourly';
+      AnnualHourlyPayRate = _workerRecord.hourlyrate;
+    ELSIF (_workerRecord.salaryinterval = 251) THEN
+      AnnualHourlyPayValue = 'Annually';
+      AnnualHourlyPayRate = _workerRecord.hourlyrate*12;
+    END IF;
+  END IF;
+
   -- update the Worker record
   select now() INTO NowTimestamp;
   UPDATE
@@ -412,7 +452,15 @@ BEGIN
     "NationalityValue" = CASE WHEN Nationality IS NOT NULL THEN Nationality::cqc."WorkerNationality" ELSE NULL END,
     "NationalityOtherFK" = CASE WHEN Nationality IS NOT NULL THEN NationalityFK ELSE NULL END,
     "NationalitySavedAt" = CASE WHEN Nationality IS NOT NULL THEN NowTimestamp ELSE NULL END,
-    "NationalitySavedBy" = CASE WHEN Nationality IS NOT NULL THEN 'migration' ELSE NULL END
+    "NationalitySavedBy" = CASE WHEN Nationality IS NOT NULL THEN 'migration' ELSE NULL END,
+    "WeeklyHoursContractedValue" = CASE WHEN WeeklyHoursContractedValue IS NOT NULL THEN WeeklyHoursContractedValue::cqc."WorkerWeeklyHoursContracted" ELSE NULL END,
+    "WeeklyHoursContractedHours" = CASE WHEN WeeklyHoursContractedHours IS NOT NULL THEN WeeklyHoursContractedHours::NUMERIC(4,1) ELSE NULL END,
+    "WeeklyHoursContractedSavedAt" = CASE WHEN WeeklyHoursContractedValue IS NOT NULL THEN NowTimestamp ELSE NULL END,
+    "WeeklyHoursContractedSavedBy" = CASE WHEN WeeklyHoursContractedValue IS NOT NULL THEN 'migration' ELSE NULL END,
+    "AnnualHourlyPayValue" = CASE WHEN AnnualHourlyPayValue IS NOT NULL THEN AnnualHourlyPayValue::cqc."WorkerAnnualHourlyPay" ELSE NULL END,
+    "AnnualHourlyPayRate" = CASE WHEN AnnualHourlyPayRate IS NOT NULL THEN AnnualHourlyPayRate::NUMERIC(9,2) ELSE NULL END,
+    "AnnualHourlyPaySavedAt" = CASE WHEN AnnualHourlyPayValue IS NOT NULL THEN NowTimestamp ELSE NULL END,
+    "AnnualHourlyPaySavedBy" = CASE WHEN AnnualHourlyPayValue IS NOT NULL THEN 'migration' ELSE NULL END
   WHERE
     "ID" = _sfcid;
 END;
