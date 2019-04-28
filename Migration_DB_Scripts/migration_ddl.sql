@@ -378,12 +378,10 @@ BEGIN
     RAISE NOTICE 'Processing tribal worker: % (%)', CurrentWorker.id, CurrentWorker.newworkerid;
     IF CurrentWorker.newworkerid IS NOT NULL THEN
       -- we have already migrated this record - prepare to enrich/embellish the Worker
-      --PERFORM cqc.worker_other_jobs(CurrentWorker.id, CurrentWorker.newworkerid);
-
       --PERFORM cqc.worker_training(CurrentWorker.id, CurrentWorker.newworkerid);
       --PERFORM cqc.worker_qualifications(CurrentWorker.id, CurrentWorker.newworkerid);
-
       PERFORM cqc.worker_easy_properties(CurrentWorker.id, CurrentWorker.newworkerid, CurrentWorker);
+      PERFORM cqc.worker_other_jobs(CurrentWorker.id, CurrentWorker.newworkerid);
 
     ELSE
       -- we have already migrated this record - prepare to insert new Worker

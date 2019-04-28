@@ -1,13 +1,4 @@
 -- this is a set of functions/stored procedures for migrating a single worker
-DROP FUNCTION IF EXISTS cqc.worker_other_jobs;
-CREATE OR REPLACE FUNCTION cqc.worker_other_jobs(_tribalId INTEGER, _sfcid INTEGER)
-  RETURNS void AS $$
-DECLARE
-BEGIN
-  RAISE NOTICE '... mapping other jobs';
-END;
-$$ LANGUAGE plpgsql;
-
 DROP FUNCTION IF EXISTS cqc.worker_easy_properties;
 CREATE OR REPLACE FUNCTION cqc.worker_easy_properties(_tribalId INTEGER, _sfcid INTEGER, _workerRecord RECORD)
   RETURNS void AS $$
@@ -464,4 +455,47 @@ BEGIN
   WHERE
     "ID" = _sfcid;
 END;
+$$ LANGUAGE plpgsql;
+
+DROP FUNCTION IF EXISTS cqc.worker_other_jobs;
+CREATE OR REPLACE FUNCTION cqc.worker_other_jobs(_tribalId INTEGER, _sfcid INTEGER)
+  RETURNS void AS $$
+DECLARE
+  MyOtherJobs REFCURSOR;
+  CurrrentOtherJob RECORD;
+  TotalOtherJobs INTEGER;
+BEGIN
+  RAISE NOTICE '... mapping other jobs';
+
+  OPEN MyOtherJobs FOR SELECT jobs.sfcid AS sfcid
+    FROM worker_otherjobrole
+	    INNER JOIN migration.jobs ON jobs.tribalid=worker_otherjobrole.jobrole
+    where worker_id = _tribalId;
+
+  -- first delete any existing "other jobs"
+  DELETE FROM cqc."WorkerJobs" WHERE "WorkerFK" = _sfcid;
+
+  LOOP
+    BEGIN
+      FETCH MyOtherJobs INTO CurrrentOtherJob;
+      EXIT WHEN NOT FOUND;
+
+      INSERT INTO cqc."WorkerJobs" ("WorkerFK", "JobFK") VALUES (_sfcid, CurrrentOtherJob.sfcid);
+
+      EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Failed to process other jobs: % (%)', _tribalId, _sfcid;
+    END;
+  END LOOP;
+
+  -- update the Worker's OtherServices change property
+  SELECT count(0) FROM cqc."WorkerJobs" WHERE "WorkerFK" = _sfcid INTO TotalOtherJobs;
+  IF (TotalOtherJobs > 0) THEN
+    UPDATE
+      cqc."Worker"
+    SET
+      "OtherJobsValue" = 'Yes'::cqc."WorkerOtherJobs",
+      "OtherJobsSavedAt" = now(),
+      "OtherJobsSavedBy" = 'migration'
+    WHERE
+      "ID" = _sfcid;
+  END IF;END;
 $$ LANGUAGE plpgsql;
