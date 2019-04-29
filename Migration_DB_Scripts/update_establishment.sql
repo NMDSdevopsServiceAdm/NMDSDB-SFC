@@ -1,6 +1,6 @@
 -- this is a set of functions/stored procedures for migrating a single establishment
-DROP FUNCTION IF EXISTS cqc.establishment_other_services;
-CREATE OR REPLACE FUNCTION cqc.establishment_other_services(_tribalId INTEGER, _sfcid INTEGER)
+DROP FUNCTION IF EXISTS migration.establishment_other_services;
+CREATE OR REPLACE FUNCTION migration.establishment_other_services(_tribalId INTEGER, _sfcid INTEGER)
   RETURNS void AS $$
 DECLARE
   MyOtherServices REFCURSOR;
@@ -47,8 +47,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- intentionally not sharing anything recordset between "other services" and "capacities"
-DROP FUNCTION IF EXISTS cqc.establishment_capacities;
-CREATE OR REPLACE FUNCTION cqc.establishment_capacities(_tribalId INTEGER, _sfcid INTEGER)
+DROP FUNCTION IF EXISTS migration.establishment_capacities;
+CREATE OR REPLACE FUNCTION migration.establishment_capacities(_tribalId INTEGER, _sfcid INTEGER)
   RETURNS void AS $$
 DECLARE
   MyCapacities REFCURSOR;
@@ -135,8 +135,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP FUNCTION IF EXISTS cqc.establishment_service_users;
-CREATE OR REPLACE FUNCTION cqc.establishment_service_users(_tribalId INTEGER, _sfcid INTEGER)
+DROP FUNCTION IF EXISTS migration.establishment_service_users;
+CREATE OR REPLACE FUNCTION migration.establishment_service_users(_tribalId INTEGER, _sfcid INTEGER)
   RETURNS void AS $$
 DECLARE
   MyServiceUsers REFCURSOR;
@@ -186,8 +186,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-DROP FUNCTION IF EXISTS cqc.establishment_local_authorities;
-CREATE OR REPLACE FUNCTION cqc.establishment_local_authorities(_tribalId INTEGER, _sfcid INTEGER)
+DROP FUNCTION IF EXISTS migration.establishment_local_authorities;
+CREATE OR REPLACE FUNCTION migration.establishment_local_authorities(_tribalId INTEGER, _sfcid INTEGER)
   RETURNS void AS $$
 DECLARE
   MyLocalAuthorities REFCURSOR;
@@ -274,8 +274,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP FUNCTION IF EXISTS cqc.establishment_jobs;
-CREATE OR REPLACE FUNCTION cqc.establishment_jobs(_tribalId INTEGER, _sfcid INTEGER)
+DROP FUNCTION IF EXISTS migration.establishment_jobs;
+CREATE OR REPLACE FUNCTION migration.establishment_jobs(_tribalId INTEGER, _sfcid INTEGER)
   RETURNS void AS $$
 DECLARE
   MyJobs REFCURSOR;

@@ -1,6 +1,6 @@
 -- this is a set of functions/stored procedures for migrating a single worker
-DROP FUNCTION IF EXISTS cqc.worker_easy_properties;
-CREATE OR REPLACE FUNCTION cqc.worker_easy_properties(_tribalId INTEGER, _sfcid INTEGER, _workerRecord RECORD)
+DROP FUNCTION IF EXISTS migration.worker_easy_properties;
+CREATE OR REPLACE FUNCTION migration.worker_easy_properties(_tribalId INTEGER, _sfcid INTEGER, _workerRecord RECORD)
   RETURNS void AS $$
 DECLARE
   PostCode VARCHAR(20);
@@ -457,8 +457,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP FUNCTION IF EXISTS cqc.worker_other_jobs;
-CREATE OR REPLACE FUNCTION cqc.worker_other_jobs(_tribalId INTEGER, _sfcid INTEGER)
+DROP FUNCTION IF EXISTS migration.worker_other_jobs;
+CREATE OR REPLACE FUNCTION migration.worker_other_jobs(_tribalId INTEGER, _sfcid INTEGER)
   RETURNS void AS $$
 DECLARE
   MyOtherJobs REFCURSOR;
