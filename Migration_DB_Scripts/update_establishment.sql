@@ -1,6 +1,6 @@
 -- this is a set of functions/stored procedures for migrating a single establishment
-DROP FUNCTION IF EXISTS cqc.establishment_other_services;
-CREATE OR REPLACE FUNCTION cqc.establishment_other_services(_tribalId INTEGER, _sfcid INTEGER)
+DROP FUNCTION IF EXISTS migration.establishment_other_services;
+CREATE OR REPLACE FUNCTION migration.establishment_other_services(_tribalId INTEGER, _sfcid INTEGER)
   RETURNS void AS $$
 DECLARE
   MyOtherServices REFCURSOR;
@@ -47,8 +47,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- intentionally not sharing anything recordset between "other services" and "capacities"
-DROP FUNCTION IF EXISTS cqc.establishment_capacities;
-CREATE OR REPLACE FUNCTION cqc.establishment_capacities(_tribalId INTEGER, _sfcid INTEGER)
+DROP FUNCTION IF EXISTS migration.establishment_capacities;
+CREATE OR REPLACE FUNCTION migration.establishment_capacities(_tribalId INTEGER, _sfcid INTEGER)
   RETURNS void AS $$
 DECLARE
   MyCapacities REFCURSOR;
@@ -68,7 +68,7 @@ BEGIN
     FROM establishment e
       INNER JOIN provision p
         INNER JOIN provision_servicetype pst INNER JOIN migration.services ms ON pst.servicetype_id = ms.tribalid
-          ON pst.provision_id = p.id and pst.ismainservice = 0
+          ON pst.provision_id = p.id
         ON p.establishment_id = e.id
     WHERE e.id=_tribalId;
 
@@ -135,8 +135,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP FUNCTION IF EXISTS cqc.establishment_service_users;
-CREATE OR REPLACE FUNCTION cqc.establishment_service_users(_tribalId INTEGER, _sfcid INTEGER)
+DROP FUNCTION IF EXISTS migration.establishment_service_users;
+CREATE OR REPLACE FUNCTION migration.establishment_service_users(_tribalId INTEGER, _sfcid INTEGER)
   RETURNS void AS $$
 DECLARE
   MyServiceUsers REFCURSOR;
@@ -186,8 +186,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-DROP FUNCTION IF EXISTS cqc.establishment_local_authorities;
-CREATE OR REPLACE FUNCTION cqc.establishment_local_authorities(_tribalId INTEGER, _sfcid INTEGER)
+DROP FUNCTION IF EXISTS migration.establishment_local_authorities;
+CREATE OR REPLACE FUNCTION migration.establishment_local_authorities(_tribalId INTEGER, _sfcid INTEGER)
   RETURNS void AS $$
 DECLARE
   MyLocalAuthorities REFCURSOR;
@@ -274,8 +274,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP FUNCTION IF EXISTS cqc.establishment_jobs;
-CREATE OR REPLACE FUNCTION cqc.establishment_jobs(_tribalId INTEGER, _sfcid INTEGER)
+DROP FUNCTION IF EXISTS migration.establishment_jobs;
+CREATE OR REPLACE FUNCTION migration.establishment_jobs(_tribalId INTEGER, _sfcid INTEGER)
   RETURNS void AS $$
 DECLARE
   MyJobs REFCURSOR;
@@ -283,6 +283,7 @@ DECLARE
   TotalVacancies INTEGER;
   TotalStarters INTEGER;
   TotalLeavers INTEGER;
+  TotalStaff INTEGER;
 BEGIN
   RAISE NOTICE '... mapping jobs (vacancies, starters and leavers)';
 
@@ -291,6 +292,16 @@ BEGIN
         provision.totalstarters,
         provision.totalleavers,
         "Job"."JobID" AS jobid,
+		sum(pjr.permanentstaffcount) AS permanentstaffcount,
+		sum(pjr.temporarystaffcount) AS temporarystaffcount,
+        sum(pjr.poolstaffcount) AS poolstaffcount,
+        sum(pjr.agencystaffcount) AS agencystaffcount,
+        sum(pjr.studentstaffcount) AS studentstaffcount,
+        sum(pjr.voluntarystaffcount) AS voluntarystaffcount,
+        sum(pjr.otherstaffcount) AS otherstaffcount,
+        sum(pjr.startedcount) AS startedcount,
+        sum(pjr.stoppedcount) AS stoppedcount,
+        sum(pjr.vacanciescount) AS vacanciescount,
         sum(pjr.startedcount) AS starters,
         sum(pjr.stoppedcount) AS leavers,
         sum(pjr.vacanciescount) AS vacancies
@@ -307,6 +318,9 @@ BEGIN
   -- first delete any existing "jobs"
   DELETE FROM cqc."EstablishmentJobs" WHERE "EstablishmentID" = _sfcid;
 
+  -- reset the establishment's sum of total staff
+  TotalStaff = 0;
+
   LOOP
     BEGIN
       FETCH MyJobs INTO CurrrentJob;
@@ -316,6 +330,15 @@ BEGIN
       TotalVacancies = CurrrentJob.totalvacancies;
       TotalStarters = CurrrentJob.totalstarters;
       TotalLeavers = CurrrentJob.totalleavers;
+	
+      TotalStaff = TotalStaff +
+        CurrrentJob.permanentstaffcount +
+        CurrrentJob.temporarystaffcount +
+        CurrrentJob.poolstaffcount +
+        CurrrentJob.agencystaffcount +
+        CurrrentJob.studentstaffcount +
+        CurrrentJob.voluntarystaffcount +
+        CurrrentJob.otherstaffcount;
 
       -- note - CurrrentJob.vacanciescount, CurrrentJob.startedcount and CurrrentJob.stoppedcount are never null
       --        and the same CurrentJob could have none, one, two or all three of vacancies, started and stopped counts
@@ -440,6 +463,16 @@ BEGIN
     WHERE
       "EstablishmentID" = _sfcid;
   END IF;
+
+  -- update the establishments total number of staff
+  UPDATE
+    cqc."Establishment"
+  SET
+    "NumberOfStaffSavedAt" = now(),
+    "NumberOfStaffSavedBy" = 'migration',
+    "NumberOfStaffValue" = TotalStaff
+  WHERE
+    "EstablishmentID" = _sfcid;
 
 END;
 $$ LANGUAGE plpgsql;
