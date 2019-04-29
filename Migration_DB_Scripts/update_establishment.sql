@@ -283,6 +283,7 @@ DECLARE
   TotalVacancies INTEGER;
   TotalStarters INTEGER;
   TotalLeavers INTEGER;
+  TotalStaff INTEGER;
 BEGIN
   RAISE NOTICE '... mapping jobs (vacancies, starters and leavers)';
 
@@ -291,6 +292,16 @@ BEGIN
         provision.totalstarters,
         provision.totalleavers,
         "Job"."JobID" AS jobid,
+		sum(pjr.permanentstaffcount) AS permanentstaffcount,
+		sum(pjr.temporarystaffcount) AS temporarystaffcount,
+        sum(pjr.poolstaffcount) AS poolstaffcount,
+        sum(pjr.agencystaffcount) AS agencystaffcount,
+        sum(pjr.studentstaffcount) AS studentstaffcount,
+        sum(pjr.voluntarystaffcount) AS voluntarystaffcount,
+        sum(pjr.otherstaffcount) AS otherstaffcount,
+        sum(pjr.startedcount) AS startedcount,
+        sum(pjr.stoppedcount) AS stoppedcount,
+        sum(pjr.vacanciescount) AS vacanciescount,
         sum(pjr.startedcount) AS starters,
         sum(pjr.stoppedcount) AS leavers,
         sum(pjr.vacanciescount) AS vacancies
@@ -307,6 +318,9 @@ BEGIN
   -- first delete any existing "jobs"
   DELETE FROM cqc."EstablishmentJobs" WHERE "EstablishmentID" = _sfcid;
 
+  -- reset the establishment's sum of total staff
+  TotalStaff = 0;
+
   LOOP
     BEGIN
       FETCH MyJobs INTO CurrrentJob;
@@ -316,6 +330,15 @@ BEGIN
       TotalVacancies = CurrrentJob.totalvacancies;
       TotalStarters = CurrrentJob.totalstarters;
       TotalLeavers = CurrrentJob.totalleavers;
+	
+      TotalStaff = TotalStaff +
+        CurrrentJob.permanentstaffcount +
+        CurrrentJob.temporarystaffcount +
+        CurrrentJob.poolstaffcount +
+        CurrrentJob.agencystaffcount +
+        CurrrentJob.studentstaffcount +
+        CurrrentJob.voluntarystaffcount +
+        CurrrentJob.otherstaffcount;
 
       -- note - CurrrentJob.vacanciescount, CurrrentJob.startedcount and CurrrentJob.stoppedcount are never null
       --        and the same CurrentJob could have none, one, two or all three of vacancies, started and stopped counts
@@ -440,6 +463,16 @@ BEGIN
     WHERE
       "EstablishmentID" = _sfcid;
   END IF;
+
+  -- update the establishments total number of staff
+  UPDATE
+    cqc."Establishment"
+  SET
+    "NumberOfStaffSavedAt" = now(),
+    "NumberOfStaffSavedBy" = 'migration',
+    "NumberOfStaffValue" = TotalStaff
+  WHERE
+    "EstablishmentID" = _sfcid;
 
 END;
 $$ LANGUAGE plpgsql;
