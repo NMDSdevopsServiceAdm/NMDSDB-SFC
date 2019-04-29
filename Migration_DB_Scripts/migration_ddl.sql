@@ -1,5 +1,7 @@
-DROP FUNCTION IF EXISTS cqc.DeleteAllTransactional;
-CREATE OR REPLACE FUNCTION cqc.DeleteAllTransactional()
+create schema if not exists migration;
+
+DROP FUNCTION IF EXISTS migration.DeleteAllTransactional;
+CREATE OR REPLACE FUNCTION migration.DeleteAllTransactional()
   RETURNS void AS $$
 DECLARE
 BEGIN
@@ -21,8 +23,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP FUNCTION IF EXISTS cqc.MigrateUsers;
-CREATE OR REPLACE FUNCTION cqc.MigrateUsers()
+DROP FUNCTION IF EXISTS migration.MigrateUsers;
+CREATE OR REPLACE FUNCTION migration.MigrateUsers()
   RETURNS void AS $$
 DECLARE
   AllUsers REFCURSOR;
@@ -147,8 +149,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-DROP FUNCTION IF EXISTS cqc.migrateestablishments;
-CREATE OR REPLACE FUNCTION cqc.migrateestablishments(
+DROP FUNCTION IF EXISTS migration.migrateestablishments;
+CREATE OR REPLACE FUNCTION migration.migrateestablishments(
 	)
     RETURNS void
     LANGUAGE 'plpgsql'
@@ -210,11 +212,11 @@ BEGIN
 	RAISE NOTICE 'Processing tribal establishment: % (%)', CurrentEstablishment.id, CurrentEstablishment.newestablishmentid;
     IF CurrentEstablishment.newestablishmentid IS NOT NULL THEN
       -- we have already migrated this record - prepare to enrich/embellish the Establishment
-      PERFORM cqc.establishment_other_services(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
-      PERFORM cqc.establishment_capacities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
-      PERFORM cqc.establishment_service_users(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
-      PERFORM cqc.establishment_local_authorities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
-      PERFORM cqc.establishment_jobs(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
+      PERFORM migration.establishment_other_services(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
+      PERFORM migration.establishment_capacities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
+      PERFORM migration.establishment_service_users(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
+      PERFORM migration.establishment_local_authorities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
+      PERFORM migration.establishment_jobs(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
     ELSE
       -- we have not yet migrated this record because there is no "newestablishmentid" - prepare a basic Establishment for inserting
       FullAddress = CurrentEstablishment.address1 || ', ' || CurrentEstablishment.address2 || ', ' || CurrentEstablishment.address3 || ', ' || CurrentEstablishment.town;
@@ -292,11 +294,11 @@ BEGIN
         );
 
       -- having inserted the new establishment, adorn with additional properties
-      PERFORM cqc.establishment_other_services(CurrentEstablishment.id, ThisEstablishmentID);
-      PERFORM cqc.establishment_capacities(CurrentEstablishment.id, ThisEstablishmentID);
-      PERFORM cqc.establishment_service_users(CurrentEstablishment.id, ThisEstablishmentID);
-      PERFORM cqc.establishment_local_authorities(CurrentEstablishment.id, ThisEstablishmentID);
-      PERFORM cqc.establishment_jobs(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
+      PERFORM migration.establishment_other_services(CurrentEstablishment.id, ThisEstablishmentID);
+      PERFORM migration.establishment_capacities(CurrentEstablishment.id, ThisEstablishmentID);
+      PERFORM migration.establishment_service_users(CurrentEstablishment.id, ThisEstablishmentID);
+      PERFORM migration.establishment_local_authorities(CurrentEstablishment.id, ThisEstablishmentID);
+      PERFORM migration.establishment_jobs(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
 
     END IF;
 
@@ -307,8 +309,8 @@ BEGIN
 END;
 $BODY$;
 
-DROP FUNCTION IF EXISTS cqc.migrateworkers;
-CREATE OR REPLACE FUNCTION cqc.migrateworkers(
+DROP FUNCTION IF EXISTS migration.migrateworkers;
+CREATE OR REPLACE FUNCTION migration.migrateworkers(
 	)
     RETURNS void
     LANGUAGE 'plpgsql'
@@ -378,10 +380,10 @@ BEGIN
     RAISE NOTICE 'Processing tribal worker: % (%)', CurrentWorker.id, CurrentWorker.newworkerid;
     IF CurrentWorker.newworkerid IS NOT NULL THEN
       -- we have already migrated this record - prepare to enrich/embellish the Worker
-      --PERFORM cqc.worker_training(CurrentWorker.id, CurrentWorker.newworkerid);
-      --PERFORM cqc.worker_qualifications(CurrentWorker.id, CurrentWorker.newworkerid);
-      PERFORM cqc.worker_easy_properties(CurrentWorker.id, CurrentWorker.newworkerid, CurrentWorker);
-      PERFORM cqc.worker_other_jobs(CurrentWorker.id, CurrentWorker.newworkerid);
+      --PERFORM migration.worker_training(CurrentWorker.id, CurrentWorker.newworkerid);
+      --PERFORM migration.worker_qualifications(CurrentWorker.id, CurrentWorker.newworkerid);
+      PERFORM migration.worker_easy_properties(CurrentWorker.id, CurrentWorker.newworkerid, CurrentWorker);
+      PERFORM migration.worker_other_jobs(CurrentWorker.id, CurrentWorker.newworkerid);
 
     ELSE
       -- we have already migrated this record - prepare to insert new Worker
@@ -429,13 +431,15 @@ BEGIN
       );
     END IF;
 
+    -- having inserted the new worker, adorn with additional properties
+    PERFORM migration.worker_easy_properties(CurrentWorker.id, CurrentWorker.newworkerid, CurrentWorker);
+    PERFORM migration.worker_other_jobs(CurrentWorker.id, CurrentWorker.newworkerid);
+
     EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Skipping worker with id: %', CurrentWorker.id;
   END;
   END LOOP;
 END;
 $BODY$;
-
-create schema if not exists migration;
 
 -- from services to services
 drop table if exists migration.services;
