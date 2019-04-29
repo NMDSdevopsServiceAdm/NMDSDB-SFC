@@ -70,7 +70,6 @@ BEGIN
 			"Worker"."ID" AS target_workerfk,
 			worker_training.training_category_id AS tribal_training_id,
 			trainingcategories.sfcid AS target_training_id,
-			"TrainingCategories"."Category" AS target_training_category_name,
 			CASE WHEN length(worker_training.training_name) > 120 THEN LEFT(worker_training.training_name, 120) ELSE worker_training.training_name END AS target_title,
 			CASE WHEN length(worker_training.training_name) > 120 THEN worker_training.training_name ELSE NULL END AS target_notes,
 			worker_training.achievedate as target_completed,
