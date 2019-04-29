@@ -39,7 +39,7 @@ DECLARE
 BEGIN
   RAISE NOTICE '... migrating Worker training records (in bulk)';
 
-  insert into cqc."WorkerTraining" (
+  INSERT INTO cqc."WorkerTraining" (
 	"TribalID",
 	"UID",
 	"WorkerFK",
@@ -51,8 +51,8 @@ BEGIN
 	"Notes",
 	created,
 	updated,
-	updatedby) 
-	select
+	updatedby)
+	SELECT
 		training_tribalid,
 		target_uid,
 		target_workerfk,
@@ -65,33 +65,30 @@ BEGIN
 		target_created,
 		target_updated,
 		target_updatedby
-	from (select
-			worker_training.id as training_tribalid,
-			"Worker"."ID" as target_workerfk,
-			worker_training.training_category_id as tribal_training_id,
-			trainingcategories.sfcid as target_training_id,
-			"TrainingCategories"."Category" as target_training_category_name,
+	FROM (SELECT
+			worker_training.id AS training_tribalid,
+			"Worker"."ID" AS target_workerfk,
+			worker_training.training_category_id AS tribal_training_id,
+			trainingcategories.sfcid AS target_training_id,
+			"TrainingCategories"."Category" AS target_training_category_name,
 			CASE WHEN length(worker_training.training_name) > 120 THEN LEFT(worker_training.training_name, 120) ELSE worker_training.training_name END AS target_title,
 			CASE WHEN length(worker_training.training_name) > 120 THEN worker_training.training_name ELSE NULL END AS target_notes,
 			worker_training.achievedate as target_completed,
 			worker_training.expirydate as target_expires,
-			case when worker_training.isaccredited = 0 then 'No' when worker_training.isaccredited = 1 then 'Yes' else null end  as target_accredited,
-			worker_training.createddate as target_created,
-			COALESCE(worker_training.updateddate, worker_training.createddate) as target_updated,
-			'migration' as target_updatedby,
-			migration.generate_uuid() as target_uid
-		from worker_training
-			inner join worker
-				inner join establishment on establishment.id = worker.establishment_id
-				inner join cqc."Worker" on "Worker"."TribalID" = worker.id
-				on worker.id = worker_training.worker_id
-			left join migration.trainingcategories
-				inner join cqc."TrainingCategories" on "TrainingCategories"."ID" = trainingcategories.sfcid
-				on trainingcategories.tribalid = worker_training.training_category_id
-			left join cqc."WorkerTraining" on "WorkerTraining"."TribalID" = worker_training.id
-		where establishment.id in (248,189859,225383,59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
-		  and "WorkerTraining"."TribalID" IS NULL
-		order by target_created) AllTrainingRecords;
-	
+			CASE WHEN worker_training.isaccredited = 0 THEN 'No' WHEN worker_training.isaccredited = 1 THEN 'Yes' ELSE NULL END AS target_accredited,
+			worker_training.createddate AS target_created,
+			COALESCE(worker_training.updateddate, worker_training.createddate) AS target_updated,
+			'migration' AS target_updatedby,
+			migration.generate_uuid() AS target_uid
+		FROM worker_training
+			INNER JOIN worker
+				INNER JOIN establishment ON establishment.id = worker.establishment_id
+				INNER JOIN cqc."Worker" ON "Worker"."TribalID" = worker.id
+				ON worker.id = worker_training.worker_id
+			LEFT JOIN migration.trainingcategories ON trainingcategories.tribalid = worker_training.training_category_id
+			LEFT JOIN cqc."WorkerTraining" ON "WorkerTraining"."TribalID" = worker_training.id
+		WHERE establishment.id IN (248,189859,225383,59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+		  AND "WorkerTraining"."TribalID" IS NULL
+		ORDER BY target_created) AllTrainingRecords;
 END;
 $$ LANGUAGE plpgsql;
