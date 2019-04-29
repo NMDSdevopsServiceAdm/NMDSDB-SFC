@@ -58,7 +58,7 @@ alter table cqc."EstablishmentServices" add CONSTRAINT estsrvc_estb_fk FOREIGN K
 
 -- temporarily suspend establishment location foreign key
 ALTER TABLE cqc."Establishment" DROP CONSTRAINT estloc_fk_two;
-ALTER TABLE cqc."Establishment" ADD CONSTRAINT estloc_fk_two FOREIGN KEY ("LocationID")
+ALTER TABLE cqc."Establishment" ADD CONSTRAINT estloc_fk FOREIGN KEY ("LocationID")
         REFERENCES cqcref.location (locationid) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION;
