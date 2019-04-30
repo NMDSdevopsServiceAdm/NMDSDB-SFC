@@ -3,6 +3,8 @@ ALTER TABLE cqc."User" ADD COLUMN "TribalID" INTEGER NULL;
 ALTER TABLE cqc."Establishment" ADD COLUMN "TribalID" INTEGER NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "TribalID" INTEGER NULL;
 
+ALTER TABLE cqc."WorkerTraining" ADD COLUMN "TribalID" INTEGER NULL;
+
 
 ALTER TABLE cqc."EstablishmentServiceUsers" ADD CONSTRAINT establishment_establishmentserviceusers_fk FOREIGN KEY ("EstablishmentID")
         REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE

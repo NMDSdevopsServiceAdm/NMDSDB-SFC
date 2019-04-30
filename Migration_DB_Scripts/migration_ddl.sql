@@ -5,21 +5,23 @@ CREATE OR REPLACE FUNCTION migration.DeleteAllTransactional()
   RETURNS void AS $$
 DECLARE
 BEGIN
-  delete from cqc."WorkerAudit";
-  delete from cqc."WorkerJobs";
-  delete from cqc."Worker";
-  delete from cqc."EstablishmentCapacity";
-  delete from cqc."EstablishmentJobs";
-  delete from cqc."EstablishmentServices";
-  delete from cqc."EstablishmentLocalAuthority";
-  delete from cqc."EstablishmentServiceUsers";
+  delete from cqc."WorkerQualification";
+  delete from cqc."WorkerTraining" where "TribalID" IS NOT NULL;
+  delete from cqc."WorkerAudit" where "WorkerFK" in (select distinct "ID" from cqc."Worker" where "TribalID" IS NOT NULL);
+  delete from cqc."WorkerJobs" where "WorkerFK" in (select distinct "ID" from cqc."Worker" where "TribalID" IS NOT NULL);
+  delete from cqc."Worker" where "TribalID" IS NOT NULL;
+  delete from cqc."EstablishmentCapacity" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID" IS NOT NULL);
+  delete from cqc."EstablishmentJobs" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID" IS NOT NULL);
+  delete from cqc."EstablishmentServices" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID" IS NOT NULL);
+  delete from cqc."EstablishmentLocalAuthority" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID" IS NOT NULL);
+  delete from cqc."EstablishmentServiceUsers" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID" IS NOT NULL);
 
-  delete from cqc."Login";
-  delete from cqc."UserAudit";
-  delete from cqc."PasswdResetTracking";
-  delete from cqc."User";
-  delete from cqc."EstablishmentAudit";
-  delete from cqc."Establishment";
+  delete from cqc."Login" where "RegistrationID" in (select distinct "RegistrationID" from cqc."User" where "TribalID" IS NOT NULL);
+  delete from cqc."UserAudit" where "UserFK" in (select distinct "RegistrationID" from cqc."User" where "TribalID" IS NOT NULL);
+  delete from cqc."PasswdResetTracking" where "UserFK" in (select distinct "RegistrationID" from cqc."User" where "TribalID" IS NOT NULL);
+  delete from cqc."User" where "TribalID" IS NOT NULL;
+  delete from cqc."EstablishmentAudit" where "EstablishmentFK" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID" IS NOT NULL);
+  delete from cqc."Establishment" where "TribalID" IS NOT NULL;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -380,7 +382,6 @@ BEGIN
     RAISE NOTICE 'Processing tribal worker: % (%)', CurrentWorker.id, CurrentWorker.newworkerid;
     IF CurrentWorker.newworkerid IS NOT NULL THEN
       -- we have already migrated this record - prepare to enrich/embellish the Worker
-      --PERFORM migration.worker_training(CurrentWorker.id, CurrentWorker.newworkerid);
       --PERFORM migration.worker_qualifications(CurrentWorker.id, CurrentWorker.newworkerid);
       PERFORM migration.worker_easy_properties(CurrentWorker.id, CurrentWorker.newworkerid, CurrentWorker);
       PERFORM migration.worker_other_jobs(CurrentWorker.id, CurrentWorker.newworkerid);
@@ -577,10 +578,10 @@ insert into migration.serviceusers (tribalid, sfcid) values
   (1, 1),
   (2, 2),
   (3, 9),
-  (4, 5),
+  (4, 14),
   (5, 4),
   (6, 2),
-  (7, 6),
+  (7, 15),
   (8, 16),
   (9, 18),
   (10, 19),
