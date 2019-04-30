@@ -3,6 +3,8 @@ ALTER TABLE cqc."User" ADD COLUMN "TribalID" INTEGER NULL;
 ALTER TABLE cqc."Establishment" ADD COLUMN "TribalID" INTEGER NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "TribalID" INTEGER NULL;
 
+ALTER TABLE cqc."WorkerTraining" ADD COLUMN "TribalID" INTEGER NULL;
+
 
 ALTER TABLE cqc."EstablishmentServiceUsers" ADD CONSTRAINT establishment_establishmentserviceusers_fk FOREIGN KEY ("EstablishmentID")
         REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE
@@ -58,7 +60,7 @@ alter table cqc."EstablishmentServices" add CONSTRAINT estsrvc_estb_fk FOREIGN K
 
 -- temporarily suspend establishment location foreign key
 ALTER TABLE cqc."Establishment" DROP CONSTRAINT estloc_fk_two;
-ALTER TABLE cqc."Establishment" ADD CONSTRAINT estloc_fk_two FOREIGN KEY ("LocationID")
+ALTER TABLE cqc."Establishment" ADD CONSTRAINT estloc_fk FOREIGN KEY ("LocationID")
         REFERENCES cqcref.location (locationid) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION;

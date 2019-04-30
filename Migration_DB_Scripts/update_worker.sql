@@ -480,7 +480,9 @@ BEGIN
       FETCH MyOtherJobs INTO CurrrentOtherJob;
       EXIT WHEN NOT FOUND;
 
-      INSERT INTO cqc."WorkerJobs" ("WorkerFK", "JobFK") VALUES (_sfcid, CurrrentOtherJob.sfcid);
+      INSERT INTO cqc."WorkerJobs" ("WorkerFK", "JobFK")
+        VALUES (_sfcid, CurrrentOtherJob.sfcid)
+        ON CONFLICT DO NOTHING;
 
       EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Failed to process other jobs: % (%)', _tribalId, _sfcid;
     END;

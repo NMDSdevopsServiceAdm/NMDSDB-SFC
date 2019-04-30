@@ -26,9 +26,11 @@ BEGIN
       FETCH MyOtherServices INTO CurrrentOtherService;
       EXIT WHEN NOT FOUND;
 
-      INSERT INTO cqc."EstablishmentServices" ("EstablishmentID", "ServiceID") VALUES (_sfcid, CurrrentOtherService.sfcid);
+      INSERT INTO cqc."EstablishmentServices" ("EstablishmentID", "ServiceID")
+        VALUES (_sfcid, CurrrentOtherService.sfcid)
+        ON CONFLICT DO NOTHING;
 
-      EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Failed to process other services: % (%)', _tribalId, _sfcid;
+      --EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Failed to process other services: % (%)', _tribalId, _sfcid;
     END;
   END LOOP;
 
@@ -98,18 +100,21 @@ BEGIN
         -- expecting two capacities
 		    IF (CurrrentCapacityService.totalcapacity IS NOT NULL) THEN
         	INSERT INTO cqc."EstablishmentCapacity" ("EstablishmentID", "ServiceCapacityID","Answer")
-          		VALUES (_sfcid, TargetTotalCapacityRecord.servicecapacityid, CurrrentCapacityService.totalcapacity);
+          		VALUES (_sfcid, TargetTotalCapacityRecord.servicecapacityid, CurrrentCapacityService.totalcapacity)
+              ON CONFLICT DO NOTHING;
 		    END IF;
 		
 		    IF (CurrrentCapacityService.currentutilisation IS NOT NULL) THEN
 	        INSERT INTO cqc."EstablishmentCapacity" ("EstablishmentID", "ServiceCapacityID","Answer")
-    	      VALUES (_sfcid, TargetUtilisationRecord.servicecapacityid, CurrrentCapacityService.currentutilisation);
+    	      VALUES (_sfcid, TargetUtilisationRecord.servicecapacityid, CurrrentCapacityService.currentutilisation)
+            ON CONFLICT DO NOTHING;
 		    END IF;
       ELSIF (TargetTotalCapacityRecord.servicecapacityid IS NOT NULL AND TargetUtilisationRecord.servicecapacityid IS NULL) THEN
         -- expecting just one capacity
 		    IF (CurrrentCapacityService.totalcapacity IS NOT NULL) THEN
 	        INSERT INTO cqc."EstablishmentCapacity" ("EstablishmentID", "ServiceCapacityID","Answer")
-    	      VALUES (_sfcid, TargetTotalCapacityRecord.servicecapacityid, CurrrentCapacityService.totalcapacity);
+    	      VALUES (_sfcid, TargetTotalCapacityRecord.servicecapacityid, CurrrentCapacityService.totalcapacity)
+            ON CONFLICT DO NOTHING;
 		    END IF;
       ELSE
         -- do nothing - skip over this source service as target has no capacities
@@ -165,9 +170,11 @@ BEGIN
       FETCH MyServiceUsers INTO CurrrentServiceUser;
       EXIT WHEN NOT FOUND;
 
-      INSERT INTO cqc."EstablishmentServiceUsers" ("EstablishmentID", "ServiceUserID") VALUES (_sfcid, CurrrentServiceUser.sfcid);
+      INSERT INTO cqc."EstablishmentServiceUsers" ("EstablishmentID", "ServiceUserID")
+        VALUES (_sfcid, CurrrentServiceUser.sfcid)
+        ON CONFLICT DO NOTHING;
 
-      EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Failed to process service users: % (%)', _tribalId, _sfcid;
+      --EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Failed to process service users: % (%)', _tribalId, _sfcid;
     END;
   END LOOP;
 
@@ -240,9 +247,10 @@ BEGIN
       END CASE;
 
       INSERT INTO cqc."EstablishmentLocalAuthority" ("EstablishmentID", "CssrID", "CssR")
-        VALUES (_sfcid, TargetCssrID, TargetCssrName);
+        VALUES (_sfcid, TargetCssrID, TargetCssrName)
+        ON CONFLICT DO NOTHING;
 
-      EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Failed to process Local Authority: % (%) - %', _tribalId, _sfcid, CurrrentLocalAuthority.sourcecssr;
+      --EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Failed to process Local Authority: % (%) - %', _tribalId, _sfcid, CurrrentLocalAuthority.sourcecssr;
     END;
   END LOOP;
 
@@ -346,24 +354,27 @@ BEGIN
           CurrrentJob.totalvacancies > 0 AND
           CurrrentJob.vacancies > 0) THEN
         INSERT INTO cqc."EstablishmentJobs" ("EstablishmentID", "JobID", "JobType", "Total")
-          VALUES (_sfcid, CurrrentJob.jobid, 'Vacancies', CurrrentJob.vacancies);
+          VALUES (_sfcid, CurrrentJob.jobid, 'Vacancies', CurrrentJob.vacancies)
+          ON CONFLICT DO NOTHING;
       END IF;
 
       IF (CurrrentJob.totalstarters IS NOT NULL AND
           CurrrentJob.totalstarters > 0 AND
           CurrrentJob.starters > 0) THEN
         INSERT INTO cqc."EstablishmentJobs" ("EstablishmentID", "JobID", "JobType", "Total")
-          VALUES (_sfcid, CurrrentJob.jobid, 'Starters', CurrrentJob.starters);
+          VALUES (_sfcid, CurrrentJob.jobid, 'Starters', CurrrentJob.starters)
+          ON CONFLICT DO NOTHING;
       END IF;
          
       IF (CurrrentJob.totalleavers IS NOT NULL AND
           CurrrentJob.totalleavers > 0 AND
           CurrrentJob.leavers > 0) THEN
         INSERT INTO cqc."EstablishmentJobs" ("EstablishmentID", "JobID", "JobType", "Total")
-          VALUES (_sfcid, CurrrentJob.jobid, 'Leavers', CurrrentJob.leavers);
+          VALUES (_sfcid, CurrrentJob.jobid, 'Leavers', CurrrentJob.leavers)
+          ON CONFLICT DO NOTHING;
       END IF;
 
-      EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Failed to process Job with target role: % (%) - %', _tribalId, _sfcid, CurrrentJob.jobid;
+      --EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Failed to process Job with target role: % (%) - %', _tribalId, _sfcid, CurrrentJob.jobid;
     END;
   END LOOP;
 
