@@ -4,6 +4,7 @@ ALTER TABLE cqc."Establishment" ADD COLUMN "TribalID" INTEGER NULL;
 ALTER TABLE cqc."Worker" ADD COLUMN "TribalID" INTEGER NULL;
 
 ALTER TABLE cqc."WorkerTraining" ADD COLUMN "TribalID" INTEGER NULL;
+ALTER TABLE cqc."WorkerQualifications" ADD COLUMN "TribalID" INTEGER NULL;
 
 
 ALTER TABLE cqc."EstablishmentServiceUsers" ADD CONSTRAINT establishment_establishmentserviceusers_fk FOREIGN KEY ("EstablishmentID")
@@ -21,6 +22,9 @@ update cqc."Login"
 
 update cqc."User"
 	set "EmailValue" = lower("EmailValue");
+
+-- to migrate qualifications, it is necessary to remove the unique constraint on WorkerQualifications that ensures a given Worker can reference a given qualification only once (this logic breaks down on other qualifications)
+ALTER TABLE cqc."WorkerQualifications" DROP CONSTRAINT "Workers_WorkerQualifications_unq";
 
 
 /* alter table cqc."User" drop constraint "user_establishment_fk";
