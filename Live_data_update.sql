@@ -6,5 +6,5 @@ update cqc."Establishment" set "MainServiceFKValue"=20 where "EstablishmentID"=3
 
 https://trello.com/c/oeYhp3Ui
 
-update cqc."Establishment" set "IsRegulated"=True where "EstablishmentID"=337;
+update cqc."Establishment" set "IsRegulated"=True where "EstablishmentID"=337 and "LocationID"='1-5400068426';
 
