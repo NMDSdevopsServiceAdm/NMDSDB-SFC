@@ -356,7 +356,7 @@ BEGIN
       "Establishment"."EstablishmentID" as establishmentid,
       w.localidentifier,
       w.employmentstatus,
-      createddate,
+      w.createddate,
       "Job"."JobID" as jobid,
       "Worker"."ID" as newworkerid,
       originalcountrycode,
@@ -365,6 +365,8 @@ BEGIN
       targetnationalityid,
       wp.contractedhours,
       wp.hourlyrate,
+      worker_decrypted.dob_dcd as target_dob,
+      worker_decrypted.ni_dcd as target_ni,
       w.*
     from worker w
       inner join cqc."Establishment" on w.establishment_id = "Establishment"."TribalID"
@@ -386,6 +388,7 @@ BEGIN
                     INNER JOIN cqc."Nationality" on migrationnationality.sfcid = "Nationality"."ID"
                     ON migrationnationality.tribalid = country.id
                 ) AS MappedNationalities ON MappedNationalities.originalnationalitycode = w.nationality
+      left join worker_decrypted on worker_decrypted.id = w.id
     where (w.employmentstatus is not null or w.localidentifier is not null);
 
   LOOP
