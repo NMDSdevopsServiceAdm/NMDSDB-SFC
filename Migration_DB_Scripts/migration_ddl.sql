@@ -223,7 +223,19 @@ BEGIN
       PERFORM migration.establishment_jobs(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
     ELSE
       -- we have not yet migrated this record because there is no "newestablishmentid" - prepare a basic Establishment for inserting
-      FullAddress = CurrentEstablishment.address1 || ', ' || CurrentEstablishment.address2 || ', ' || CurrentEstablishment.address3 || ', ' || CurrentEstablishment.town;
+	    FullAddress = '';
+      IF (CurrentEstablishment.address1 IS NOT NULL) THEN
+        FullAddress := concat(FullAddress, CurrentEstablishment.address1, ',');
+      END IF;
+      IF (CurrentEstablishment.address2 IS NOT NULL) THEN
+        FullAddress := concat(FullAddress, CurrentEstablishment.address2, ',');
+      END IF;
+      IF (CurrentEstablishment.address3 IS NOT NULL) THEN
+        FullAddress := concat(FullAddress, CurrentEstablishment.address3, ',');
+      END IF;
+      IF (CurrentEstablishment.town IS NOT NULL) THEN
+        FullAddress := concat(FullAddress, CurrentEstablishment.town);
+      END IF;
 
       -- target Establishment needs a UID; unlike User, there is no UID in tribal dataset
       SELECT CAST(substr(CAST(v1uuid."UID" AS TEXT), 0, 15) || '4' || substr(CAST(v1uuid."UID" AS TEXT), 16, 3) || '-89' || substr(CAST(v1uuid."UID" AS TEXT), 22, 36) AS UUID)
