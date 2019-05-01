@@ -429,11 +429,11 @@ BEGIN
         MigrationTimestamp,
         MigrationUser
       );
-    END IF;
 
-    -- having inserted the new worker, adorn with additional properties
-    PERFORM migration.worker_easy_properties(CurrentWorker.id, CurrentWorker.newworkerid, CurrentWorker);
-    PERFORM migration.worker_other_jobs(CurrentWorker.id, CurrentWorker.newworkerid);
+      -- having inserted the new worker, adorn with additional properties
+      PERFORM migration.worker_easy_properties(CurrentWorker.id, CurrentWorker.newworkerid, CurrentWorker);
+      PERFORM migration.worker_other_jobs(CurrentWorker.id, CurrentWorker.newworkerid);
+    END IF;
 
     EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Skipping worker with id: %', CurrentWorker.id;
   END;
