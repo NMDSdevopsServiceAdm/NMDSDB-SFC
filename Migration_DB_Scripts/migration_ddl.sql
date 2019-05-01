@@ -48,11 +48,13 @@ BEGIN
   MigrationTimestamp := clock_timestamp();
   DuffHash := 'To Fix';
   
-  OPEN AllUsers FOR select cqc."Establishment"."EstablishmentID" AS establishmentid, "User"."TribalID" AS newuserid, users.*, establishment_user.*
+  OPEN AllUsers FOR select cqc."Establishment"."EstablishmentID" AS establishmentid, "User"."TribalID" AS newuserid, users.*, establishment_user.*, establishment.telephone as users_telephone
     from
       users
         inner join establishment_user on establishment_user.user_id = users.id
-          inner join cqc."Establishment" on "Establishment"."TribalID" = establishment_user.establishment_id
+          inner join cqc."Establishment"
+            inner join establishment on "Establishment"."TribalID" = establishment.id
+            on "Establishment"."TribalID" = establishment_user.establishment_id
 		    left join cqc."User" on "User"."TribalID" = users.id
     where users.mustchangepassword = 0
       and establishment_user.establishment_id in (248,189859,225383,59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842);
@@ -113,7 +115,7 @@ BEGIN
           FullName,
           COALESCE(CurrentUser.jobtitle, 'Empty'),
           CurrentUser.loweremail,
-          NotMapped,
+          CurrentUser.users_telephone,
           CurrentUser.passwordquestion,
           NotMapped,
       NewUserRole::cqc.user_role,
@@ -221,7 +223,19 @@ BEGIN
       PERFORM migration.establishment_jobs(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
     ELSE
       -- we have not yet migrated this record because there is no "newestablishmentid" - prepare a basic Establishment for inserting
-      FullAddress = CurrentEstablishment.address1 || ', ' || CurrentEstablishment.address2 || ', ' || CurrentEstablishment.address3 || ', ' || CurrentEstablishment.town;
+	    FullAddress = '';
+      IF (CurrentEstablishment.address1 IS NOT NULL) THEN
+        FullAddress := concat(FullAddress, CurrentEstablishment.address1, ',');
+      END IF;
+      IF (CurrentEstablishment.address2 IS NOT NULL) THEN
+        FullAddress := concat(FullAddress, CurrentEstablishment.address2, ',');
+      END IF;
+      IF (CurrentEstablishment.address3 IS NOT NULL) THEN
+        FullAddress := concat(FullAddress, CurrentEstablishment.address3, ',');
+      END IF;
+      IF (CurrentEstablishment.town IS NOT NULL) THEN
+        FullAddress := concat(FullAddress, CurrentEstablishment.town);
+      END IF;
 
       -- target Establishment needs a UID; unlike User, there is no UID in tribal dataset
       SELECT CAST(substr(CAST(v1uuid."UID" AS TEXT), 0, 15) || '4' || substr(CAST(v1uuid."UID" AS TEXT), 16, 3) || '-89' || substr(CAST(v1uuid."UID" AS TEXT), 22, 36) AS UUID)
@@ -429,11 +443,11 @@ BEGIN
         MigrationTimestamp,
         MigrationUser
       );
-    END IF;
 
-    -- having inserted the new worker, adorn with additional properties
-    PERFORM migration.worker_easy_properties(CurrentWorker.id, CurrentWorker.newworkerid, CurrentWorker);
-    PERFORM migration.worker_other_jobs(CurrentWorker.id, CurrentWorker.newworkerid);
+      -- having inserted the new worker, adorn with additional properties
+      PERFORM migration.worker_easy_properties(CurrentWorker.id, CurrentWorker.newworkerid, CurrentWorker);
+      PERFORM migration.worker_other_jobs(CurrentWorker.id, CurrentWorker.newworkerid);
+    END IF;
 
     EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Skipping worker with id: %', CurrentWorker.id;
   END;
