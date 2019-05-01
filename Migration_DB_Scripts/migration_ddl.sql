@@ -48,11 +48,13 @@ BEGIN
   MigrationTimestamp := clock_timestamp();
   DuffHash := 'To Fix';
   
-  OPEN AllUsers FOR select cqc."Establishment"."EstablishmentID" AS establishmentid, "User"."TribalID" AS newuserid, users.*, establishment_user.*
+  OPEN AllUsers FOR select cqc."Establishment"."EstablishmentID" AS establishmentid, "User"."TribalID" AS newuserid, users.*, establishment_user.*, establishment.telephone as users_telephone
     from
       users
         inner join establishment_user on establishment_user.user_id = users.id
-          inner join cqc."Establishment" on "Establishment"."TribalID" = establishment_user.establishment_id
+          inner join cqc."Establishment"
+            inner join establishment on "Establishment"."TribalID" = establishment.id
+            on "Establishment"."TribalID" = establishment_user.establishment_id
 		    left join cqc."User" on "User"."TribalID" = users.id
     where users.mustchangepassword = 0
       and establishment_user.establishment_id in (248,189859,225383,59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842);
@@ -113,7 +115,7 @@ BEGIN
           FullName,
           COALESCE(CurrentUser.jobtitle, 'Empty'),
           CurrentUser.loweremail,
-          NotMapped,
+          CurrentUser.users_telephone,
           CurrentUser.passwordquestion,
           NotMapped,
       NewUserRole::cqc.user_role,
