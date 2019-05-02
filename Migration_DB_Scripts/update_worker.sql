@@ -366,13 +366,13 @@ BEGIN
     IF (_workerRecord.salaryinterval = 253) THEN    -- unpaid
       AnnualHourlyPayValue = NULL;
       AnnualHourlyPayRate = NULL;
-    ELSIF (_workerRecord.salaryinterval = 250) THEN
+    ELSIF (_workerRecord.salaryinterval = 250 AND _workerRecord.hourlyrate IS NOT NULL) THEN
       AnnualHourlyPayValue = 'Annually';
       AnnualHourlyPayRate = _workerRecord.hourlyrate;
-    ELSIF (_workerRecord.salaryinterval = 252) THEN
+    ELSIF (_workerRecord.salaryinterval = 252 AND _workerRecord.hourlyrate IS NOT NULL) THEN
       AnnualHourlyPayValue = 'Hourly';
       AnnualHourlyPayRate = _workerRecord.hourlyrate;
-    ELSIF (_workerRecord.salaryinterval = 251) THEN
+    ELSIF (_workerRecord.salaryinterval = 251 AND _workerRecord.hourlyrate IS NOT NULL) THEN
       AnnualHourlyPayValue = 'Annually';
       AnnualHourlyPayRate = _workerRecord.hourlyrate*12;
     END IF;
@@ -387,18 +387,7 @@ BEGIN
   -- National Insurance (NI) Number
   NiNumber = NULL;
   IF (_workerRecord.target_ni IS NOT NULL) THEN
-    -- NI Number in source is in the format AANNNNNNA - this needs to be transformed to "AA NN NN NN A"
-    NiNumber = concat(
-      substring(_workerRecord.target_ni from 1 for 2),
-      ' ',
-      substring(_workerRecord.target_ni from 3 for 2),
-      ' ',
-      substring(_workerRecord.target_ni from 5 for 2),
-      ' ',
-      substring(_workerRecord.target_ni from 7 for 2),
-      ' ',
-      substring(_workerRecord.target_ni from 9 for 1)
-    );
+    NiNumber = _workerRecord.target_ni;
   END IF;
 
   -- update the Worker record
