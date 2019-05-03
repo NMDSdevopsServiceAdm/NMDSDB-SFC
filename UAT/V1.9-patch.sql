@@ -24,7 +24,7 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
     "Establishment"."OverallWdfEligibility",
     "Establishment"."LastWdfEligibility" AS "EstablishmentLastWdfEligibility",
     "Establishment"."IsParent",
-    "Establishment"."ParentID",
+    "Establishment"."ParentUID",
     "Establishment"."NameValue",
     "Establishment"."NameSavedAt",
     "Establishment"."NameChangedAt",
