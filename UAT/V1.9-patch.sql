@@ -1,3 +1,16 @@
+-- V1.9 patch - parents and subs
+
+-- establishment facts
+ALTER TABLE cqc."Establishment" ADD COLUMN "IsParent" BOOLEAN DEFAULT FALSE;
+ALTER TABLE cqc."Establishment" ADD COLUMN "ParentID" INTEGER NULL;
+ALTER TABLE cqc."Establishment" ADD COLUMN "ParentUID" UUID NULL;
+ALTER TABLE cqc."Establishment" ADD CONSTRAINT establishment_establishment_parent_fk FOREIGN KEY ("ParentID")
+        REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION;
+
+
+-- analysis view
 DROP VIEW IF EXISTS "cqc"."AllEstablishmentAndWorkersVW";
 CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
   SELECT

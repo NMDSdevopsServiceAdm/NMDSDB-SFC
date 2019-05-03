@@ -118,6 +118,9 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "IsRegulated" boolean NOT NULL,
     "OverallWdfEligibility" timestamp without time zone NULL,
     "LastWdfEligibility" timestamp without time zone NULL,
+    "IsParent" BOOLEAN DEFAULT FALSE,
+    "ParentID" INTEGER NULL,
+    "ParentUID" UUID NULL,
     "NameValue" text NOT NULL,
     "NameSavedAt" TIMESTAMP NULL,
     "NameChangedAt" TIMESTAMP NULL,
@@ -185,7 +188,10 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
 ALTER TABLE cqc."Establishment" OWNER TO sfcadmin;
 ALTER TABLE ONLY cqc."Establishment"
     ADD CONSTRAINT unqestbid UNIQUE ("EstablishmentID");
-
+ALTER TABLE cqc."Establishment" ADD CONSTRAINT establishment_establishment_parent_fk FOREIGN KEY ("ParentID")
+        REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION;
 
 --SET default_tablespace = '';
 
