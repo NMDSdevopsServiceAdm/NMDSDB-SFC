@@ -199,7 +199,7 @@ $$ LANGUAGE plpgsql;
 
 
 DROP FUNCTION IF EXISTS migration.establishment_local_authorities;
-CREATE OR REPLACE FUNCTION migration.establishment_local_authorities(_tribalId INTEGER, _sfcid INTEGER)
+CREATE OR REPLACE FUNCTION migration.establishment_local_authorities(_tribalId INTEGER, _sfcid INTEGER, _visiblecsci INTEGER)
   RETURNS void AS $$
 DECLARE
   MyLocalAuthorities REFCURSOR;
@@ -207,6 +207,7 @@ DECLARE
   TotalLocalAuthorities INTEGER;
   TargetCssrID INTEGER;
   TargetCssrName VARCHAR(200);
+  ShareWithCQC BOOLEAN;
 BEGIN
   RAISE NOTICE '... mapping Local Authorities (CSSRs)';
 
@@ -259,17 +260,30 @@ BEGIN
     END;
   END LOOP;
 
+  -- share with CQC is taken from the source "visiblecsci" (null, 0 or 1)
+  ShareWithCQC = NULL;
+  IF (_visiblecsci) THEN
+    IF (_visiblecsci = 1) THEN
+      ShareWithCQC = true;
+    ELSE
+      ShareWithCQC = false;
+    END IF;
+  END IF;
+
   -- update the Establishment's ShareWithLA change property
   SELECT count(0) FROM cqc."EstablishmentLocalAuthority" WHERE "EstablishmentID" = _sfcid INTO TotalLocalAuthorities;
-  IF (TotalLocalAuthorities > 0) THEN
+  IF (TotalLocalAuthorities > 0 OR ShareWithCQC IS NOT NULL) THEN
     RAISE NOTICE '...... sharing with LA and sharing to true';
     UPDATE
       cqc."Establishment"
     SET
       "ShareWithLASavedAt" = now(),
+      "ShareDataSavedAt" = now(),
       "ShareWithLASavedBy" = 'migration',
+      "ShareDataSavedBy" = 'migration',
       "ShareDataValue" = true,
-      "ShareDataWithLA" = true
+      "ShareDataWithLA" = CASE WHEN TotalLocalAuthorities > 0 THEN true ELSE false END,
+      "ShareDataWithCQC" = CASE WHEN ShareWithCQC IS NOT NULL THEN ShareWithCQC ELSE false END
     WHERE
       "EstablishmentID" = _sfcid;
   ELSE

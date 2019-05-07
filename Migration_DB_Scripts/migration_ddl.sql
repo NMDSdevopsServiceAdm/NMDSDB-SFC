@@ -194,6 +194,7 @@ BEGIN
       p.totalstaff as numberofstaff,
       e.nmdsid,
       e.createddate,
+      e,visiblecsci,
       ms.sfcid as sfc_tribal_mainserviceid,
       "Establishment"."EstablishmentID" as newestablishmentid
     from establishment e
@@ -219,7 +220,7 @@ BEGIN
       PERFORM migration.establishment_other_services(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
       PERFORM migration.establishment_capacities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
       PERFORM migration.establishment_service_users(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
-      PERFORM migration.establishment_local_authorities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
+      PERFORM migration.establishment_local_authorities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid, CurrentEstablishment.visiblecsci);
       PERFORM migration.establishment_jobs(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
     ELSE
       -- we have not yet migrated this record because there is no "newestablishmentid" - prepare a basic Establishment for inserting
@@ -313,7 +314,7 @@ BEGIN
       PERFORM migration.establishment_other_services(CurrentEstablishment.id, ThisEstablishmentID);
       PERFORM migration.establishment_capacities(CurrentEstablishment.id, ThisEstablishmentID);
       PERFORM migration.establishment_service_users(CurrentEstablishment.id, ThisEstablishmentID);
-      PERFORM migration.establishment_local_authorities(CurrentEstablishment.id, ThisEstablishmentID);
+      PERFORM migration.establishment_local_authorities(CurrentEstablishment.id, ThisEstablishmentID, CurrentEstablishment.visiblecsci);
       PERFORM migration.establishment_jobs(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
 
     END IF;
