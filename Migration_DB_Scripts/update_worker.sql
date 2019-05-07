@@ -33,6 +33,8 @@ DECLARE
   WeeklyHoursContractedHours NUMERIC;
   AnnualHourlyPayValue VARCHAR(10);
   AnnualHourlyPayRate NUMERIC;
+  DateOfBirth DATE;
+  NiNumber VARCHAR(15);
 BEGIN
   RAISE NOTICE '... mapping easy properties (Gender, Disability, British Citizenship....)';
 
@@ -364,16 +366,28 @@ BEGIN
     IF (_workerRecord.salaryinterval = 253) THEN    -- unpaid
       AnnualHourlyPayValue = NULL;
       AnnualHourlyPayRate = NULL;
-    ELSIF (_workerRecord.salaryinterval = 250) THEN
+    ELSIF (_workerRecord.salaryinterval = 250 AND _workerRecord.hourlyrate IS NOT NULL) THEN
       AnnualHourlyPayValue = 'Annually';
       AnnualHourlyPayRate = _workerRecord.hourlyrate;
-    ELSIF (_workerRecord.salaryinterval = 252) THEN
+    ELSIF (_workerRecord.salaryinterval = 252 AND _workerRecord.hourlyrate IS NOT NULL) THEN
       AnnualHourlyPayValue = 'Hourly';
       AnnualHourlyPayRate = _workerRecord.hourlyrate;
-    ELSIF (_workerRecord.salaryinterval = 251) THEN
+    ELSIF (_workerRecord.salaryinterval = 251 AND _workerRecord.hourlyrate IS NOT NULL) THEN
       AnnualHourlyPayValue = 'Annually';
       AnnualHourlyPayRate = _workerRecord.hourlyrate*12;
     END IF;
+  END IF;
+
+  -- date of birth
+  DateOfBirth = NULL;
+  IF (_workerRecord.target_dob IS NOT NULL) THEN
+    DateOfBirth = _workerRecord.target_dob::DATE;
+  END IF;
+
+  -- National Insurance (NI) Number
+  NiNumber = NULL;
+  IF (_workerRecord.target_ni IS NOT NULL) THEN
+    NiNumber = _workerRecord.target_ni;
   END IF;
 
   -- update the Worker record
@@ -451,7 +465,13 @@ BEGIN
     "AnnualHourlyPayValue" = CASE WHEN AnnualHourlyPayValue IS NOT NULL THEN AnnualHourlyPayValue::cqc."WorkerAnnualHourlyPay" ELSE NULL END,
     "AnnualHourlyPayRate" = CASE WHEN AnnualHourlyPayRate IS NOT NULL THEN AnnualHourlyPayRate::NUMERIC(9,2) ELSE NULL END,
     "AnnualHourlyPaySavedAt" = CASE WHEN AnnualHourlyPayValue IS NOT NULL THEN NowTimestamp ELSE NULL END,
-    "AnnualHourlyPaySavedBy" = CASE WHEN AnnualHourlyPayValue IS NOT NULL THEN 'migration' ELSE NULL END
+    "AnnualHourlyPaySavedBy" = CASE WHEN AnnualHourlyPayValue IS NOT NULL THEN 'migration' ELSE NULL END,
+    "DateOfBirthValue" = CASE WHEN DateOfBirth IS NOT NULL THEN DateOfBirth ELSE NULL END,
+    "DateOfBirthSavedAt" = CASE WHEN DateOfBirth IS NOT NULL THEN NowTimestamp ELSE NULL END,
+    "DateOfBirthSavedBy" = CASE WHEN DateOfBirth IS NOT NULL THEN 'migration' ELSE NULL END,
+    "NationalInsuranceNumberValue" = CASE WHEN NiNumber IS NOT NULL THEN NiNumber ELSE NULL END,
+    "NationalInsuranceNumberSavedAt" = CASE WHEN NiNumber IS NOT NULL THEN NowTimestamp ELSE NULL END,
+    "NationalInsuranceNumberSavedBy" = CASE WHEN NiNumber IS NOT NULL THEN 'migration' ELSE NULL END
   WHERE
     "ID" = _sfcid;
 END;

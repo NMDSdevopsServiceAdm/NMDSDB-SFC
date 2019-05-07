@@ -622,6 +622,17 @@ INSERT INTO cqc."Country" ("ID", "Seq", "Country") VALUES
 	(256,256, 'Zambia'),
 	(257,257, 'Zimbabwe');
 
+-- adding Laos and Isle of Man
+update cqc."Country" set "Seq" = "Seq" + 1 where "ID" > 117;
+
+-- [Laos] increase sequence number after ID=130 (Kyrgyzstan) but before (Latvia)
+update cqc."Country" set "Seq" = "Seq" + 1 where "ID" > 130;
+
+INSERT INTO cqc."Country" ("ID", "Seq", "Country") VALUES
+	(260,118, 'Isle of Man'),
+	(261,132, 'Lao People''s Democratic People');
+
+
 -- "Recruited From" Reference Data
 CREATE TABLE IF NOT EXISTS cqc."RecruitedFrom" (
 	"ID" INTEGER NOT NULL PRIMARY KEY,

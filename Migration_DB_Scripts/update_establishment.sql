@@ -111,9 +111,14 @@ BEGIN
 		    END IF;
       ELSIF (TargetTotalCapacityRecord.servicecapacityid IS NOT NULL AND TargetUtilisationRecord.servicecapacityid IS NULL) THEN
         -- expecting just one capacity
-		    IF (CurrrentCapacityService.totalcapacity IS NOT NULL) THEN
+        -- special case mapping for Domicilliary Care Services (sfcid=20) - take the currentutilisation
+		    IF (CurrrentCapacityService.totalcapacity IS NOT NULL AND CurrrentCapacityService.sfcid <> 20) THEN
 	        INSERT INTO cqc."EstablishmentCapacity" ("EstablishmentID", "ServiceCapacityID","Answer")
     	      VALUES (_sfcid, TargetTotalCapacityRecord.servicecapacityid, CurrrentCapacityService.totalcapacity)
+            ON CONFLICT DO NOTHING;
+        elsIF (CurrrentCapacityService.totalcapacity IS NOT NULL AND CurrrentCapacityService.sfcid = 20) THEN
+	        INSERT INTO cqc."EstablishmentCapacity" ("EstablishmentID", "ServiceCapacityID","Answer")
+    	      VALUES (_sfcid, TargetTotalCapacityRecord.servicecapacityid, CurrrentCapacityService.currentutilisation)
             ON CONFLICT DO NOTHING;
 		    END IF;
       ELSE
@@ -194,7 +199,7 @@ $$ LANGUAGE plpgsql;
 
 
 DROP FUNCTION IF EXISTS migration.establishment_local_authorities;
-CREATE OR REPLACE FUNCTION migration.establishment_local_authorities(_tribalId INTEGER, _sfcid INTEGER)
+CREATE OR REPLACE FUNCTION migration.establishment_local_authorities(_tribalId INTEGER, _sfcid INTEGER, _visiblecsci INTEGER)
   RETURNS void AS $$
 DECLARE
   MyLocalAuthorities REFCURSOR;
@@ -202,6 +207,7 @@ DECLARE
   TotalLocalAuthorities INTEGER;
   TargetCssrID INTEGER;
   TargetCssrName VARCHAR(200);
+  ShareWithCQC BOOLEAN;
 BEGIN
   RAISE NOTICE '... mapping Local Authorities (CSSRs)';
 
@@ -254,17 +260,30 @@ BEGIN
     END;
   END LOOP;
 
+  -- share with CQC is taken from the source "visiblecsci" (null, 0 or 1)
+  ShareWithCQC = NULL;
+  IF (_visiblecsci) THEN
+    IF (_visiblecsci = 1) THEN
+      ShareWithCQC = true;
+    ELSE
+      ShareWithCQC = false;
+    END IF;
+  END IF;
+
   -- update the Establishment's ShareWithLA change property
   SELECT count(0) FROM cqc."EstablishmentLocalAuthority" WHERE "EstablishmentID" = _sfcid INTO TotalLocalAuthorities;
-  IF (TotalLocalAuthorities > 0) THEN
+  IF (TotalLocalAuthorities > 0 OR ShareWithCQC IS NOT NULL) THEN
     RAISE NOTICE '...... sharing with LA and sharing to true';
     UPDATE
       cqc."Establishment"
     SET
       "ShareWithLASavedAt" = now(),
+      "ShareDataSavedAt" = now(),
       "ShareWithLASavedBy" = 'migration',
+      "ShareDataSavedBy" = 'migration',
       "ShareDataValue" = true,
-      "ShareDataWithLA" = true
+      "ShareDataWithLA" = CASE WHEN TotalLocalAuthorities > 0 THEN true ELSE false END,
+      "ShareDataWithCQC" = CASE WHEN ShareWithCQC IS NOT NULL THEN ShareWithCQC ELSE false END
     WHERE
       "EstablishmentID" = _sfcid;
   ELSE
@@ -335,9 +354,9 @@ BEGIN
       EXIT WHEN NOT FOUND;
 
       -- the totals will be the same for every job type record
-      TotalVacancies = CurrrentJob.totalvacancies;
-      TotalStarters = CurrrentJob.totalstarters;
-      TotalLeavers = CurrrentJob.totalleavers;
+      TotalVacancies = 0;
+      TotalStarters = 0;
+      TotalLeavers = 0;
 	
       TotalStaff = TotalStaff +
         CurrrentJob.permanentstaffcount +
@@ -350,28 +369,28 @@ BEGIN
 
       -- note - CurrrentJob.vacanciescount, CurrrentJob.startedcount and CurrrentJob.stoppedcount are never null
       --        and the same CurrentJob could have none, one, two or all three of vacancies, started and stopped counts
-      IF (CurrrentJob.totalvacancies IS NOT NULL AND
-          CurrrentJob.totalvacancies > 0 AND
-          CurrrentJob.vacancies > 0) THEN
+      IF (CurrrentJob.vacancies > 0) THEN
         INSERT INTO cqc."EstablishmentJobs" ("EstablishmentID", "JobID", "JobType", "Total")
           VALUES (_sfcid, CurrrentJob.jobid, 'Vacancies', CurrrentJob.vacancies)
           ON CONFLICT DO NOTHING;
+
+        TotalVacancies = TotalVacancies + CurrrentJob.vacancies;
       END IF;
 
-      IF (CurrrentJob.totalstarters IS NOT NULL AND
-          CurrrentJob.totalstarters > 0 AND
-          CurrrentJob.starters > 0) THEN
+      IF (CurrrentJob.starters > 0) THEN
         INSERT INTO cqc."EstablishmentJobs" ("EstablishmentID", "JobID", "JobType", "Total")
           VALUES (_sfcid, CurrrentJob.jobid, 'Starters', CurrrentJob.starters)
           ON CONFLICT DO NOTHING;
+
+        TotalStarters = TotalStarters + CurrrentJob.starters;
       END IF;
          
-      IF (CurrrentJob.totalleavers IS NOT NULL AND
-          CurrrentJob.totalleavers > 0 AND
-          CurrrentJob.leavers > 0) THEN
+      IF (CurrrentJob.leavers > 0) THEN
         INSERT INTO cqc."EstablishmentJobs" ("EstablishmentID", "JobID", "JobType", "Total")
           VALUES (_sfcid, CurrrentJob.jobid, 'Leavers', CurrrentJob.leavers)
           ON CONFLICT DO NOTHING;
+
+        TotalLeavers = TotalLeavers + CurrrentJob.leavers;
       END IF;
 
       --EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Failed to process Job with target role: % (%) - %', _tribalId, _sfcid, CurrrentJob.jobid;
@@ -379,100 +398,90 @@ BEGIN
   END LOOP;
 
   -- update the Establishment's Vacancies, Starters and Leavers change properties
-  IF (TotalVacancies IS NOT NULL AND TotalVacancies > 0) THEN
-    RAISE NOTICE '...... have vacancies';
-    UPDATE
-      cqc."Establishment"
-    SET
-      "VacanciesSavedAt" = now(),
-      "VacanciesSavedBy" = 'migration',
-      "VacanciesValue" = 'With Jobs'
-    WHERE
-      "EstablishmentID" = _sfcid;
-  ELSIF (TotalVacancies IS NOT NULL AND TotalVacancies = 0) THEN
-    RAISE NOTICE '...... have no vacancies';
-    UPDATE
-      cqc."Establishment"
-    SET
-      "VacanciesSavedAt" = now(),
-      "VacanciesSavedBy" = 'migration',
-      "VacanciesValue" = 'None'
-    WHERE
-      "EstablishmentID" = _sfcid;
-  ELSIF (TotalVacancies IS NOT NULL AND TotalVacancies = -1) THEN
-    RAISE NOTICE '...... have unknown vacancies';
-    UPDATE
-      cqc."Establishment"
-    SET
-      "VacanciesSavedAt" = now(),
-      "VacanciesSavedBy" = 'migration',
-      "VacanciesValue" = 'Don''t know'
-    WHERE
-      "EstablishmentID" = _sfcid;
-  END IF;
+  -- if there are no records, then all Vacancies, Starters and Leavers are "Don't know"
 
-  IF (TotalStarters IS NOT NULL AND TotalStarters > 0) THEN
-    RAISE NOTICE '...... have starters';
+  IF (TotalStaff = 0) THEN
+    RAISE NOTICE '...... don''t know vacancies, starters and leavers';
     UPDATE
       cqc."Establishment"
     SET
+      "VacanciesSavedAt" = now(),
+      "VacanciesSavedBy" = 'migration',
+      "VacanciesValue" = 'Don''t know',
       "StartersSavedAt" = now(),
       "StartersSavedBy" = 'migration',
-      "StartersValue" = 'With Jobs'
-    WHERE
-      "EstablishmentID" = _sfcid;
-  ELSIF (TotalStarters IS NOT NULL AND TotalStarters = 0) THEN
-    RAISE NOTICE '...... have no starters';
-    UPDATE
-      cqc."Establishment"
-    SET
-      "StartersSavedAt" = now(),
-      "StartersSavedBy" = 'migration',
-      "StartersValue" = 'None'
-    WHERE
-      "EstablishmentID" = _sfcid;
-  ELSIF (TotalStarters IS NOT NULL AND TotalStarters = -1) THEN
-    RAISE NOTICE '...... have unknown starters';
-    UPDATE
-      cqc."Establishment"
-    SET
-      "StartersSavedAt" = now(),
-      "StartersSavedBy" = 'migration',
-      "StartersValue" = 'Don''t know'
-    WHERE
-      "EstablishmentID" = _sfcid;
-  END IF;
-
-  IF (TotalLeavers IS NOT NULL AND TotalLeavers > 0) THEN
-    RAISE NOTICE '...... have leavers';
-    UPDATE
-      cqc."Establishment"
-    SET
-      "LeaversSavedAt" = now(),
-      "LeaversSavedBy" = 'migration',
-      "LeaversValue" = 'With Jobs'
-    WHERE
-      "EstablishmentID" = _sfcid;
-  ELSIF (TotalLeavers IS NOT NULL AND TotalLeavers = 0) THEN
-    RAISE NOTICE '...... have no leavers';
-    UPDATE
-      cqc."Establishment"
-    SET
-      "LeaversSavedAt" = now(),
-      "LeaversSavedBy" = 'migration',
-      "LeaversValue" = 'None'
-    WHERE
-      "EstablishmentID" = _sfcid;
-  ELSIF (TotalLeavers IS NOT NULL AND TotalLeavers = -1) THEN
-    RAISE NOTICE '...... have unknown leavers';
-    UPDATE
-      cqc."Establishment"
-    SET
+      "StartersValue" = 'Don''t know',
       "LeaversSavedAt" = now(),
       "LeaversSavedBy" = 'migration',
       "LeaversValue" = 'Don''t know'
     WHERE
       "EstablishmentID" = _sfcid;
+  ELSE
+    IF (TotalVacancies = 0) THEN
+      RAISE NOTICE '...... have no vacancies';
+      UPDATE
+        cqc."Establishment"
+      SET
+        "VacanciesSavedAt" = now(),
+        "VacanciesSavedBy" = 'migration',
+        "VacanciesValue" = 'None'
+      WHERE
+        "EstablishmentID" = _sfcid;
+    ELSE
+      RAISE NOTICE '...... have vacancies';
+      UPDATE
+        cqc."Establishment"
+      SET
+        "VacanciesSavedAt" = now(),
+        "VacanciesSavedBy" = 'migration',
+        "VacanciesValue" = 'With Jobs'
+      WHERE
+        "EstablishmentID" = _sfcid;
+    END IF;
+
+    IF (TotalStarters = 0) THEN
+      RAISE NOTICE '...... have no starters';
+      UPDATE
+        cqc."Establishment"
+      SET
+        "StartersSavedAt" = now(),
+        "StartersSavedBy" = 'migration',
+        "StartersValue" = 'None'
+      WHERE
+        "EstablishmentID" = _sfcid;
+    ELSE
+      RAISE NOTICE '...... have starters';
+      UPDATE
+        cqc."Establishment"
+      SET
+        "StartersSavedAt" = now(),
+        "StartersSavedBy" = 'migration',
+        "StartersValue" = 'With Jobs'
+      WHERE
+        "EstablishmentID" = _sfcid;
+    END IF;
+
+    IF (TotalLeavers = 0) THEN
+      RAISE NOTICE '...... have no leavers';
+      UPDATE
+        cqc."Establishment"
+      SET
+        "LeaversSavedAt" = now(),
+        "LeaversSavedBy" = 'migration',
+        "LeaversValue" = 'None'
+      WHERE
+        "EstablishmentID" = _sfcid;
+    ELSE
+      RAISE NOTICE '...... have leavers';
+      UPDATE
+        cqc."Establishment"
+      SET
+        "LeaversSavedAt" = now(),
+        "LeaversSavedBy" = 'migration',
+        "LeaversValue" = 'With Jobs'
+      WHERE
+        "EstablishmentID" = _sfcid;
+    END IF;
   END IF;
 
   -- update the establishments total number of staff
