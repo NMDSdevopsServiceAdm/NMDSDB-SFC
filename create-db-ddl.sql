@@ -938,6 +938,9 @@ INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence"
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (14, 35, 1, 'Number of people receiving care on the completion date');
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (15, 11, 1, 'Number of people receiving care on the completion date');
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (16, 18, 1, 'Number of people receiving care on the completion date');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (17, 21, 1, 'Number of people receiving care on the completion date');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question") values (18, 23, 1, 'Number of people using the service on the completion date');
+
 
 ----Jobs
 
