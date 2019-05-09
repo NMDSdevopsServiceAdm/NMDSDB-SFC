@@ -116,7 +116,7 @@ BEGIN
 	        INSERT INTO cqc."EstablishmentCapacity" ("EstablishmentID", "ServiceCapacityID","Answer")
     	      VALUES (_sfcid, TargetTotalCapacityRecord.servicecapacityid, CurrrentCapacityService.totalcapacity)
             ON CONFLICT DO NOTHING;
-        elsIF (CurrrentCapacityService.totalcapacity IS NOT NULL AND CurrrentCapacityService.sfcid = 20) THEN
+        elsIF (CurrrentCapacityService.totalcapacity IS NOT NULL AND (CurrrentCapacityService.sfcid = 20 OR CurrrentCapacityService.sfcid = 11)  THEN
 	        INSERT INTO cqc."EstablishmentCapacity" ("EstablishmentID", "ServiceCapacityID","Answer")
     	      VALUES (_sfcid, TargetTotalCapacityRecord.servicecapacityid, CurrrentCapacityService.currentutilisation)
             ON CONFLICT DO NOTHING;
