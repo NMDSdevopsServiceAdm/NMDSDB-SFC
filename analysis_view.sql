@@ -10,6 +10,8 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
     "Establishment"."IsRegulated",
     "Establishment"."OverallWdfEligibility",
     "Establishment"."LastWdfEligibility" AS "EstablishmentLastWdfEligibility",
+    "Establishment"."IsParent",
+    "Establishment"."ParentID",
     "Establishment"."NameValue",
     "Establishment"."NameSavedAt",
     "Establishment"."NameChangedAt",
