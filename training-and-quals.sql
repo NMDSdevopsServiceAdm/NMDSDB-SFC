@@ -138,7 +138,9 @@ INSERT INTO cqc."Qualifications" ("ID", "Seq", "Group", "Title", "Code", "From",
   (130, 1220, 'Apprenticeship','Nursing Associate (standard)', 309, NULL, NULL,'5', 'No', 'No', 'QL309ACHQ5'),
   (131, 1230, 'Apprenticeship','Occupational Therapist', 312, NULL, NULL,'6', 'No', 'No', 'QL312ACHQ6'),
   (132, 1240, 'Apprenticeship','Physiotherapist', 313, NULL, NULL,'6', 'No', 'No', 'QL313ACHQ6'),
-  (133, 1250, 'Apprenticeship','Any other apprenticeship framework or standard', 311, NULL, NULL,NULL, 'No', 'No', 'QL311ACHQ');
+  (133, 1250, 'Apprenticeship','Any other apprenticeship framework or standard', 311, NULL, NULL,NULL, 'No', 'No', 'QL311ACHQ'),
+  (134, 675, 'Certificate','Any other social care relevant certificate', 113, '2018-01-01', NULL,NULL, 'No', 'Yes', 'unknown'),
+  (135, 676, 'Certificate','Any other non-social care relevant certificate', 114, '2018-01-01', NULL,NULL, 'No', 'No', 'unknown');
 
 CREATE TABLE IF NOT EXISTS cqc."WorkerQualifications" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,

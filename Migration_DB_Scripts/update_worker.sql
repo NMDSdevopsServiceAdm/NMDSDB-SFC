@@ -136,9 +136,9 @@ BEGIN
     ELSIF (_workerRecord.socialcarequallevel = 626) THEN
       SocialCareQualificationFK = 6;
     ELSIF (_workerRecord.socialcarequallevel = 627) THEN
-      SocialCareQualificationFK = 7;
-    ELSIF (_workerRecord.socialcarequallevel = 628) THEN
       SocialCareQualificationFK = 8;
+    ELSIF (_workerRecord.socialcarequallevel = 628) THEN
+      SocialCareQualificationFK = 7;
     ELSIF (_workerRecord.socialcarequallevel = 629) THEN
       SocialCareQualificationFK = 9;
     END IF;
@@ -170,9 +170,9 @@ BEGIN
     ELSIF (_workerRecord.nonsocialcarequallevel = 626) THEN
       NonSocialCareQualificationFK = 6;
     ELSIF (_workerRecord.nonsocialcarequallevel = 627) THEN
-      NonSocialCareQualificationFK = 7;
-    ELSIF (_workerRecord.nonsocialcarequallevel = 628) THEN
       NonSocialCareQualificationFK = 8;
+    ELSIF (_workerRecord.nonsocialcarequallevel = 628) THEN
+      NonSocialCareQualificationFK = 7;
     ELSIF (_workerRecord.nonsocialcarequallevel = 629) THEN
       NonSocialCareQualificationFK = 9;
     END IF;
