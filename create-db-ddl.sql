@@ -427,7 +427,9 @@ CREATE TABLE IF NOT EXISTS cqc."Login" (
     "Hash" character varying(255),
     "FirstLogin" timestamp(4) without time zone,
     "PasswdLastChanged" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW().
-    "LastLoggedIn" TIMESTAMP WITHOUT TIME ZONE NULL
+    "LastLoggedIn" TIMESTAMP WITHOUT TIME ZONE NULL,
+    "TribalHash" VARCHAR(128) NULL,
+    "TribalSalt" VARCHAR(50) NULL
 );
 
 

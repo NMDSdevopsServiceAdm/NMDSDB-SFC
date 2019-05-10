@@ -26,7 +26,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 DROP FUNCTION IF EXISTS migration.MigrateUsers;
-CREATE OR REPLACE FUNCTION migration.MigrateUsers()
   RETURNS void AS $$
 DECLARE
   AllUsers REFCURSOR;
@@ -40,7 +39,7 @@ DECLARE
   FullName VARCHAR(120);
   ThisRegistrationID INTEGER;
   MigrationTimestamp timestamp without time zone;
-  DuffHash VARCHAR(10);
+  TargetHash VARCHAR(10);
   NewUsername VARCHAR(120);
   NewUserRandomNumber INTEGER;
 BEGIN
@@ -48,7 +47,7 @@ BEGIN
   MappedEmpty := 'Was empty';
   MigrationUser := 'migration';
   MigrationTimestamp := clock_timestamp();
-  DuffHash := 'To Fix';
+  TargetHash := NULL;
   
   OPEN AllUsers FOR select cqc."Establishment"."EstablishmentID" AS establishmentid, "User"."TribalID" AS newuserid, users.*, establishment_user.*, establishment.telephone as users_telephone
     from
@@ -144,16 +143,20 @@ BEGIN
         "Hash",
         "FirstLogin",
         "LastLoggedIn",
-        "PasswdLastChanged"
+        "PasswdLastChanged",
+        "TribalHash",
+        "TribalSalt"
       ) VALUES (
         ThisRegistrationID,
         NewUsername,
         true,
         0,
-        DuffHash,
+        TargetHash,
         null,
         CurrentUser.lastlogindate,
-        COALESCE(CurrentUser.lastpasswordchangeddate, CurrentUser.creationdate)
+        COALESCE(CurrentUser.lastpasswordchangeddate, CurrentUser.creationdate),
+        CurrentUser.password,
+        CurrentUser.salt
       );
     END IF;
 
