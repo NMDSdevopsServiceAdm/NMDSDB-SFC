@@ -351,7 +351,7 @@ BEGIN
   IF (_workerRecord.contractedhours IS NOT NULL) THEN
 
     -- 190 = permanent, 191 = temp
-    IF (_workerRecord.employmentstatus = 190 OR _workerRecord.employmentstatus = 191) THEN
+    IF (_workerRecord.employmentstatus IS NULL OR _workerRecord.employmentstatus = 190 OR _workerRecord.employmentstatus = 191) THEN
       IF (_workerRecord.contractedhours = -1) THEN
         WeeklyHoursContractedValue = NULL;
         WeeklyHoursContractedHours = NULL;
