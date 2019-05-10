@@ -1,0 +1,2 @@
+ALTER TABLE cqc."Login" ADD COLUMN "TribalHash" VARCHAR(128) NULL;
+ALTER TABLE cqc."Login" ADD COLUMN "TribalSalt" VARCHAR(50) NULL;
