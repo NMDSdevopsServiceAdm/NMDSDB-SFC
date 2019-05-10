@@ -31,6 +31,8 @@ DECLARE
   NationalityFK INTEGER;
   WeeklyHoursContractedValue VARCHAR(5);
   WeeklyHoursContractedHours NUMERIC;
+  WeeklyHoursAverageValue VARCHAR(5);
+  WeeklyHoursAverageHours NUMERIC;
   AnnualHourlyPayValue VARCHAR(10);
   AnnualHourlyPayRate NUMERIC;
   DateOfBirth DATE;
@@ -343,19 +345,34 @@ BEGIN
   END IF;
 
 
-  -- contracted hours
+  -- contracted/average hours
   WeeklyHoursContractedValue = NULL;
   WeeklyHoursContractedHours = NULL;
   IF (_workerRecord.contractedhours IS NOT NULL) THEN
-    IF (_workerRecord.contractedhours = -1) THEN
-      WeeklyHoursContractedValue = NULL;
-      WeeklyHoursContractedHours = NULL;
-    ELSIF (_workerRecord.contractedhours = 0) THEN
-      WeeklyHoursContractedValue = 'No';
-      WeeklyHoursContractedHours = NULL;
-    ELSIF (_workerRecord.contractedhours > 0) THEN
-      WeeklyHoursContractedValue = 'Yes';
-      WeeklyHoursContractedHours = _workerRecord.contractedhours;
+
+    -- 190 = permanent, 191 = temp
+    IF (_workerRecord.employmentstatus IS NULL OR _workerRecord.employmentstatus = 190 OR _workerRecord.employmentstatus = 191) THEN
+      IF (_workerRecord.contractedhours = -1) THEN
+        WeeklyHoursContractedValue = NULL;
+        WeeklyHoursContractedHours = NULL;
+      ELSIF (_workerRecord.contractedhours = 0) THEN
+        WeeklyHoursContractedValue = 'No';
+        WeeklyHoursContractedHours = NULL;
+      ELSIF (_workerRecord.contractedhours > 0) THEN
+        WeeklyHoursContractedValue = 'Yes';
+        WeeklyHoursContractedHours = _workerRecord.contractedhours;
+      END IF;
+    ELSE
+      IF (_workerRecord.contractedhours = -1) THEN
+        WeeklyHoursAverageValue = NULL;
+        WeeklyHoursAverageHours = NULL;
+      ELSIF (_workerRecord.contractedhours = 0) THEN
+        WeeklyHoursAverageValue = 'No';
+        WeeklyHoursAverageHours = NULL;
+      ELSIF (_workerRecord.contractedhours > 0) THEN
+        WeeklyHoursAverageValue = 'Yes';
+        WeeklyHoursAverageHours = _workerRecord.contractedhours;
+      END IF;
     END IF;
   END IF;
 
@@ -462,6 +479,10 @@ BEGIN
     "WeeklyHoursContractedHours" = CASE WHEN WeeklyHoursContractedHours IS NOT NULL THEN WeeklyHoursContractedHours::NUMERIC(4,1) ELSE NULL END,
     "WeeklyHoursContractedSavedAt" = CASE WHEN WeeklyHoursContractedValue IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "WeeklyHoursContractedSavedBy" = CASE WHEN WeeklyHoursContractedValue IS NOT NULL THEN 'migration' ELSE NULL END,
+    "WeeklyHoursAverageValue" = CASE WHEN WeeklyHoursAverageValue IS NOT NULL THEN WeeklyHoursAverageValue::cqc."WorkerWeeklyHoursAverage" ELSE NULL END,
+    "WeeklyHoursAverageHours" = CASE WHEN WeeklyHoursAverageHours IS NOT NULL THEN WeeklyHoursAverageHours::NUMERIC(4,1) ELSE NULL END,
+    "WeeklyHoursAverageSavedAt" = CASE WHEN WeeklyHoursAverageValue IS NOT NULL THEN NowTimestamp ELSE NULL END,
+    "WeeklyHoursAverageSavedBy" = CASE WHEN WeeklyHoursAverageValue IS NOT NULL THEN 'migration' ELSE NULL END,
     "AnnualHourlyPayValue" = CASE WHEN AnnualHourlyPayValue IS NOT NULL THEN AnnualHourlyPayValue::cqc."WorkerAnnualHourlyPay" ELSE NULL END,
     "AnnualHourlyPayRate" = CASE WHEN AnnualHourlyPayRate IS NOT NULL THEN AnnualHourlyPayRate::NUMERIC(9,2) ELSE NULL END,
     "AnnualHourlyPaySavedAt" = CASE WHEN AnnualHourlyPayValue IS NOT NULL THEN NowTimestamp ELSE NULL END,

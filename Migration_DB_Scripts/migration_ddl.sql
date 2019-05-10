@@ -41,6 +41,8 @@ DECLARE
   ThisRegistrationID INTEGER;
   MigrationTimestamp timestamp without time zone;
   DuffHash VARCHAR(10);
+  NewUsername VARCHAR(120);
+  NewUserRandomNumber INTEGER;
 BEGIN
   NotMapped := 'Not Mapped';
   MappedEmpty := 'Was empty';
@@ -57,7 +59,7 @@ BEGIN
             on "Establishment"."TribalID" = establishment_user.establishment_id
 		    left join cqc."User" on "User"."TribalID" = users.id
     where users.status <> 4
-      and establishment_user.establishment_id in (248,189859,225383,59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842);
+      and establishment_user.establishment_id in (156182, 248,189859,225383,59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842);
 
   LOOP
     FETCH AllUsers INTO CurrentUser;
@@ -118,13 +120,21 @@ BEGIN
           CurrentUser.users_telephone,
           CurrentUser.passwordquestion,
           NotMapped,
-      NewUserRole::cqc.user_role,
+          NewUserRole::cqc.user_role,
           CurrentUser.creationdate,
           MigrationTimestamp,
           MigrationUser,
           false,
       NewIsPrimary
         );
+
+      -- owing to not being able to handle a "read" user in target application
+      --   rename the login username to prevent read users from login
+      NewUsername = CurrentUser.lowerusername;
+      IF (NewUserRole = 'Read') THEN
+        SELECT floor(random() * 100 + 1)::int into NewUserRandomNumber;
+        NewUsername = CONCAT('migration_', NewUserRandomNumber, '_', CurrentUser.lowerusername);
+      END IF;
         
       INSERT INTO cqc."Login" (
         "RegistrationID",
@@ -137,7 +147,7 @@ BEGIN
         "PasswdLastChanged"
       ) VALUES (
         ThisRegistrationID,
-        CurrentUser.lowerusername,
+        NewUsername,
         true,
         0,
         DuffHash,
@@ -206,7 +216,7 @@ BEGIN
           on pst.provision_id = p.id and pst.ismainservice = 1
         on p.establishment_id = e.id
 	  left join cqc."Establishment" on "Establishment"."TribalID" = e.id
-     where e.id in (248,189859,225383,59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+     where e.id in (156182, 248,189859,225383,59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
      order by e.id asc;
 
   LOOP
@@ -390,7 +400,7 @@ BEGIN
                     ON migrationnationality.tribalid = country.id
                 ) AS MappedNationalities ON MappedNationalities.originalnationalitycode = w.nationality
       left join worker_decrypted on worker_decrypted.id = w.id
-    where (w.employmentstatus is not null or w.localidentifier is not null);
+    where (w.employmentstatus = 195 or w.localidentifier is not null);   -- employmenbt status of 195 is volunteer (we're not migrating volunteer workers)
 
   LOOP
     BEGIN
@@ -412,18 +422,22 @@ BEGIN
         ) v1uuid
       INTO NewWorkerUID;
 
-      CASE CurrentWorker.employmentstatus
-        WHEN 190 THEN
-          NewContract = 'Permanent';
-        WHEN 191 THEN
-          NewContract = 'Temporary';
-        WHEN 192 THEN
-          NewContract = 'Pool/Bank';
-        WHEN 193 THEN
-          NewContract = 'Agency';
-        ELSE
-          NewContract = 'Other';
-      END CASE;
+      IF (CurrentWorker.employmentstatus IS NULL) THEN
+            NewContract = 'Permanent';
+      ELSE
+        CASE CurrentWorker.employmentstatus
+          WHEN 190 THEN
+            NewContract = 'Permanent';
+          WHEN 191 THEN
+            NewContract = 'Temporary';
+          WHEN 192 THEN
+            NewContract = 'Pool/Bank';
+          WHEN 193 THEN
+            NewContract = 'Agency';
+          ELSE
+            NewContract = 'Other';
+        END CASE;
+      END IF;
 
     -- Worker does not have a sequence number; it's a serial
       INSERT INTO cqc."Worker" (
