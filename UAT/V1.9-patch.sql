@@ -30,6 +30,7 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
   SELECT
     "Establishment"."EstablishmentID",
     "Establishment"."EstablishmentUID",
+    "Establishment"."TribalID" AS "TribalEstablishmentID",
     "Establishment"."NmdsID",
     "Establishment"."Address",
     "Establishment"."LocationID",
@@ -81,6 +82,7 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
     "Establishment".updated AS "EstablishmentUpdated",
     "Worker"."WorkerUID",
     "Worker"."EstablishmentFK",
+    "Worker"."TribalID" AS "TribalWorkerID",
     "Worker"."LastWdfEligibility"  AS "WorkerLastWdfEligibility",
     "Worker"."NameOrIdSavedAt",
     "Worker"."NameOrIdChangedAt",
