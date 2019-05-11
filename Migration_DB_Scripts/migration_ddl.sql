@@ -5,7 +5,7 @@ CREATE OR REPLACE FUNCTION migration.DeleteAllTransactional()
   RETURNS void AS $$
 DECLARE
 BEGIN
-  delete from cqc."WorkerQualification";
+  delete from cqc."WorkerQualification" where "TribalID" IS NOT NUL;
   delete from cqc."WorkerTraining" where "TribalID" IS NOT NULL;
   delete from cqc."WorkerAudit" where "WorkerFK" in (select distinct "ID" from cqc."Worker" where "TribalID" IS NOT NULL);
   delete from cqc."WorkerJobs" where "WorkerFK" in (select distinct "ID" from cqc."Worker" where "TribalID" IS NOT NULL);
@@ -25,7 +25,237 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP FUNCTION IF EXISTS migration.Validate;
+CREATE OR REPLACE FUNCTION migration.Validate()
+  RETURNS void AS $$
+DECLARE
+  NumberOfUsers INTEGER;
+  NumberOfReadOnlyLogins INTEGER;
+  NumberOfEditLogins INTEGER;
+  NumberOfEstablishments INTEGER;
+  NumberOfEstablishmentServices INTEGER;
+  NumberOfEstablishmentCapacities INTEGER;
+  NumberOfEstablishmentServiceUsers INTEGER;
+  NumberOfEstablishmentLocalAuthorities INTEGER;
+  NumberOfEstablishmentJobs INTEGER;
+  NumberOfWorkers INTEGER;
+  NumberOfWorkersQualifications INTEGER;
+  NumberOfWorkersTraining INTEGER;
+  NumberOfServiceCapacities INTEGER;
+  NumberOfQualifications INTEGER;
+  NumberOfQualificationsWithNullLevel INTEGER;
+  NumberOfCountries INTEGER;
+BEGIN
+  select count(0)
+  from cqc."Establishment"
+  where "Establishment"."TribalID" in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+    into NumberOfEstablishments;
+
+  select count(0)
+  from cqc."EstablishmentServices"
+    inner join cqc."Establishment" on "EstablishmentServices"."EstablishmentID" = "Establishment"."EstablishmentID"
+  where "Establishment"."TribalID" in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+    into NumberOfEstablishmentServices;
+
+  select count(0)
+  from cqc."EstablishmentCapacity"
+    inner join cqc."Establishment" on "EstablishmentCapacity"."EstablishmentID" = "Establishment"."EstablishmentID"
+  where "Establishment"."TribalID" in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+    into NumberOfEstablishmentCapacities;
+
+  select count(0)
+  from cqc."EstablishmentServiceUsers"
+    inner join cqc."Establishment" on "EstablishmentServiceUsers"."EstablishmentID" = "Establishment"."EstablishmentID"
+  where "Establishment"."TribalID" in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+    into NumberOfEstablishmentServiceUsers;
+
+  select count(0)
+  from cqc."EstablishmentLocalAuthority"
+    inner join cqc."Establishment" on "EstablishmentLocalAuthority"."EstablishmentID" = "Establishment"."EstablishmentID"
+  where "Establishment"."TribalID" in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+    into NumberOfEstablishmentLocalAuthorities;
+
+  select count(0)
+  from cqc."EstablishmentJobs"
+    inner join cqc."Establishment" on "EstablishmentJobs"."EstablishmentID" = "Establishment"."EstablishmentID"
+  where "Establishment"."TribalID" in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+    into NumberOfEstablishmentJobs;
+
+
+  select count(0)
+  from cqc."User"
+    inner join cqc."Establishment" on "Establishment"."EstablishmentID" = "User"."EstablishmentID"
+  where "Establishment"."TribalID" in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+    and "User"."TribalPasswordAnswer" IS NOT NULL
+    into NumberOfUsers;
+
+  select count(0)
+  from cqc."Login"
+    inner join cqc."User"
+      inner join cqc."Establishment" on "Establishment"."EstablishmentID" = "User"."EstablishmentID"
+      on "User"."RegistrationID" = "Login"."RegistrationID"
+  where "Establishment"."TribalID" in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+    and "Login"."TribalHash" is not null
+    and "User"."UserRoleValue" = 'Read'
+    into NumberOfReadOnlyLogins;
+
+  select count(0)
+  from cqc."Login"
+    inner join cqc."User"
+      inner join cqc."Establishment" on "Establishment"."EstablishmentID" = "User"."EstablishmentID"
+      on "User"."RegistrationID" = "Login"."RegistrationID"
+  where "Establishment"."TribalID" in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+    and "Login"."TribalHash" is not null
+    and "User"."UserRoleValue" = 'Edit'
+    into NumberOfEditLogins;
+
+  select count(0)
+  from cqc."Worker"
+    inner join cqc."Establishment" on "Worker"."EstablishmentFK" = "Establishment"."EstablishmentID"
+  where "Establishment"."TribalID" in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+    into NumberOfWorkers;
+
+
+  select count(0)
+  from cqc."WorkerTraining"
+    inner join cqc."Worker"
+      inner join cqc."Establishment" on "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK"
+      on "Worker"."ID" = "WorkerTraining"."WorkerFK"
+  where "Establishment"."TribalID" in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+    and "WorkerTraining"."TribalID" IS NOT NULL
+    into NumberOfWorkersTraining;
+
+  select count(0)
+  from cqc."WorkerQualifications"
+    inner join cqc."Worker"
+      inner join cqc."Establishment" on "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK"
+      on "Worker"."ID" = "WorkerQualifications"."WorkerFK"
+  where "Establishment"."TribalID" in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+    and "WorkerQualifications"."TribalID" IS NOT NULL
+    into NumberOfWorkersQualifications;
+
+
+  IF (NumberOfEstablishments = 43) THEN
+    RAISE INFO 'Establishment count matches';
+  ELSE
+    RAISE WARNING 'Establishment count fails match: %', NumberOfEstablishments;
+  END IF;
+
+  IF (NumberOfEstablishmentServices = 47) THEN
+    RAISE INFO 'Establishment Services count matches';
+  ELSE
+    RAISE WARNING 'Establishment Services count fails match: %', NumberOfEstablishmentServices;
+  END IF;
+  IF (NumberOfEstablishmentCapacities = 83) THEN
+    RAISE INFO 'Establishment Capacities count matches';
+  ELSE
+    RAISE WARNING 'Establishment Capacities count fails match: %', NumberOfEstablishmentCapacities;
+  END IF;
+  IF (NumberOfEstablishmentServiceUsers = 311) THEN
+    RAISE INFO 'Establishment Service Users count matches';
+  ELSE
+    RAISE WARNING 'Establishment Service Users count fails match: %', NumberOfEstablishmentServiceUsers;
+  END IF;
+  IF (NumberOfEstablishmentLocalAuthorities = 51) THEN
+    RAISE INFO 'Establishment Local Authorities count matches';
+  ELSE
+    RAISE WARNING 'Establishment Local Authorities count fails match: %', NumberOfEstablishmentLocalAuthorities;
+  END IF;
+  IF (NumberOfEstablishmentJobs = 249) THEN
+    RAISE INFO 'Establishment Jobs count matches';
+  ELSE
+    RAISE WARNING 'Establishment Jobs count fails match: %', NumberOfEstablishmentJobs;
+  END IF;
+
+
+  IF (NumberOfUsers = 87) THEN
+    RAISE INFO 'User count matches';
+  ELSE
+    RAISE WARNING 'User count fails match: %', NumberOfUsers;
+  END IF;
+  IF (NumberOfReadOnlyLogins = 9) THEN
+    RAISE INFO 'Read Only Logins count matches';
+  ELSE
+    RAISE WARNING 'Read Only Logins count fails match: %', NumberOfReadOnlyLogins;
+  END IF;
+  IF (NumberOfEditLogins = 77) THEN
+    RAISE INFO 'Edit Logins count matches';
+  ELSE
+    RAISE WARNING 'Edit Logins count fails match: %', NumberOfEditLogins;
+  END IF;
+  IF (NumberOfWorkers = 2257) THEN
+    RAISE INFO 'Worker count matches';
+  ELSE
+    RAISE WARNING 'Worker count fails match: %', NumberOfWorkers;
+  END IF;
+  IF (NumberOfWorkersTraining = 18899) THEN
+    RAISE INFO 'Worker Training count matches';
+  ELSE
+    RAISE WARNING 'Worker Training count fails match: %', NumberOfWorkersTraining;
+  END IF;
+  IF (NumberOfWorkersQualifications = 2050) THEN
+    RAISE INFO 'Worker Qualifications count matches';
+  ELSE
+    RAISE WARNING 'Worker Qualifications count fails match: %', NumberOfWorkersQualifications;
+  END IF;
+
+
+
+  -- these counts double check the patch has been applied (two new service capacities, two new qualifications, six new qualifications without levels)
+  select count(0)
+  from cqc."ServicesCapacity"
+    into NumberOfServiceCapacities;
+  select count(0)
+  from cqc."Qualifications"
+    into NumberOfQualifications;
+  select count(0)
+  from cqc."Qualifications"
+  where "Level" IS NULL
+    into NumberOfQualificationsWithNullLevel;
+  select count(0)
+  from cqc."Country"
+    into NumberOfCountries;
+
+  IF (NumberOfServiceCapacities = 18) THEN
+    RAISE INFO 'Capacities count matches';
+  ELSE
+    RAISE WARNING 'Capacities count fails match: %', NumberOfServiceCapacities;
+  END IF;
+  IF (NumberOfQualifications = 127) THEN
+    RAISE INFO 'Qualifications count matches';
+  ELSE
+    RAISE WARNING 'Qualifications count fails match: %', NumberOfQualifications;
+  END IF;
+  IF (NumberOfQualificationsWithNullLevel = 23) THEN
+    RAISE INFO 'Qualifications with no level count matches';
+  ELSE
+    RAISE WARNING 'Qualifications with no level count fails match: %', NumberOfQualificationsWithNullLevel;
+  END IF;
+  IF (NumberOfCountries = 246) THEN
+    RAISE INFO 'Countries with no level count matches';
+  ELSE
+    RAISE WARNING 'Countries with no level count fails match: %', NumberOfCountries;
+  END IF;
+
+END;
+$$ LANGUAGE plpgsql;
+
+
+DROP FUNCTION IF EXISTS migration.MigrateAll;
+CREATE OR REPLACE FUNCTION migration.MigrateAll()
+  RETURNS void AS $$
+DECLARE
+BEGIN
+  PERFORM migration.MigrateEstablishments();
+  PERFORM migration.MigrateUsers();
+  PERFORM migration.MigrateWorkers();
+  PERFORM migration.worker_bulk_training();
+  PERFORM migration.worker_bulk_qualifications();
+END;
+$$ LANGUAGE plpgsql;
+
 DROP FUNCTION IF EXISTS migration.MigrateUsers;
+CREATE OR REPLACE FUNCTION migration.MigrateUsers()
   RETURNS void AS $$
 DECLARE
   AllUsers REFCURSOR;
@@ -58,7 +288,7 @@ BEGIN
             on "Establishment"."TribalID" = establishment_user.establishment_id
 		    left join cqc."User" on "User"."TribalID" = users.id
     where users.status <> 4
-      and establishment_user.establishment_id in (156182, 248,189859,225383,59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842);
+      and establishment_user.establishment_id in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842);
 
   LOOP
     FETCH AllUsers INTO CurrentUser;
@@ -107,6 +337,7 @@ BEGIN
         "updated",
         "updatedby",
         "Archived",
+        "TribalPasswordAnswer",
         "IsPrimary") VALUES (
           ThisRegistrationID,
           CurrentUser.id,
@@ -118,13 +349,14 @@ BEGIN
           CurrentUser.loweremail,
           CurrentUser.users_telephone,
           CurrentUser.passwordquestion,
-          NotMapped,
+          NULL,
           NewUserRole::cqc.user_role,
           CurrentUser.creationdate,
           MigrationTimestamp,
           MigrationUser,
           false,
-      NewIsPrimary
+          CurrentUser.passwordanswer,
+          NewIsPrimary
         );
 
       -- owing to not being able to handle a "read" user in target application
@@ -219,7 +451,7 @@ BEGIN
           on pst.provision_id = p.id and pst.ismainservice = 1
         on p.establishment_id = e.id
 	  left join cqc."Establishment" on "Establishment"."TribalID" = e.id
-     where e.id in (156182, 248,189859,225383,59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
+     where e.id in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 2952, 200560, 225586, 3278, 60682, 5228, 12937, 232842, 10121, 10757, 216264, 12041, 17047, 177958, 136485, 15000, 20876, 233642, 17661, 168369, 40762, 205162, 154806, 42683, 45882, 196119, 85603, 181062, 218926, 196840, 144133, 215263, 170258, 217893, 231842)
      order by e.id asc;
 
   LOOP
