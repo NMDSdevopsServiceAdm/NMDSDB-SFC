@@ -560,7 +560,7 @@ BEGIN
       PERFORM migration.establishment_capacities(CurrentEstablishment.id, ThisEstablishmentID);
       PERFORM migration.establishment_service_users(CurrentEstablishment.id, ThisEstablishmentID);
       PERFORM migration.establishment_local_authorities(CurrentEstablishment.id, ThisEstablishmentID, CurrentEstablishment.visiblecsci);
-      PERFORM migration.establishment_jobs(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
+      PERFORM migration.establishment_jobs(CurrentEstablishment.id, ThisEstablishmentID);
 
     END IF;
 
