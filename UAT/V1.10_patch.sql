@@ -8,7 +8,7 @@ CREATE TYPE cqc.establisgment_owner AS ENUM (
 
 CREATE TYPE cqc.establisgment_owner_access_permission AS ENUM (
     'Workplace',
-    'Worker'
+    'Staff'
 );
 
 ALTER TABLE cqc."Establishment" ADD COLUMN "Owner" cqc.establisgment_owner NOT NULL DEFAULT 'Workplace';
