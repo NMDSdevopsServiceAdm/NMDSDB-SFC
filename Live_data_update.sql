@@ -7,7 +7,7 @@ update cqc."Establishment" set "MainServiceFKValue"=20 where "EstablishmentID"=3
 
 \x
 
-select * from cqc."Establishment" where  "EstablishmentID"=340 and "LocationID"='1-5254278626';
+select count(0) from cqc."Establishment" where  "EstablishmentID"=340 and "LocationID"='1-5254278626';
 
 
 
@@ -18,7 +18,7 @@ update cqc."Establishment" set "IsRegulated"=True,"LocationID"='1-5400068426' wh
 
 --Verify the change reflected in table
 
-select * from cqc."Establishment" where "EstablishmentID"=337 ;
+select count(0) from cqc."Establishment" where "EstablishmentID"=337 ;
 
 
 -- Date 16 May 2019
@@ -32,25 +32,25 @@ select * from cqc."Establishment" where "EstablishmentID"=337 ;
 
 select "TribalID"   from cqc."Establishment" where "NmdsID" IN ('E302906','G260465');
 
-SELECT * FROM cqc."Worker" where "TribalID" in (select "TribalID" from cqc."Establishment" where "NmdsID" IN ('E302906','G260465')) ;
+SELECT count(0) FROM cqc."Worker" where "TribalID" in (select "TribalID" from cqc."Establishment" where "NmdsID" IN ('E302906','G260465')) ;
 
-select  *    from cqc."WorkerQualification" where "TribalID" in (170258, 196840);
-  select  *    from cqc."WorkerTraining" where "TribalID"  in (170258, 196840);
-  select  *    from cqc."WorkerAudit" where "WorkerFK" in (select distinct "ID" from cqc."Worker" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."WorkerJobs" where "WorkerFK" in (select distinct "ID" from cqc."Worker" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."Worker" where "TribalID"  in (170258, 196840);
-  select  *    from cqc."EstablishmentCapacity" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."EstablishmentJobs" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."EstablishmentServices" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."EstablishmentLocalAuthority" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."EstablishmentServiceUsers" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
+select  count(0)    from cqc."WorkerQualification" where "TribalID" in (170258, 196840);
+  select  count(0)    from cqc."WorkerTraining" where "TribalID"  in (170258, 196840);
+  select  count(0)    from cqc."WorkerAudit" where "WorkerFK" in (select distinct "ID" from cqc."Worker" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."WorkerJobs" where "WorkerFK" in (select distinct "ID" from cqc."Worker" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."Worker" where "TribalID"  in (170258, 196840);
+  select  count(0)    from cqc."EstablishmentCapacity" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."EstablishmentJobs" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."EstablishmentServices" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."EstablishmentLocalAuthority" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."EstablishmentServiceUsers" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
 
-  select  *    from cqc."Login" where "RegistrationID" in (select distinct "RegistrationID" from cqc."User" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."UserAudit" where "UserFK" in (select distinct "RegistrationID" from cqc."User" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."PasswdResetTracking" where "UserFK" in (select distinct "RegistrationID" from cqc."User" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."User" where "TribalID"  in (170258, 196840);
-  select  *    from cqc."EstablishmentAudit" where "EstablishmentFK" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."Establishment" where "TribalID"  in (170258, 196840);
+  select  count(0)    from cqc."Login" where "RegistrationID" in (select distinct "RegistrationID" from cqc."User" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."UserAudit" where "UserFK" in (select distinct "RegistrationID" from cqc."User" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."PasswdResetTracking" where "UserFK" in (select distinct "RegistrationID" from cqc."User" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."User" where "TribalID"  in (170258, 196840);
+  select  count(0)    from cqc."EstablishmentAudit" where "EstablishmentFK" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."Establishment" where "TribalID"  in (170258, 196840);
 
 --- Record Deletion 
 
@@ -82,24 +82,24 @@ delete from cqc."WorkerQualifications" where "TribalID" in (170258, 196840);
 
 select "TribalID"   from cqc."Establishment" where "NmdsID" IN ('E302906','G260465');
 
-SELECT * FROM cqc."Worker" where "TribalID" in (select "TribalID" from cqc."Establishment" where "NmdsID" IN ('E302906','G260465')) ;
+SELECT count(0) FROM cqc."Worker" where "TribalID" in (select "TribalID" from cqc."Establishment" where "NmdsID" IN ('E302906','G260465')) ;
 
-select  *    from cqc."WorkerQualification" where "TribalID" in (170258, 196840);
-  select  *    from cqc."WorkerTraining" where "TribalID"  in (170258, 196840);
-  select  *    from cqc."WorkerAudit" where "WorkerFK" in (select distinct "ID" from cqc."Worker" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."WorkerJobs" where "WorkerFK" in (select distinct "ID" from cqc."Worker" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."Worker" where "TribalID"  in (170258, 196840);
-  select  *    from cqc."EstablishmentCapacity" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."EstablishmentJobs" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."EstablishmentServices" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."EstablishmentLocalAuthority" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."EstablishmentServiceUsers" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
+select  count(0)    from cqc."WorkerQualification" where "TribalID" in (170258, 196840);
+  select  count(0)    from cqc."WorkerTraining" where "TribalID"  in (170258, 196840);
+  select  count(0)    from cqc."WorkerAudit" where "WorkerFK" in (select distinct "ID" from cqc."Worker" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."WorkerJobs" where "WorkerFK" in (select distinct "ID" from cqc."Worker" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."Worker" where "TribalID"  in (170258, 196840);
+  select  count(0)    from cqc."EstablishmentCapacity" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."EstablishmentJobs" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."EstablishmentServices" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."EstablishmentLocalAuthority" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."EstablishmentServiceUsers" where "EstablishmentID" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
 
-  select  *    from cqc."Login" where "RegistrationID" in (select distinct "RegistrationID" from cqc."User" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."UserAudit" where "UserFK" in (select distinct "RegistrationID" from cqc."User" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."PasswdResetTracking" where "UserFK" in (select distinct "RegistrationID" from cqc."User" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."User" where "TribalID"  in (170258, 196840);
-  select  *    from cqc."EstablishmentAudit" where "EstablishmentFK" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
-  select  *    from cqc."Establishment" where "TribalID"  in (170258, 196840);
+  select  count(0)    from cqc."Login" where "RegistrationID" in (select distinct "RegistrationID" from cqc."User" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."UserAudit" where "UserFK" in (select distinct "RegistrationID" from cqc."User" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."PasswdResetTracking" where "UserFK" in (select distinct "RegistrationID" from cqc."User" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."User" where "TribalID"  in (170258, 196840);
+  select  count(0)    from cqc."EstablishmentAudit" where "EstablishmentFK" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
+  select  count(0)    from cqc."Establishment" where "TribalID"  in (170258, 196840);
 
 
