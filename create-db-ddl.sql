@@ -103,6 +103,17 @@ INSERT INTO cqc."ServiceUsers" ("ID", "Seq", "ServiceGroup", "Service") VALUES
     (22, 303, 'Carers', 'Carers of children and young people'),
     (23, 401, 'Other', 'Any others not in above categories');
 
+
+-- establishment owner
+CREATE TYPE cqc.establishment_owner AS ENUM (
+    'Workplace',
+    'Parent'
+);
+CREATE TYPE cqc.establishment_parent_access_permission AS ENUM (
+    'Workplace',
+    'Workplace and Staff'
+);
+
 --
 -- Name: Establishment; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
 --
@@ -121,6 +132,8 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "IsParent" BOOLEAN DEFAULT FALSE,
     "ParentID" INTEGER NULL,
     "ParentUID" UUID NULL,
+    "Owner" cqc.establishment_owner NOT NULL DEFAULT 'Workplace',
+    "ParentAccess" cqc.establishment_parent_access_permission NULL,
     "NameValue" text NOT NULL,
     "NameSavedAt" TIMESTAMP NULL,
     "NameChangedAt" TIMESTAMP NULL,
