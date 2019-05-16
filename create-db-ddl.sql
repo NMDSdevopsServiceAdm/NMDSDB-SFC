@@ -105,13 +105,13 @@ INSERT INTO cqc."ServiceUsers" ("ID", "Seq", "ServiceGroup", "Service") VALUES
 
 
 -- establishment owner
-CREATE TYPE cqc.establisgment_owner AS ENUM (
+CREATE TYPE cqc.establishment_owner AS ENUM (
     'Workplace',
     'Parent'
 );
-CREATE TYPE cqc.establisgment_owner_access_permission AS ENUM (
+CREATE TYPE cqc.establishment_parent_access_permission AS ENUM (
     'Workplace',
-    'Worker'
+    'Workplace and Staff'
 );
 
 --
