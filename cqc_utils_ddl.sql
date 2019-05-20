@@ -1,10 +1,13 @@
+--Function to Purge Establishment
+--  https://trello.com/c/Ypwr3hZ4/55-remove-parent-cohort-2-users-from-asc-wds
+
 DROP FUNCTION IF EXISTS cqc.EstablishlmentIdFromNmdsID;
 CREATE OR REPLACE FUNCTION cqc.EstablishlmentIdFromNmdsID(_nmdsid VARCHAR)
   RETURNS INTEGER AS $$
 DECLARE
 	establishmentID INTEGER;
 BEGIN
-  select "EstablishmentID" from cqc."Establishment" where "NmdsID" ilike _nmdsid into establishmentID;
+  select "EstablishmentID" from cqc."Establishment" where "NmdsID" ilike '%'||_nmdsid||'%' into establishmentID;
   return establishmentID;
 END;
 $$ LANGUAGE plpgsql;
@@ -43,3 +46,11 @@ BEGIN
   delete from cqc."Establishment" where "EstablishmentID"=_estId;
 END;
 $$ LANGUAGE plpgsql;
+
+
+
+-- Helper functions:
+
+--1. cqc.EstablishlmentIdFromTribalId - you give it a  tribal ID and it returns the EstablishmentID; `select cqc.EstablishlmentIdFromTribalId(123);`
+--2. cqc.EstablishlmentIdFromNmdsID - you give it an NMDS ID and it returns the EstablishmentID; `select cqc.EstablishlmentIdFromNmdsID('G1001060')`
+--3. cqc.PurgeEstablishlment - you give it an EstablishmentID and it deletes everything associated with that establishment: `select cqc.PurgeEstablishlment(62);`
