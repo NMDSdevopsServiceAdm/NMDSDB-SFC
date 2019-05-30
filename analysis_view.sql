@@ -17,6 +17,8 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
     "Establishment"."NameSavedAt",
     "Establishment"."NameChangedAt",
     "Establishment"."MainServiceFKValue",
+	"EstablishmentMainServicesWithCapacitiesVW"."CAPACITY1" AS "MainServiceCapacity",
+	"EstablishmentMainServicesWithCapacitiesVW"."CAPACITY2" AS "MainServiceUtilisation",
     "Establishment"."MainServiceFKSavedAt",
     "Establishment"."MainServiceFKChangedAt",
     "Establishment"."EmployerTypeValue",
@@ -171,5 +173,6 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
 				sum(case when "JobType" = 'Leavers' then "Total" end) "TotalLeavers"
 			FROM cqc."EstablishmentJobs", cqc."Establishment",cqc."User"
 			WHERE "Establishment"."EstablishmentID" = "EstablishmentJobs"."EstablishmentID" and "Establishment"."EstablishmentID"="User"."EstablishmentID"
-			GROUP BY "Establishment"."EstablishmentID") "VacanciesStartersLeavers" ON "Establishment"."EstablishmentID" = "VacanciesStartersLeavers"."EstablishmentID" 
+			GROUP BY "Establishment"."EstablishmentID") "VacanciesStartersLeavers" ON "Establishment"."EstablishmentID" = "VacanciesStartersLeavers"."EstablishmentID"
+    	LEFT JOIN cqc."EstablishmentMainServicesWithCapacitiesVW" ON "EstablishmentMainServicesWithCapacitiesVW"."EstablishmentID" = "Establishment"."EstablishmentID"
   ORDER BY "Establishment"."EstablishmentID", "WorkerUpdated";
