@@ -140,6 +140,7 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "NameSavedBy" VARCHAR(120) NULL,
     "NameChangedBy" VARCHAR(120) NULL,
     "MainServiceFKValue" integer,
+    "MainServiceFkOther" TEXT NULL,
     "MainServiceFKSavedAt" TIMESTAMP NULL,
     "MainServiceFKChangedAt" TIMESTAMP NULL,
     "MainServiceFKSavedBy" VARCHAR(120) NULL,
@@ -150,6 +151,7 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "EmployerTypeSavedBy" VARCHAR(120) NULL,
     "EmployerTypeChangedBy" VARCHAR(120) NULL,
     "NumberOfStaffValue" integer,
+    "EmployerTypeOther" TEXT NULL,
     "NumberOfStaffSavedAt" TIMESTAMP NULL,
     "NumberOfStaffChangedAt" TIMESTAMP NULL,
     "NumberOfStaffSavedBy" VARCHAR(120) NULL,
@@ -370,7 +372,8 @@ ALTER SEQUENCE IF EXISTS cqc."EstablishmentLocalAuthority_EstablishmentLocalAuth
 
 CREATE TABLE IF NOT EXISTS cqc."EstablishmentServices" (
     "EstablishmentID" integer NOT NULL,
-    "ServiceID" integer NOT NULL
+    "ServiceID" integer NOT NULL,
+    "Other" TEXT NULL
 );
 
 
@@ -380,6 +383,7 @@ ALTER TABLE cqc."EstablishmentServices" OWNER TO sfcadmin;
 CREATE TABLE IF NOT EXISTS cqc."EstablishmentServiceUsers" (
     "EstablishmentID" integer NOT NULL,
     "ServiceUserID" integer NOT NULL,
+    "Other" TEXT NULL
     CONSTRAINT establishment_establishmentserviceusers_fk FOREIGN KEY ("EstablishmentID")
         REFERENCES cqc."Establishment" ("EstablishmentID") MATCH SIMPLE
         ON UPDATE NO ACTION
