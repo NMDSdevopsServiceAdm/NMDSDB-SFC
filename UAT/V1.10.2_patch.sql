@@ -19,7 +19,7 @@ INSERT INTO cqc."Country" ("ID", "Seq", "Country") VALUES
 
 
 -- Sint Maarten (after new sequence 215)
-update cqc."Country" set "Seq" = "Seq" + 1 where "Seq" >= 216;
+update cqc."Country" set "Seq" = "Seq" + 1 where "Seq" >= 214;
 INSERT INTO cqc."Country" ("ID", "Seq", "Country") VALUES
-	(264,216, 'Sint Maarten ');
+	(264,214, 'Sint Maarten ');
 
