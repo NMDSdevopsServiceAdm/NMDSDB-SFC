@@ -18,4 +18,4 @@ UPDATE cqc."Job" SET "Other" = true WHERE "JobID" in (20,21);
 -- https://trello.com/c/GkKQK1WE - Change Request - Main Service "Other" Input field
 ALTER TABLE cqc."Establishment" ADD COLUMN "MainServiceFkOther" TEXT NULL;
 ALTER TABLE cqc.services ADD COLUMN other BOOLEAN DEFAULT false;
-UPDATE cqc.services SET other = true WHERE id in(15, 12, 17, 14, 6, 10, 18, 21);
+UPDATE cqc.services SET other = true WHERE id in(15, 12, 17, 14, 6, 10, 18);
