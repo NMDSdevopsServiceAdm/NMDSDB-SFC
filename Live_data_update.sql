@@ -102,4 +102,15 @@ select  count(0)    from cqc."WorkerQualification" where "TribalID" in (170258, 
   select  count(0)    from cqc."EstablishmentAudit" where "EstablishmentFK" in (select distinct "EstablishmentID" from cqc."Establishment" where "TribalID"  in (170258, 196840));
   select  count(0)    from cqc."Establishment" where "TribalID"  in (170258, 196840);
 
+--  https://trello.com/c/fvIRUygY
+--Update the Login for user to be deleted.
+--Check the User to be renamed
+\x
+select * from cqc."Login" where "Username"='watkinwytch';
+
+update cqc."Login" 
+set set "Username"='tobedeleted_193084_watkinwytch',"TribalHash"='',"Hash"='' where "Username='watkinwytch';
+
+--verify the update ....
+select * from cqc."Login" where "Username" ilike '%watk%';
 
