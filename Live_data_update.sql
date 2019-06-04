@@ -106,11 +106,16 @@ select  count(0)    from cqc."WorkerQualification" where "TribalID" in (170258, 
 --Update the Login for user to be deleted.
 --Check the User to be renamed
 \x
-select * from cqc."Login" where "Username"='watkinwytch';
 
-update cqc."Login" 
-set set "Username"='tobedeleted_193084_watkinwytch',"TribalHash"='',"Hash"='' where "Username='watkinwytch';
+select * from cqc."Login"  where "RegistrationID"=2402 and "Username"='watkinwytch';
+
+update cqc."Login"  set "Username"='tobedeleted_193084_watkinwytch',
+"TribalHash"=null,
+"Hash"=null
+ where "Username"='watkinwytch';
 
 --verify the update ....
-select * from cqc."Login" where "Username" ilike '%watk%';
 
+
+
+select * from cqc."Login" where "RegistrationID"=2402;
