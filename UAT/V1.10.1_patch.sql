@@ -11,7 +11,7 @@ ALTER TABLE cqc."Establishment" ADD COLUMN "EmployerTypeOther" TEXT NULL;
 
 -- https://trello.com/c/hiy5ZcqL - Change Request - Job Roles "Other" Input field
 ALTER TABLE cqc."Worker" ADD COLUMN "MainJobFkOther" TEXT NULL;
-ALTER TABLE cqc."Worker" ADD COLUMN "OtherJobsOther" TEXT NULL;
+ALTER TABLE cqc."WorkerJobs" ADD COLUMN "OTHER" TEXT NULL;
 ALTER TABLE cqc."Job" ADD COLUMN "Other" BOOLEAN DEFAULT false;
 UPDATE cqc."Job" SET "Other" = true WHERE "JobID" in (20,21);
 
