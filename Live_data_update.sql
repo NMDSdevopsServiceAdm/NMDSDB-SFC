@@ -119,3 +119,28 @@ update cqc."Login"  set "Username"='tobedeleted_193084_watkinwytch',
 
 
 select * from cqc."Login" where "RegistrationID"=2402;
+
+---Date 05 June 2019
+
+----             https://trello.com/c/3plMq2kV
+
+\x
+
+--Checking the Main Service for requested change
+select * from  cqc.services where id=23;
+
+---Showing Main Service on existing
+select * from  cqc.services where id=20;
+
+---Record of existing Main Service
+
+select * from cqc."Establishment" where "EstablishmentID"=2530 and "TribalID"='2533' and "NmdsID"='E70709';
+
+--- Updating the Main Service
+
+update cqc."Establishment" set "MainServiceFKValue"=23 where "EstablishmentID"=2530 and "TribalID"='2533' and "NmdsID"='E70709';
+
+--Verify the change
+select * from cqc."Establishment" where "EstablishmentID"=2530 and "TribalID"='2533' and "NmdsID"='E70709';
+
+
