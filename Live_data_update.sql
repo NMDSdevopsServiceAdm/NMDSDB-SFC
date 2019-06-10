@@ -157,3 +157,9 @@ Select "EstablishmentID", "NameValue", "Address", "LocationID", "PostCode", "IsR
 --Update the record 
 
 Update cqc."Establishment" set "LocationID"='1-6299627829' where "EstablishmentID"=331;
+
+-- Verify update is being done.
+
+Select "EstablishmentID", "NameValue", "Address", "LocationID", "PostCode", "IsRegulated", "MainServiceFKValue", "EmployerTypeValue", "ShareDataWithCQC", "ShareDataWithLA", "ShareDataValue", "NumberOfStaffValue", "NmdsID", "NmdsID", "EstablishmentUID" from cqc."Establishment" where "EstablishmentID"=331;
+
+
