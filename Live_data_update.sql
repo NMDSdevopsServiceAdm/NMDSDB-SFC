@@ -144,3 +144,16 @@ update cqc."Establishment" set "MainServiceFKValue"=23 where "EstablishmentID"=2
 select * from cqc."Establishment" where "EstablishmentID"=2530 and "TribalID"='2533' and "NmdsID"='E70709';
 
 
+--       https://trello.com/c/RosKNoF4
+
+--- Comments from Jackie Green
+
+---    "Location ID should be 1-6299627829. This is another with null @peterwoodford "
+
+--Check the record before update
+
+Select "EstablishmentID", "NameValue", "Address", "LocationID", "PostCode", "IsRegulated", "MainServiceFKValue", "EmployerTypeValue", "ShareDataWithCQC", "ShareDataWithLA", "ShareDataValue", "NumberOfStaffValue", "NmdsID", "NmdsID", "EstablishmentUID" from cqc."Establishment" where "EstablishmentID"=331;
+
+--Update the record 
+
+Update cqc."Establishment" set "LocationID"='1-6299627829' where "EstablishmentID"=331;
