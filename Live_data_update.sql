@@ -191,3 +191,20 @@ Update cqc."Establishment" set "LocationID"='1-6210509431' where "EstablishmentI
 -- Verify update is being done.
 
 Select "EstablishmentID", "NameValue", "Address", "LocationID", "PostCode", "IsRegulated", "MainServiceFKValue", "EmployerTypeValue", "ShareDataWithCQC", "ShareDataWithLA", "ShareDataValue", "NumberOfStaffValue", "NmdsID", "NmdsID", "EstablishmentUID" from cqc."Establishment" where "EstablishmentID"=326;
+
+
+---- https://trello.com/c/tlVhbsS://trello.com/c/tlVhbsSk
+heck the record before update
+
+Select "EstablishmentID", "NameValue", "Address", "LocationID", "PostCode", "IsRegulated", "MainServiceFKValue", "EmployerTypeValue", "ShareDataWithCQC", "ShareDataWithLA", "ShareDataValue", "NumberOfStaffValue", "NmdsID", "NmdsID", "EstablishmentUID" from cqc."Establishment" where "EstablishmentID"=391;
+
+--Update the record
+update cqc."Establishment" set "Address"='Bluecoats,Thatcham' ,"PostCode"='RG18 4AE' where "EstablishmentID"=391;
+
+-- Verify update is being done.
+
+Select "EstablishmentID", "NameValue", "Address", "LocationID", "PostCode", "IsRegulated", "MainServiceFKValue", "EmployerTypeValue", "ShareDataWithCQC", "ShareDataWithLA", "ShareDataValue", "NumberOfStaffValue", "NmdsID", "NmdsID", "EstablishmentUID" from cqc."Establishment" where "EstablishmentID"=391;
+
+
+
+
