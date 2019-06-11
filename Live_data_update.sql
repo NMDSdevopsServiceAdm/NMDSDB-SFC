@@ -194,7 +194,7 @@ Select "EstablishmentID", "NameValue", "Address", "LocationID", "PostCode", "IsR
 
 
 ---- https://trello.com/c/tlVhbsS://trello.com/c/tlVhbsSk
-heck the record before update
+Check the record before update
 
 Select "EstablishmentID", "NameValue", "Address", "LocationID", "PostCode", "IsRegulated", "MainServiceFKValue", "EmployerTypeValue", "ShareDataWithCQC", "ShareDataWithLA", "ShareDataValue", "NumberOfStaffValue", "NmdsID", "NmdsID", "EstablishmentUID" from cqc."Establishment" where "EstablishmentID"=391;
 
