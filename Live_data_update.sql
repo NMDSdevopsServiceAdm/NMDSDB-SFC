@@ -163,3 +163,48 @@ Update cqc."Establishment" set "LocationID"='1-6299627829' where "EstablishmentI
 Select "EstablishmentID", "NameValue", "Address", "LocationID", "PostCode", "IsRegulated", "MainServiceFKValue", "EmployerTypeValue", "ShareDataWithCQC", "ShareDataWithLA", "ShareDataValue", "NumberOfStaffValue", "NmdsID", "NmdsID", "EstablishmentUID" from cqc."Establishment" where "EstablishmentID"=331;
 
 
+
+
+-------------------------------- 11 June 2019 -------------------
+
+
+
+
+
+
+
+
+----       https://trello.com/c/qYPIOtEp
+
+--- Comments from Jackie Green
+
+---    "Location ID should be 1-6210509431. This is another with null @peterwoodford "
+
+--Check the record before update
+
+Select "EstablishmentID", "NameValue", "Address", "LocationID", "PostCode", "IsRegulated", "MainServiceFKValue", "EmployerTypeValue", "ShareDataWithCQC", "ShareDataWithLA", "ShareDataValue", "NumberOfStaffValue", "NmdsID", "NmdsID", "EstablishmentUID" from cqc."Establishment" where "EstablishmentID"=326;
+
+--Update the record
+
+Update cqc."Establishment" set "LocationID"='1-6210509431' where "EstablishmentID"=326;
+
+-- Verify update is being done.
+
+Select "EstablishmentID", "NameValue", "Address", "LocationID", "PostCode", "IsRegulated", "MainServiceFKValue", "EmployerTypeValue", "ShareDataWithCQC", "ShareDataWithLA", "ShareDataValue", "NumberOfStaffValue", "NmdsID", "NmdsID", "EstablishmentUID" from cqc."Establishment" where "EstablishmentID"=326;
+
+
+---- https://trello.com/c/tlVhbsS://trello.com/c/tlVhbsSk
+Check the record before update
+
+Select "EstablishmentID", "NameValue", "Address", "LocationID", "PostCode", "IsRegulated", "MainServiceFKValue", "EmployerTypeValue", "ShareDataWithCQC", "ShareDataWithLA", "ShareDataValue", "NumberOfStaffValue", "NmdsID", "NmdsID", "EstablishmentUID" from cqc."Establishment" where "EstablishmentID"=391;
+
+--Update the record
+update cqc."Establishment" set "Address"='Bluecoats,Thatcham' ,"PostCode"='RG18 4AE' where "EstablishmentID"=391;
+
+-- Verify update is being done.
+
+Select "EstablishmentID", "NameValue", "Address", "LocationID", "PostCode", "IsRegulated", "MainServiceFKValue", "EmployerTypeValue", "ShareDataWithCQC", "ShareDataWithLA", "ShareDataValue", "NumberOfStaffValue", "NmdsID", "NmdsID", "EstablishmentUID" from cqc."Establishment" where "EstablishmentID"=391;
+
+
+
+
