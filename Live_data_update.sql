@@ -239,3 +239,18 @@ update  cqc."Establishment" set "MainServiceFKValue"=25 where "EstablishmentID"=
 
 select "MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=398;
 
+
+
+
+
+-- Card Details https://trello.com/c/QEFPfHnr
+ select "MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=403;
+
+-- Update the services
+
+update cqc."Establishment" set "MainServiceFKValue"=24 where "EstablishmentID"=403;
+
+
+-- Check Services updated 
+
+select "MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=403;
