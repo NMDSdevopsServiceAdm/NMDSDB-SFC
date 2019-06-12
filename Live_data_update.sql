@@ -221,3 +221,14 @@ select cqc.PurgeEstablishlment(cqc.EstablishlmentIdFromNmdsID('H1000388'));
 ---Check the Establishment
 select cqc.EstablishlmentIdFromNmdsID('H1000388');
 
+
+
+---             https://trello.com/c/yDzvLeMK
+--Check Main Service
+ select * from cqc."Establishment" where "LocationID"='1-129445088';
+select "MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=398;
+-- Update main service
+update  cqc."Establishment" set "MainServiceFKValue"=25 where "EstablishmentID"=398;
+--Check main service again to verify the result
+select "MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=398;
+
