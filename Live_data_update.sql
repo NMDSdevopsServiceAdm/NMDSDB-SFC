@@ -207,4 +207,17 @@ Select "EstablishmentID", "NameValue", "Address", "LocationID", "PostCode", "IsR
 
 
 
+---------------- 12 June 2019 -------------
+
+----                   https://trello.com/c/LTGJkwqm
+---Check the Establishment
+select cqc.EstablishlmentIdFromNmdsID('H1000388');
+
+-- Update Purge Establishment
+
+select cqc.PurgeEstablishlment(cqc.EstablishlmentIdFromNmdsID('H1000388'));
+
+
+---Check the Establishment
+select cqc.EstablishlmentIdFromNmdsID('H1000388');
 
