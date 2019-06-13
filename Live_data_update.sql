@@ -225,10 +225,32 @@ select cqc.EstablishlmentIdFromNmdsID('H1000388');
 
 ---             https://trello.com/c/yDzvLeMK
 --Check Main Service
+select * from cqc.services where id in (36,25);
+
  select * from cqc."Establishment" where "LocationID"='1-129445088';
-select "MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=398;
--- Update main service
-update  cqc."Establishment" set "MainServiceFKValue"=25 where "EstablishmentID"=398;
---Check main service again to verify the result
+
 select "MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=398;
 
+-- Update main service
+
+update  cqc."Establishment" set "MainServiceFKValue"=25 where "EstablishmentID"=398;
+
+--Check main service updated verify   the result
+
+select "MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=398;
+
+
+
+
+
+-- Card Details https://trello.com/c/QEFPfHnr
+ select "MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=403;
+
+-- Update the services
+
+update cqc."Establishment" set "MainServiceFKValue"=24 where "EstablishmentID"=403;
+
+
+-- Check Services updated 
+
+select "MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=403;
