@@ -194,6 +194,7 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "LeaversChangedAt" TIMESTAMP NULL,
     "LeaversSavedBy" VARCHAR(120) NULL,
     "LeaversChangedBy" VARCHAR(120) NULL,
+    "Archived" BOOLEAN DEFAULT false,
     created timestamp without time zone NOT NULL DEFAULT now(),
     updated timestamp without time zone NOT NULL DEFAULT now(),
     updatedby character varying(120) COLLATE pg_catalog."default" NOT NULL
