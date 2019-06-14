@@ -254,3 +254,37 @@ update cqc."Establishment" set "MainServiceFKValue"=24 where "EstablishmentID"=4
 -- Check Services updated 
 
 select "MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=403;
+
+
+
+----https://trello.com/c/7VHf1kig
+select * from cqc."Establishment" where "PostCode"='PE12 9EA';
+select "EstablishmentID","NameValue","LocationID","MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=2269;
+
+update cqc."Establishment" set "NameValue"='Adderley Court Apartments/Amethyst Arc Ltd',"LocationID"='1-2482659019', "MainServiceFKValue"=20 where "EstablishmentID"=2269;
+
+select "EstablishmentID","NameValue","LocationID","MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=2269; 
+
+
+-----------------            https://trello.com/c/StXL6vqb
+
+select "EstablishmentID","MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=2296;
+
+update cqc."Establishment" set "MainServiceFKValue"=20 where "EstablishmentID"=2296;
+
+select "EstablishmentID","MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=2296;
+
+
+
+
+----    https://trello.com/c/qrnxbC5o
+select * from cqc."Establishment" where "LocationID"='1-369821181';
+
+select "EstablishmentID","NameValue","LocationID" from cqc."Establishment" where "EstablishmentID"=2399;
+
+update cqc."Establishment" set "NameValue"='Stellar Healthcare Solutions Limited',"LocationID"='1-6652455323' where "EstablishmentID"=2399;
+
+
+select "EstablishmentID","NameValue","LocationID" from cqc."Establishment" where "EstablishmentID"=2399;
+
+
