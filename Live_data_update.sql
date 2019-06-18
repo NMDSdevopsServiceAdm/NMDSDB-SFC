@@ -261,7 +261,8 @@ select "MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=403
 select * from cqc."Establishment" where "PostCode"='PE12 9EA';
 select "EstablishmentID","NameValue","LocationID","MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=2269;
 
-update cqc."Establishment" set "NameValue"='Adderley Court Apartments/Amethyst Arc Ltd',"LocationID"='1-2482659019', "MainServiceFKValue"=20 where "EstablishmentID"=2269;
+update cqc."Establishment" set "NameValue"='Adderley Court Apartments/Amethyst Arc Ltd',
+"LocationID"='1-2482659019', "MainServiceFKValue"=20 where "EstablishmentID"=2269;
 
 select "EstablishmentID","NameValue","LocationID","MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=2269; 
 
@@ -287,4 +288,46 @@ update cqc."Establishment" set "NameValue"='Stellar Healthcare Solutions Limited
 
 select "EstablishmentID","NameValue","LocationID" from cqc."Establishment" where "EstablishmentID"=2399;
 
+
+
+--------------14 June 2019
+---https://trello.com/c/StXL6vqb
+
+select "EstablishmentID","MainServiceFKValue","LocationID" from cqc."Establishment" where "EstablishmentID"=2296;
+
+Update cqc."Establishment" set "LocationID"='1-6487895351' where "EstablishmentID"=2296;
+
+select "EstablishmentID","MainServiceFKValue","LocationID" from cqc."Establishment" where "EstablishmentID"=2296;
+
+
+----- 17 June 2019
+
+
+-----------------            https://trello.com/c/StXL6vqb
+
+select "EstablishmentID","MainServiceFKValue","LocationID" from cqc."Establishment" where "EstablishmentID"=2296;
+
+Update cqc."Establishment" set "LocationID"='1-6487895351' where "EstablishmentID"=2296;
+
+select "EstablishmentID","MainServiceFKValue","LocationID" from cqc."Establishment" where "EstablishmentID"=2296;
+
+
+
+-------------   https://trello.com/c/ONfU8ftM
+
+select "EstablishmentID","NameValue","LocationID","MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=2267;
+
+update cqc."Establishment" set "MainServiceFKValue"=20 where "EstablishmentID"=2267;
+
+select "EstablishmentID","NameValue","LocationID","MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=2267;
+
+
+-----------------------------                https://trello.com/c/QEFPfHnr
+
+
+select "EstablishmentID","NameValue","LocationID","MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=403;
+
+update cqc."Establishment" set "LocationID"='1-6257918082' where "EstablishmentID"=403;
+
+select "EstablishmentID","NameValue","LocationID","MainServiceFKValue" from cqc."Establishment" where "EstablishmentID"=403;
 
