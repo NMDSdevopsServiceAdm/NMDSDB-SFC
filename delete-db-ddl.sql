@@ -86,6 +86,7 @@ DROP TYPE IF EXISTS cqc."EstablishmentAuditChangeType";
 DROP TYPE IF EXISTS cqc.establishment_owner;
 DROP TYPE IF EXISTS cqc.establishment_parent_access_permission;
 DROP TYPE IF EXISTS cqc."ServicesCapacityType";
+DROP TYPE IF EXISTS cqc."DataSource";
 
 
 -- sequences

@@ -114,6 +114,13 @@ CREATE TYPE cqc.establishment_parent_access_permission AS ENUM (
     'Workplace and Staff'
 );
 
+DROP TYPE IF EXISTS cqc."DataSource";
+CREATE TYPE cqc."DataSource" AS ENUM (
+    'Online',
+    'Bulk'
+);
+
+
 --
 -- Name: Establishment; Type: TABLE; Schema: cqc; Owner: sfcadmin; Tablespace: sfcdevtbs_logins
 --
@@ -134,6 +141,7 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "ParentUID" UUID NULL,
     "Owner" cqc.establishment_owner NOT NULL DEFAULT 'Workplace',
     "ParentAccess" cqc.establishment_parent_access_permission NULL,
+    "DataSource" cqc."DataSource" DEFAULT 'Online',
     "NameValue" text NOT NULL,
     "NameSavedAt" TIMESTAMP NULL,
     "NameChangedAt" TIMESTAMP NULL,
