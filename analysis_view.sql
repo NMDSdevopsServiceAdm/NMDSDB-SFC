@@ -3,6 +3,7 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
   SELECT
     "Establishment"."EstablishmentID",
     "Establishment"."EstablishmentUID",
+    "Establishment"."DataSource" AS "EstablishmentDataSource",
     "Establishment"."TribalID" AS "TribalEstablishmentID",
     "Establishment"."NmdsID",
     "Establishment"."Address",
@@ -58,7 +59,8 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
     "Worker"."WorkerUID",
     "Worker"."EstablishmentFK",
     "Worker"."TribalID" AS "TribalWorkerID",
-    "Worker"."LastWdfEligibility"  AS "WorkerLastWdfEligibility",
+    "Worker"."LastWdfEligibility" AS "WorkerLastWdfEligibility",
+    "Worker"."DataSource" AS "WorkerDataSource",
     "Worker"."NameOrIdSavedAt",
     "Worker"."NameOrIdChangedAt",
     "Worker"."ContractValue",
