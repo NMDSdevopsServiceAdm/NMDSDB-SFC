@@ -975,13 +975,13 @@ INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence"
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (10, 10, 1, 'How many places do you currently have?', 'Capacity');
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (11, 10, 2, 'Number of people using the service on the completion date', 'Utilisation');
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (12, 20, 1, 'Number of people using the service on the completion date', 'Utilisation');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (13, 22, 1, 'Number of people receiving care on the completion date', 'Capacity');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (14, 35, 1, 'Number of people receiving care on the completion date', 'Capacity');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (13, 22, 1, 'Number of people receiving care on the completion date', 'Utilisation');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (14, 35, 1, 'Number of people receiving care on the completion date', 'Utilisation');
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (15, 11, 1, 'Number of people receiving care on the completion date', 'Utilisation');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (16, 18, 1, 'Number of people receiving care on the completion date', 'Capacity');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (17, 21, 1, 'Number of people receiving care on the completion date', 'Capacity');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (16, 18, 1, 'Number of people receiving care on the completion date', 'Utilisation');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (17, 21, 1, 'Number of people receiving care on the completion date', 'Utilisation');
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (18, 23, 1, 'Number of people using the service on the completion date', 'Utilisation');
-
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Question", "Sequence", "Type") values (19, 19, 'Total places Number of people using the service on the completion date', 1, 'Utilisation');
 
 ----Jobs
 
