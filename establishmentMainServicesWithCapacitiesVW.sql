@@ -1,4 +1,4 @@
-DROP VIEW IF EXISTS cqc."AnnS";
+DROP VIEW IF EXISTS cqc."AllEstablishmentAndWorkersVW";
 DROP VIEW IF EXISTS cqc."EstablishmentMainServicesWithCapacitiesVW";
 CREATE OR REPLACE VIEW cqc."EstablishmentMainServicesWithCapacitiesVW" AS
 SELECT
