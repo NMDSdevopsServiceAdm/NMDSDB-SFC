@@ -975,13 +975,13 @@ INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence"
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (10, 10, 1, 'How many places do you currently have?', 'Capacity');
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (11, 10, 2, 'Number of people using the service on the completion date', 'Utilisation');
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (12, 20, 1, 'Number of people using the service on the completion date', 'Utilisation');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (13, 22, 1, 'Number of people receiving care on the completion date', 'Capacity');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (14, 35, 1, 'Number of people receiving care on the completion date', 'Capacity');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (13, 22, 1, 'Number of people receiving care on the completion date', 'Utilisation');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (14, 35, 1, 'Number of people receiving care on the completion date', 'Utilisation');
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (15, 11, 1, 'Number of people receiving care on the completion date', 'Utilisation');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (16, 18, 1, 'Number of people receiving care on the completion date', 'Capacity');
-INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (17, 21, 1, 'Number of people receiving care on the completion date', 'Capacity');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (16, 18, 1, 'Number of people receiving care on the completion date', 'Utilisation');
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (17, 21, 1, 'Number of people receiving care on the completion date', 'Utilisation');
 INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Sequence", "Question", "Type") values (18, 23, 1, 'Number of people using the service on the completion date', 'Utilisation');
-
+INSERT INTO cqc."ServicesCapacity" ("ServiceCapacityID", "ServiceID", "Question", "Sequence", "Type") values (19, 19, 'Total places Number of people using the service on the completion date', 1, 'Utilisation');
 
 ----Jobs
 
@@ -1016,11 +1016,11 @@ insert into cqc."Job" ("JobID", "JobName") values (28, 'Supervisor');
 insert into cqc."Job" ("JobID", "JobName") values (29, 'Technician');
 
 
--- https://trello.com/c/LgdigwUb - duplicate establishment
+-- https://trello.com/c/LgdigwUb - duplicate establishment; partial unqiue index: https://trello.com/c/QAzbzesV
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
-CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("Name", "PostCode", "LocationID");
-CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("Name", "PostCode") WHERE "LocationID" IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("NameValue", "PostCode", "LocationID") WHERE "Archived" = false;
+CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("NameValue", "PostCode") WHERE "Archived" = false AND "LocationID" IS NULL;
 
 
 INSERT INTO cqc."Cssr" ("CssrID", "CssR", "LocalAuthority", "LocalCustodianCode", "Region", "RegionID", "NmdsIDLetter") VALUES 
