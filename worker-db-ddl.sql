@@ -932,3 +932,12 @@ CREATE TABLE IF NOT EXISTS cqc."NurseSpecialism" (
 	"Specialism" TEXT NOT NULL,
   "Other" BOOLEAN DEFAULT FALSE
 );
+
+insert into cqc."NurseSpecialism" ("ID", "Seq", "Specialism", "Other") values (1, 1, 'Older people (including dementia, elderly care and end of life care)', false);
+insert into cqc."NurseSpecialism" ("ID", "Seq", "Specialism", "Other") values (2, 2, 'Adults', false);
+insert into cqc."NurseSpecialism" ("ID", "Seq", "Specialism", "Other") values (3, 3, 'Learning disability', false);
+insert into cqc."NurseSpecialism" ("ID", "Seq", "Specialism", "Other") values (4, 4, 'Mental health', false);
+insert into cqc."NurseSpecialism" ("ID", "Seq", "Specialism", "Other") values (5, 5, 'Community care', false);
+insert into cqc."NurseSpecialism" ("ID", "Seq", "Specialism", "Other") values (6, 6, 'Other', true);
+insert into cqc."NurseSpecialism" ("ID", "Seq", "Specialism", "Other") values (7, 7, 'Not applicable', false);
+insert into cqc."NurseSpecialism" ("ID", "Seq", "Specialism", "Other") values (8, 8, 'Don''t know', false);
