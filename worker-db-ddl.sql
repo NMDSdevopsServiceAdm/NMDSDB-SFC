@@ -107,6 +107,14 @@ CREATE TYPE cqc."WorkerOtherQualifications" AS ENUM (
 	'Don''t know'
 );
 
+CREATE TYPE cqc."worker_registerednurse_enum" AS ENUM (
+    'Adult nurse',
+    'Mental health nurse',
+    'Learning disabiliies',
+    'Children''s nurse',
+    'Enrolled nurse'
+);
+
 
 
 -- Ethnicity Reference Data
@@ -855,6 +863,17 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"CompletedChangedBy" VARCHAR(120) NULL,
 	"LeaveReasonFK" INTEGER NULL,
 	"LeaveReasonOther" TEXT NULL,
+	"RegisteredNurseValue" cqc."worker_registerednurse_enum" NULL,
+	"RegisteredNurseSavedAt" TIMESTAMP NULL,
+	"RegisteredNurseChangedAt" TIMESTAMP NULL,
+	"RegisteredNurseSavedBy" VARCHAR(120) NULL,
+	"RegisteredNurseChangedBy" VARCHAR(120) NULL,
+	"NurseSpecialismFKValue" INTEGER NULL,
+	"NurseSpecialismFKOther" TEXT NULL,
+	"NurseSpecialismFKSavedAt" TIMESTAMP NULL,
+	"NurseSpecialismFKChangedAt" TIMESTAMP NULL,
+	"NurseSpecialismFKSavedBy" VARCHAR(120) NULL,
+	"NurseSpecialismFKChangedBy" VARCHAR(120) NULL,
 	created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
 	updatedby VARCHAR(120) NOT NULL,
@@ -905,3 +924,11 @@ CREATE TABLE IF NOT EXISTS cqc."WorkerJobs" (
 );
 CREATE INDEX "WorkerJobs_WorkerFK" on cqc."WorkerJobs" ("WorkerFK");
 CREATE INDEX "WorkerJobs_JobFK" on cqc."WorkerJobs" ("JobFK");
+
+
+CREATE TABLE IF NOT EXISTS cqc."NurseSpecialism" (
+	"ID" INTEGER NOT NULL PRIMARY KEY,
+	"Seq" INTEGER NOT NULL, 	
+	"Specialism" TEXT NOT NULL,
+  "Other" BOOLEAN DEFAULT FALSE
+);
