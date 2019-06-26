@@ -1016,6 +1016,7 @@ insert into cqc."Job" ("JobID", "JobName") values (28, 'Supervisor');
 insert into cqc."Job" ("JobID", "JobName") values (29, 'Technician');
 
 
+
 -- https://trello.com/c/LgdigwUb - duplicate establishment; partial unqiue index: https://trello.com/c/QAzbzesV
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
 DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
