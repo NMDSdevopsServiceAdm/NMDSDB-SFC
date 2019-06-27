@@ -1,1 +1,1 @@
-UAT/V1.10.7_patch.sql
+UAT/V1.10.8_patch.sql
