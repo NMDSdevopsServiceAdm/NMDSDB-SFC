@@ -107,7 +107,7 @@ CREATE TYPE cqc."WorkerOtherQualifications" AS ENUM (
 	'Don''t know'
 );
 
-CREATE TYPE cqc."worker_registerednurse_enum" AS ENUM (
+CREATE TYPE cqc."worker_registerednurses_enum" AS ENUM (
     'Adult Nurse',
     'Mental Health Nurse',
     'Learning Disabilities Nurse',
@@ -861,7 +861,7 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"CompletedChangedBy" VARCHAR(120) NULL,
 	"LeaveReasonFK" INTEGER NULL,
 	"LeaveReasonOther" TEXT NULL,
-	"RegisteredNurseValue" cqc."worker_registerednurse_enum" NULL,
+	"RegisteredNurseValue" cqc."worker_registerednurses_enum" NULL,
 	"RegisteredNurseSavedAt" TIMESTAMP NULL,
 	"RegisteredNurseChangedAt" TIMESTAMP NULL,
 	"RegisteredNurseSavedBy" VARCHAR(120) NULL,

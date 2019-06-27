@@ -1,7 +1,7 @@
 -- https://trello.com/c/PkupZnCs/51-10-staff-records-2-nurse-specialism-question
 -- https://trello.com/c/ZfLqpOJV/50-10-staff-records-1-nurse-category-question
 
-CREATE TYPE cqc."worker_registerednurse_enum" AS ENUM (
+CREATE TYPE cqc."worker_registerednurses_enum" AS ENUM (
     'Adult Nurse',
     'Mental Health Nurse',
     'Learning Disabilities Nurse',
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS cqc."NurseSpecialism" (
         "Other" BOOLEAN DEFAULT FALSE
 );
 
-ALTER TABLE cqc."Worker"   ADD COLUMN "RegisteredNurseValue" cqc."worker_registerednurse_enum" NULL;
+ALTER TABLE cqc."Worker"   ADD COLUMN "RegisteredNurseValue" cqc."worker_registerednurses_enum" NULL;
 ALTER TABLE cqc."Worker"   ADD COLUMN "RegisteredNurseSavedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."Worker"   ADD COLUMN "RegisteredNurseChangedAt" TIMESTAMP NULL;
 ALTER TABLE cqc."Worker"   ADD COLUMN "RegisteredNurseSavedBy" VARCHAR(120) NULL;
