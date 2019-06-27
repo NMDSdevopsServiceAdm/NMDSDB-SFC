@@ -87,6 +87,8 @@ DROP TYPE IF EXISTS cqc.establishment_owner;
 DROP TYPE IF EXISTS cqc.establishment_parent_access_permission;
 DROP TYPE IF EXISTS cqc."ServicesCapacityType";
 DROP TYPE IF EXISTS cqc."DataSource";
+DROP TYPE IF EXISTS cqc."worker_registerednurse_enum";
+DROP TYPE IF EXISTS cqc."worker_registerednurses_enum";
 
 
 -- sequences

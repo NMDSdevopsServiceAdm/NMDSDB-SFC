@@ -1,6 +1,7 @@
 -- https://trello.com/c/PkupZnCs/51-10-staff-records-2-nurse-specialism-question
 -- https://trello.com/c/ZfLqpOJV/50-10-staff-records-1-nurse-category-question
 
+
 CREATE TYPE cqc."worker_registerednurses_enum" AS ENUM (
     'Adult Nurse',
     'Mental Health Nurse',
