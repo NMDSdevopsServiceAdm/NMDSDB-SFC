@@ -715,6 +715,11 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 	"MainJobFKChangedAt" TIMESTAMP NULL,
 	"MainJobFKSavedBy" VARCHAR(120) NULL,
 	"MainJobFKChangedBy" VARCHAR(120) NULL,
+	"LocalIdentifierValue" TEXT,
+	"LocalIdentifierSavedAt" TIMESTAMP NULL,
+	"LocalIdentifierChangedAt" TIMESTAMP NULL,
+	"LocalIdentifierSavedBy" VARCHAR(120) NULL,
+	"LocalIdentifierChangedBy" VARCHAR(120) NULL,
 	"ApprovedMentalHealthWorkerValue" cqc."WorkerApprovedMentalHealthWorker" NULL,
 	"ApprovedMentalHealthWorkerSavedAt" TIMESTAMP NULL,
 	"ApprovedMentalHealthWorkerChangedAt" TIMESTAMP NULL,
@@ -889,6 +894,10 @@ CREATE TABLE IF NOT EXISTS cqc."Worker" (
 
 CREATE UNIQUE INDEX "Worker_WorkerUID" on cqc."Worker" ("WorkerUID");
 CREATE INDEX "Worker_EstablishmentFK" on cqc."Worker" ("EstablishmentFK");
+
+ALTER TABLE ONLY cqc."Worker"
+    ADD CONSTRAINT "worker_LocalIdentifier_unq" UNIQUE ("LocalIdentifierValue", "EstablishmentFK");
+
 
 -- change auditting
 CREATE TYPE cqc."WorkerAuditChangeType" AS ENUM (
