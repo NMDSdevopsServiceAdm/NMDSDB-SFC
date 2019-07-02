@@ -202,6 +202,11 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "LeaversChangedAt" TIMESTAMP NULL,
     "LeaversSavedBy" VARCHAR(120) NULL,
     "LeaversChangedBy" VARCHAR(120) NULL,
+    "LocalIdentifierValue" TEXT,
+    "LocalIdentifierSavedAt" TIMESTAMP NULL,
+    "LocalIdentifierChangedAt" TIMESTAMP NULL,
+    "LocalIdentifierSavedBy" VARCHAR(120) NULL,
+    "LocalIdentifierChangedBy" VARCHAR(120) NULL,
     "Archived" BOOLEAN DEFAULT false,
     created timestamp without time zone NOT NULL DEFAULT now(),
     updated timestamp without time zone NOT NULL DEFAULT now(),
@@ -1023,6 +1028,9 @@ DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
 CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("NameValue", "PostCode", "LocationID") WHERE "Archived" = false;
 CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("NameValue", "PostCode") WHERE "Archived" = false AND "LocationID" IS NULL;
 
+-- https://trello.com/c/AscBN35F/47-18-bulk-upload-local-identifiers-establishment
+ALTER TABLE ONLY cqc."Establishment"
+    ADD CONSTRAINT "establishment_LocalIdentifier_unq" UNIQUE ("LocalIdentifierValue");
 
 INSERT INTO cqc."Cssr" ("CssrID", "CssR", "LocalAuthority", "LocalCustodianCode", "Region", "RegionID", "NmdsIDLetter") VALUES 
 (807, 'West Sussex', 'Adur', 3805, 'South East', 6, 'H'),
