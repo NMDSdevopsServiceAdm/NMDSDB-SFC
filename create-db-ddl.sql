@@ -514,7 +514,8 @@ ALTER TABLE cqc."ServicesCapacity" OWNER TO sfcadmin;
 -- An Establishment's User can take one of two roles: Edit or Read Only
 CREATE TYPE cqc.user_role AS ENUM (
     'Read',
-    'Edit'
+    'Edit',
+    'Admin'
 );
 
 --SET default_tablespace = sfcdevtbs_logins;
@@ -533,7 +534,7 @@ CREATE TABLE IF NOT EXISTS cqc."User" (
     "UserRoleChangedAt" TIMESTAMP NULL,
     "UserRoleSavedBy" VARCHAR(120) NULL,
     "UserRoleChangedBy" VARCHAR(120) NULL,
-    "EstablishmentID" integer NOT NULL,
+    "EstablishmentID" integer NULL,
     "Archived" BOOLEAN DEFAULT false,
     "FullNameValue" character varying(120) NOT NULL,
     "FullNameSavedAt" TIMESTAMP NULL,
@@ -565,7 +566,6 @@ CREATE TABLE IF NOT EXISTS cqc."User" (
     "SecurityQuestionAnswerChangedAt" TIMESTAMP NULL,
     "SecurityQuestionAnswerSavedBy" VARCHAR(120) NULL,
     "SecurityQuestionAnswerChangedBy" VARCHAR(120) NULL,
-    "AdminUser" boolean NOT NULL,
     created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
 	updatedby VARCHAR(120) NOT NULL
