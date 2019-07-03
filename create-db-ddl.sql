@@ -566,7 +566,6 @@ CREATE TABLE IF NOT EXISTS cqc."User" (
     "SecurityQuestionAnswerChangedAt" TIMESTAMP NULL,
     "SecurityQuestionAnswerSavedBy" VARCHAR(120) NULL,
     "SecurityQuestionAnswerChangedBy" VARCHAR(120) NULL,
-    "AdminUser" boolean NOT NULL,
     created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),	-- note, on creation of record, updated and created are equal
 	updatedby VARCHAR(120) NOT NULL
