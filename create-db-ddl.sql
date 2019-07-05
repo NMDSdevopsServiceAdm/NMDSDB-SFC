@@ -208,6 +208,7 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "LocalIdentifierSavedBy" VARCHAR(120) NULL,
     "LocalIdentifierChangedBy" VARCHAR(120) NULL,
     "Archived" BOOLEAN DEFAULT false,
+    "LastBulkUploaded" TIMESTAMP NULL,
     created timestamp without time zone NOT NULL DEFAULT now(),
     updated timestamp without time zone NOT NULL DEFAULT now(),
     updatedby character varying(120) COLLATE pg_catalog."default" NOT NULL
