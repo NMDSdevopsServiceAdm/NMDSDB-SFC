@@ -7,3 +7,6 @@ ALTER TABLE cqc."Establishment" ADD COLUMN "Address2" TEXT NULL;
 ALTER TABLE cqc."Establishment" ADD COLUMN "Address3" TEXT NULL;
 ALTER TABLE cqc."Establishment" ADD COLUMN "Town" TEXT NULL;
 ALTER TABLE cqc."Establishment" ADD COLUMN "County" TEXT NULL;
+
+-- https://trello.com/c/vNHbfdms - interim reasons for leaving - for bulk upload
+ALTER TABLE cqc."Establishment" ADD COLUMN "ReasonsForLeaving" TEXT NULL;
