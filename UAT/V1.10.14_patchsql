@@ -1,0 +1,17 @@
+ALTER TABLE cqc."UserAudit" DROP COLUMN "EventType";
+
+DROP TYPE IF EXISTS cqc."UserAuditChangeType";
+
+CREATE TYPE cqc."UserAuditChangeType" AS ENUM (
+    'created',
+    'updated',
+    'saved',
+    'changed',
+    'passwdReset',
+    'loginSuccess',
+    'loginFailed',
+    'loginWhileLocked',
+    'deletedUser'
+);
+
+ALTER TABLE cqc."UserAudit" ADD COLUMN "EventType" cqc."UserAuditChangeType" NULL;
