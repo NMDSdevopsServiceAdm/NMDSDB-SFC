@@ -99,6 +99,8 @@ BEGIN
         END CASE;
       END IF;
 
+
+
     -- Worker does not have a sequence number; it's a serial
       INSERT INTO cqc."Worker" (
         "TribalID",

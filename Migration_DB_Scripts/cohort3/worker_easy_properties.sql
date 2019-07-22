@@ -4,6 +4,7 @@
 -- Added NurseSpecialismFKValue,NurseSpecialismFKOther,SavedAt,SavedBy
 --     currently null (issue with Peter) as 1:m in source cannot be moved here.
 -- Added LocalIdentifierValue,SavedAt,SavedBy
+-- Completed = true so provide more information does not show
 
 CREATE OR REPLACE FUNCTION migration.worker_easy_properties(_tribalid integer, _sfcid integer, _workerrecord record)
  RETURNS void
@@ -536,7 +537,10 @@ BEGIN
     "NurseSpecialismFKSavedBy" = NULL,
     "LocalIdentifierValue" = LocalIdentifier,
     "LocalIdentifierSavedAt" = CASE WHEN LocalIdentifier IS NOT NULL THEN NowTimestamp ELSE NULL END,
-    "LocalIdentifierSavedBy" = CASE WHEN LocalIdentifier IS NOT NULL THEN 'migration' ELSE NULL END
+    "LocalIdentifierSavedBy" = CASE WHEN LocalIdentifier IS NOT NULL THEN 'migration' ELSE NULL END,
+    "CompletedValue" = true,
+	"CompletedSavedBy" = 'migration',
+	"CompletedSavedAt" = NowTimestamp
 	
   WHERE
     "ID" = _sfcid;
