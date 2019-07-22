@@ -27,13 +27,12 @@ BEGIN
   OPEN AllEstablishments FOR 	select
       e.id,
       e.name,
-	  p.registrationid,
       e.address1,
       e.address2,
       e.address3,
       e.town,
-	  e.registrationid,
       p.locationid,
+	  p.registrationid,
       e.postcode,
       e.type as employertypeid,
       p.totalstaff as numberofstaff,
@@ -50,7 +49,7 @@ BEGIN
         inner join provision_servicetype pst inner join migration.services ms on pst.servicetype_id = ms.tribalid
           on pst.provision_id = p.id and pst.ismainservice = 1
         on p.establishment_id = e.id
-	  left join cqc."Establishment" on "Establishement"."TribalID" = e.id
+	  left join cqc."Establishment" on "Establishment"."TribalID" = e.id
      where e.id in ( 1, 2,3,4,5,6)
      order by e.id asc;
 
