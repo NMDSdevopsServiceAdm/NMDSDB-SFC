@@ -1388,7 +1388,6 @@ CREATE TABLE IF NOT EXISTS cqc."PasswdResetTracking" (
 ALTER TABLE cqc."PasswdResetTracking" ALTER COLUMN "ID" SET DEFAULT nextval('cqc."PasswdResetTracking_seq"');
 ALTER TABLE cqc."PasswdResetTracking" OWNER TO sfcadmin;
 
-
 CREATE TYPE cqc."UserAuditChangeType" AS ENUM (
     'created',
     'updated',
@@ -1397,8 +1396,10 @@ CREATE TYPE cqc."UserAuditChangeType" AS ENUM (
     'passwdReset',
     'loginSuccess',
     'loginFailed',
-    'loginWhileLocked'
+    'loginWhileLocked',
+    'delete'
 );
+
 CREATE TABLE IF NOT EXISTS cqc."UserAudit" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,
 	"UserFK" INTEGER NOT NULL,
