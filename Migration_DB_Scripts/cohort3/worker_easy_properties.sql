@@ -44,7 +44,7 @@ AS $function$DECLARE
   AnnualHourlyPayRate NUMERIC;
   DateOfBirth DATE;
   NiNumber VARCHAR(15);
-  JobRoleCategory VARCHAR(20);
+  JobRoleCategory VARCHAR(30);
   LocalIdentifier VARCHAR(255);
 
 BEGIN
