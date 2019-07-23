@@ -1,1 +1,1 @@
-ALTER TYPE cqc."UserAuditChangeType" ADD VALUE 'deletedUser';
+ALTER TYPE cqc."UserAuditChangeType" ADD VALUE 'delete';

@@ -1397,7 +1397,7 @@ CREATE TYPE cqc."UserAuditChangeType" AS ENUM (
     'loginSuccess',
     'loginFailed',
     'loginWhileLocked',
-    'deletedUser'
+    'delete'
 );
 
 CREATE TABLE IF NOT EXISTS cqc."UserAudit" (
