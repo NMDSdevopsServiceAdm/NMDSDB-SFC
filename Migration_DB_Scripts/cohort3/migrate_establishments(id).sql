@@ -22,11 +22,12 @@ DECLARE
   NewIsRegulated BOOLEAN;
   NewEmployerType VARCHAR(40);
   NewIsCqcRegistered BOOLEAN;
+  Owner VARCHAR(10);
+  ParentAccess VARCHAR(20);
 BEGIN
   NotMapped := 'Not Mapped';
   MappedEmpty := 'Was empty';
   MigrationUser := 'migration';
-  MigrationTimestamp := clock_timestamp();
   
   OPEN AllEstablishments FOR select
       e.id,
@@ -35,6 +36,9 @@ BEGIN
       e.address2,
       e.address3,
       e.town,
+      e.nonownerviewrights,
+	  e.ismyparentallowedtoedit,
+	  e.isparent,
       p.locationid,
 	  p.registrationid,
       e.postcode,
@@ -42,6 +46,7 @@ BEGIN
       p.totalstaff as numberofstaff,
       e.nmdsid,
       e.createddate,
+	  e.updateddate,
       e,visiblecsci,
       ms.sfcid as sfc_tribal_mainserviceid,
       "Establishment"."EstablishmentID" as newestablishmentid
@@ -77,13 +82,29 @@ BEGIN
         ) v1uuid
       INTO NewEstablishmentUID;
 
-      CASE CurrentEstablishment.locationid
-        WHEN NULL THEN
+	  CASE CurrentEstablishment.nonownerviewrights
+        WHEN 1 THEN
+          ParentAccess = 'Workplace';
+        WHEN 3 THEN
+          ParentAccess = 'Workplace and Staff';
+        ELSE
+          ParentAccess = NULL;
+      END CASE;
+
+      CASE CurrentEstablishment.ismyparentallowedtoedit
+        WHEN 1 THEN
+          Owner = 'Parent';
+        ELSE
+          Owner = 'Workplace';
+      END CASE;
+
+	  CASE 
+        WHEN CurrentEstablishment.locationid IS NULL THEN
           NewIsRegulated = false;
         ELSE
           NewIsRegulated = true;
       END CASE;
-
+	  
       CASE CurrentEstablishment.employertypeid
         WHEN 130 THEN
           NewEmployerType = 'Local Authority (adult services)';
@@ -126,6 +147,9 @@ BEGIN
         "NmdsID",
         "EmployerTypeValue",
         "NumberOfStaffValue",
+		"IsParent",
+		"Owner",
+		"ParentAccess",
         "created",
         "updated",
         "updatedby"
@@ -144,12 +168,15 @@ BEGIN
 		NULL,
         CurrentEstablishment.postcode,
         NewIsRegulated,
-        CurrentEstablishment.nmdsid,
+        TRIM(CurrentEstablishment.nmdsid),
         NewEmployerType::cqc.est_employertype_enum,
         CurrentEstablishment.numberofstaff,
+		CurrentEstablishment.isparent::boolean,
+		Owner::cqc.establishment_owner,
+		ParentAccess::cqc.establishment_parent_access_permission,
         CurrentEstablishment.createddate,
-        MigrationTimestamp,
-        MigrationUser
+		CurrentEstablishment.updateddate,
+		MigrationUser
         );
 
       -- having inserted the new establishment, adorn with additional properties

@@ -11,7 +11,7 @@ BEGIN
 
 --truncate migration.errorlog;
 
-FOR loop_counter IN 0..20000 by 500 LOOP
+FOR loop_counter IN 0..20000 by 5000 LOOP
     raise NOTICE 'Establishments %',loop_counter;
     PERFORM migration.loop_estbid(500,loop_counter);
 	COMMIT;

@@ -130,7 +130,7 @@ BEGIN
     END IF;
 
     EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Skipping worker with id: %', CurrentWorker.id;
-    INSERT INTO "migration"."errorlog"(message,type,value)values(SQLERRM,'worker', CurrentWorker.id);
+    INSERT INTO "migration"."errorlog"(message,type,value)values(concat(SQLSTATE,'-',SQLERRM),'worker', CurrentWorker.id);
     raise notice E'Got exception:
 	
         SQLSTATE: % 

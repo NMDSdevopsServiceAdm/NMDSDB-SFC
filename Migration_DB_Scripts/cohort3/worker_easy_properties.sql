@@ -426,7 +426,7 @@ BEGIN
   IF (_workerRecord.jobrolecategory IS NOT NULL) THEN
   
     IF (_workerRecord.jobrolecategory = 1) THEN
-      JobRoleCategory = 'AdultNurse';
+      JobRoleCategory = 'Adult Nurse';
     ELSIF (_workerRecord.jobrolecategory = 2) THEN
 	  JobRoleCategory = 'Mental Health Nurse';
     ELSIF (_workerRecord.jobrolecategory = 3) THEN
