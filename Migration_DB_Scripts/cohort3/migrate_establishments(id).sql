@@ -1,11 +1,15 @@
--- Fixes for Cohort 3
--- Removed Address and FullAddress builder replaced with Address1, Address2, Address3, Town - merged in from establishment.x
--- Added ProvID merged in from establishment.registrationid
+-- FUNCTION: migration.migrateestablishments(integer)
 
-CREATE OR REPLACE FUNCTION migration.migrateestablishments_new_address()
- RETURNS void
- LANGUAGE plpgsql
-AS $function$
+-- DROP FUNCTION migration.migrateestablishments(integer);
+
+CREATE OR REPLACE FUNCTION migration.migrateestablishments(
+	estb_id integer)
+    RETURNS void
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
 DECLARE
   AllEstablishments REFCURSOR;
   CurrentEstablishment RECORD;
@@ -24,7 +28,7 @@ BEGIN
   MigrationUser := 'migration';
   MigrationTimestamp := clock_timestamp();
   
-  OPEN AllEstablishments FOR 	select
+  OPEN AllEstablishments FOR select
       e.id,
       e.name,
       e.address1,
@@ -42,15 +46,12 @@ BEGIN
       ms.sfcid as sfc_tribal_mainserviceid,
       "Establishment"."EstablishmentID" as newestablishmentid
     from establishment e
-      inner join (
-          select distinct establishment_id from establishment_user inner join users on establishment_user.user_id = users.id where users.mustchangepassword = 0
-        ) allusers on allusers.establishment_id = e.id
       left join provision p
         inner join provision_servicetype pst inner join migration.services ms on pst.servicetype_id = ms.tribalid
           on pst.provision_id = p.id and pst.ismainservice = 1
         on p.establishment_id = e.id
 	  left join cqc."Establishment" on "Establishment"."TribalID" = e.id
-     where e.id in ( 1, 2,3,4,5,6)
+     where e.id = estb_id 
      order by e.id asc;
 
   LOOP
@@ -117,9 +118,9 @@ BEGIN
         "Address2",
         "Address3",
         "Town",
+        "LocationID",
 		"ProvID",
 		"ReasonsForLeaving",
-        "LocationID",
         "PostCode",
         "IsRegulated",
         "NmdsID",
@@ -134,13 +135,13 @@ BEGIN
         NewEstablishmentUID,
         CurrentEstablishment.name,
         CurrentEstablishment.sfc_tribal_mainserviceid,
-		CurrentEstablishment.address1,
-		CurrentEstablishment.address2,
-		CurrentEstablishment.address3,
-		CurrentEstablishment.town,
-		CurrentEstablishment.registrationid,
-		NULL,
+        CurrentEstablishment.address1,
+        CurrentEstablishment.address2,
+        CurrentEstablishment.address3,
+        CurrentEstablishment.town,
         CurrentEstablishment.locationid,
+        CurrentEstablishment.registrationid,
+		NULL,
         CurrentEstablishment.postcode,
         NewIsRegulated,
         CurrentEstablishment.nmdsid,
@@ -160,9 +161,13 @@ BEGIN
 
     END IF;
 
-    --EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Skipping establishment with id: %', CurrentEstablishment.id;
+    EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Skipping establishment with id: %', CurrentEstablishment.id;
+    INSERT INTO "migration"."errorlog"(message,type,value)values(SQLERRM,'establishment', CurrentEstablishment.id);
   END;
   END LOOP;
 
 END;
-$function$
+$BODY$;
+
+ALTER FUNCTION migration.migrateestablishments(integer)
+    OWNER TO postgres;

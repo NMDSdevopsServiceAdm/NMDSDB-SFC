@@ -1,7 +1,8 @@
 -- Fixes for Cohort 3
 -- Load jobrolecategory
 
-CREATE OR REPLACE FUNCTION migration.migrateworkers()
+CREATE OR REPLACE FUNCTION migration.migrateworkers(
+	estb_id integer)
  RETURNS void
  LANGUAGE plpgsql
 AS $function$DECLARE
@@ -60,8 +61,9 @@ BEGIN
                     ON migrationnationality.tribalid = country.id
                 ) AS MappedNationalities ON MappedNationalities.originalnationalitycode = w.nationality
       left join worker_decrypted on worker_decrypted.id = w.id
-    where (w.employmentstatus = 195 or w.localidentifier is not null);   -- employmenbt status of 195 is volunteer (we're not migrating volunteer workers)
-
+    where (w.employmentstatus = 195 or w.localidentifier is not null)   -- employmenbt status of 195 is volunteer (we're not migrating volunteer workers)
+      and "Establishment"."TribalID"=estb_id;
+	  
   LOOP
     BEGIN
     FETCH AllWorkers INTO CurrentWorker;
@@ -99,8 +101,6 @@ BEGIN
         END CASE;
       END IF;
 
-
-
     -- Worker does not have a sequence number; it's a serial
       INSERT INTO cqc."Worker" (
         "TribalID",
@@ -130,6 +130,7 @@ BEGIN
     END IF;
 
     EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Skipping worker with id: %', CurrentWorker.id;
+    INSERT INTO "migration"."errorlog"(message,type,value)values(SQLERRM,'worker', CurrentWorker.id);
     raise notice E'Got exception:
 	
         SQLSTATE: % 
