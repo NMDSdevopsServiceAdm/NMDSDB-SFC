@@ -41,6 +41,9 @@ FOR loop_counter IN 0..999 by 100 LOOP
 	COMMIT;
 END LOOP;
 
+	PERFORM migration.setparents();
+	COMMIT;
+
 END;
 $BODY$;
 

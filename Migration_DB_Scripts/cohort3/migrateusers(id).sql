@@ -49,6 +49,7 @@ BEGIN
 196840, 144133, 215263, 170258, 217893, 231842);
 */
   LOOP
+  BEGIN
     FETCH AllUsers INTO CurrentUser;
     EXIT WHEN NOT FOUND;
 
@@ -150,6 +151,13 @@ BEGIN
       );
     END IF;
 
+    EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Skipping user with id: %', CurrentUser.id;
+    INSERT INTO "migration"."errorlog"(message,type,value)values(concat(SQLSTATE,'-',SQLERRM),'user', CurrentUser.id);
+    raise notice E'Got exception:
+	
+        SQLSTATE: % 
+        SQLERRM: %', SQLSTATE, SQLERRM;     
+  END;
   END LOOP;
 
 END;
