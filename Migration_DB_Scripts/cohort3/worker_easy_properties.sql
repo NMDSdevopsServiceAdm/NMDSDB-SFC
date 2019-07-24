@@ -388,18 +388,10 @@ BEGIN
   AnnualHourlyPayValue = NULL;
   AnnualHourlyPayRate = NULL;
   IF (_workerRecord.salaryinterval IS NOT NULL) THEN
-    IF (_workerRecord.salaryinterval = 253) THEN    -- unpaid
-      AnnualHourlyPayValue = NULL;
-      AnnualHourlyPayRate = NULL;
-    ELSIF (_workerRecord.salaryinterval = 250 AND _workerRecord.hourlyrate IS NOT NULL) THEN
+
+    IF (_workerRecord.salaryinterval = 250 AND _workerRecord.hourlyrate IS NOT NULL) THEN
       AnnualHourlyPayValue = 'Annually';
-      AnnualHourlyPayRate = _workerRecord.hourlyrate;
-    ELSIF (_workerRecord.salaryinterval = 252 AND _workerRecord.hourlyrate IS NOT NULL) THEN
-      AnnualHourlyPayValue = 'Hourly';
-      AnnualHourlyPayRate = _workerRecord.hourlyrate;
-    ELSIF (_workerRecord.salaryinterval = 251 AND _workerRecord.hourlyrate IS NOT NULL) THEN
-      AnnualHourlyPayValue = 'Annually';
-      AnnualHourlyPayRate = _workerRecord.hourlyrate*12;
+      AnnualHourlyPayRate = _workerRecord.salary;
     END IF;
   END IF;
 
