@@ -1,15 +1,17 @@
--- Fixes for Cohort 3
--- Added DataSource set to null for migration (not enum value)
--- Added RegisteredNurseValue,SavedAt,SavedBy
--- Added NurseSpecialismFKValue,NurseSpecialismFKOther,SavedAt,SavedBy
---     currently null (issue with Peter) as 1:m in source cannot be moved here.
--- Added LocalIdentifierValue,SavedAt,SavedBy
--- Completed = true so provide more information does not show
+-- FUNCTION: migration.worker_easy_properties(integer, integer, record)
 
-CREATE OR REPLACE FUNCTION migration.worker_easy_properties(_tribalid integer, _sfcid integer, _workerrecord record)
- RETURNS void
- LANGUAGE plpgsql
-AS $function$DECLARE
+-- DROP FUNCTION migration.worker_easy_properties(integer, integer, record);
+
+CREATE OR REPLACE FUNCTION migration.worker_easy_properties(
+	_tribalid integer,
+	_sfcid integer,
+	_workerrecord record)
+    RETURNS void
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$DECLARE
   PostCode VARCHAR(20);
   Gender VARCHAR(10);
   Disability VARCHAR(10);
@@ -102,7 +104,6 @@ BEGIN
   ELSIF (_workerRecord.gender=3) THEN
     Gender = 'Other';
   END IF;
-
 
   IsBritshCitizen = NULL;
   IF (_workerRecord.isbritishcitizen=1) THEN
@@ -215,7 +216,6 @@ BEGIN
     Apprenticeship = 'Don''t know';
   END IF;
 
-
   RecruitedFromValue = NULL;
   RecruitedFromOtherFK = NULL;
   IF (_workerRecord.sourcerecruited IS NOT NULL) THEN
@@ -269,7 +269,6 @@ BEGIN
     END IF;
   END IF;
 
-
   EthnicityFK = NULL;
   IF (_workerRecord.ethnicity IS NOT NULL) THEN
     IF (_workerRecord.ethnicity = 31) THEN
@@ -315,7 +314,6 @@ BEGIN
     END IF;
   END IF;
 
-
   -- country of birth mapping - the source, although they look like numbers they are strings
   CountryOfBirth = NULL;
   CountryOfBirthFK = NULL;
@@ -353,7 +351,6 @@ BEGIN
       NationalityFK = _workerRecord.targetnationalityid;
     END IF;
   END IF;
-
 
   -- contracted/average hours
   WeeklyHoursContractedValue = NULL;
@@ -418,8 +415,8 @@ BEGIN
   END IF;
 
   LocalIdentifier = NULL;
-  IF (_workerRecord.localidentifier IS NOT NULL) THEN
-    LocalIdentifier = _workerRecord.localidentifier;
+  IF (_workerRecord.bulkuploadidentifier IS NOT NULL) THEN
+    LocalIdentifier = _workerRecord.bulkuploadidentifier;
   END IF;
   
   JobRoleCategory = NULL;
@@ -546,4 +543,7 @@ BEGIN
     "ID" = _sfcid;
 
 END;
-$function$
+$BODY$;
+
+ALTER FUNCTION migration.worker_easy_properties(integer, integer, record)
+    OWNER TO postgres;

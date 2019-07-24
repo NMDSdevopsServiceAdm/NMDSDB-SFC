@@ -42,12 +42,13 @@ BEGIN
       p.locationid,
 	  p.registrationid,
       e.postcode,
+	  e.localidentifier,
       e.type as employertypeid,
       p.totalstaff as numberofstaff,
       e.nmdsid,
       e.createddate,
 	  e.updateddate,
-      e,visiblecsci,
+      e.visiblecsci,
       ms.sfcid as sfc_tribal_mainserviceid,
       "Establishment"."EstablishmentID" as newestablishmentid
     from establishment e
@@ -143,6 +144,7 @@ BEGIN
 		"ProvID",
 		"ReasonsForLeaving",
         "PostCode",
+		"LocalIdentifierValue",
         "IsRegulated",
         "NmdsID",
         "EmployerTypeValue",
@@ -150,6 +152,7 @@ BEGIN
 		"IsParent",
 		"Owner",
 		"ParentAccess",
+		"LastBulkUploaded",
         "created",
         "updated",
         "updatedby"
@@ -167,6 +170,7 @@ BEGIN
         CurrentEstablishment.registrationid,
 		NULL,
         CurrentEstablishment.postcode,
+		CurrentEstablishment.localidentifier,
         NewIsRegulated,
         TRIM(CurrentEstablishment.nmdsid),
         NewEmployerType::cqc.est_employertype_enum,
@@ -174,6 +178,7 @@ BEGIN
 		CurrentEstablishment.isparent::boolean,
 		Owner::cqc.establishment_owner,
 		ParentAccess::cqc.establishment_parent_access_permission,
+		CurrentEstablishment.updateddate,
         CurrentEstablishment.createddate,
 		CurrentEstablishment.updateddate,
 		MigrationUser

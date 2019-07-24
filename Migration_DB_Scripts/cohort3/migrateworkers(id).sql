@@ -1,11 +1,15 @@
--- Fixes for Cohort 3
--- Load jobrolecategory
+-- FUNCTION: migration.migrateworkers(integer)
+
+-- DROP FUNCTION migration.migrateworkers(integer);
 
 CREATE OR REPLACE FUNCTION migration.migrateworkers(
 	estb_id integer)
- RETURNS void
- LANGUAGE plpgsql
-AS $function$DECLARE
+    RETURNS void
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$DECLARE
   AllWorkers REFCURSOR;
   CurrentWorker RECORD;
   NotMapped VARCHAR(10);
@@ -16,6 +20,7 @@ AS $function$DECLARE
   MigrationTimestamp timestamp without time zone;
   NewContract VARCHAR(50);
   NewMainJobFK INTEGER;
+  NewWorkerID INTEGER;
 BEGIN
   NotMapped := 'Not Mapped';
   MappedEmpty := 'Was empty';
@@ -26,6 +31,7 @@ BEGIN
       w.id as id,
       "Establishment"."EstablishmentID" as establishmentid,
       w.localidentifier,
+      w.bulkuploadidentifier,
       w.employmentstatus,
       w.createddate,
       "Job"."JobID" as jobid,
@@ -70,10 +76,13 @@ BEGIN
     EXIT WHEN NOT FOUND;
 
     RAISE NOTICE 'Processing tribal worker: % (%)', CurrentWorker.id, CurrentWorker.newworkerid;
-    IF CurrentWorker.newworkerid IS NOT NULL THEN
+    IF CurrentWorker.newworkerid IS NOT NULL 
+	THEN
+	  RAISE NOTICE '...updating existing worker';
       -- we have already migrated this record - prepare to enrich/embellish the Worker
       PERFORM migration.worker_easy_properties(CurrentWorker.id, CurrentWorker.newworkerid, CurrentWorker);
       PERFORM migration.worker_other_jobs(CurrentWorker.id, CurrentWorker.newworkerid);
+	  
 
     ELSE
       -- we have already migrated this record - prepare to insert new Worker
@@ -116,17 +125,19 @@ BEGIN
         CurrentWorker.id,
         NewWorkerUID,
         CurrentWorker.establishmentid,
-        CurrentWorker.localidentifier,
+        substring(CurrentWorker.localidentifier,0,50),
         NewContract::cqc."WorkerContract",
         CurrentWorker.jobid,
         CurrentWorker.createddate,
         MigrationTimestamp,
         MigrationUser
-      );
+      ) returning "ID"
+	  INTO NewWorkerID;
 
       -- having inserted the new worker, adorn with additional properties
-      PERFORM migration.worker_easy_properties(CurrentWorker.id, CurrentWorker.newworkerid, CurrentWorker);
-      PERFORM migration.worker_other_jobs(CurrentWorker.id, CurrentWorker.newworkerid);
+	  RAISE NOTICE '...updating new worker';
+      PERFORM migration.worker_easy_properties(CurrentWorker.id, NewWorkerID, CurrentWorker);
+      PERFORM migration.worker_other_jobs(CurrentWorker.id, NewWorkerID);
     END IF;
 
     EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Skipping worker with id: %', CurrentWorker.id;
@@ -138,7 +149,7 @@ BEGIN
   END;
   END LOOP;
 END;
-$function$
+$BODY$;
 
-
-
+ALTER FUNCTION migration.migrateworkers(integer)
+    OWNER TO briano;
