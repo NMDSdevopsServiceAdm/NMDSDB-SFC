@@ -45,6 +45,7 @@ BEGIN
       worker_decrypted.dob_dcd as target_dob,
       worker_decrypted.ni_dcd as target_ni,
 	  split_part(wp.jobrolespecialisms,';', 1) as nursefirstspecialism,
+	  w.salary,
       w.*
     from worker w
       inner join cqc."Establishment" on w.establishment_id = "Establishment"."TribalID"

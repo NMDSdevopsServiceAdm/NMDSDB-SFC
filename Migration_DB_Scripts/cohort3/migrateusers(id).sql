@@ -32,15 +32,21 @@ BEGIN
   MigrationTimestamp := clock_timestamp();
   TargetHash := NULL;
 
-  OPEN AllUsers FOR select cqc."Establishment"."EstablishmentID" AS establishmentid, "User"."TribalID" AS
- newuserid, users.*, establishment_user.*, establishment.telephone as users_telephone
+  OPEN AllUsers FOR select 
+cqc."Establishment"."EstablishmentID" AS establishmentid, U."TribalID" AS
+ newuserid, users.*, establishment_user.*, establishment.telephone as users_telephone,
+ w."CustomDecrypt" as customdecrypt
     from
       users
         inner join establishment_user on establishment_user.user_id = users.id
           inner join cqc."Establishment"
             inner join establishment on "Establishment"."TribalID" = establishment.id
             on "Establishment"."TribalID" = establishment_user.establishment_id
-                    left join cqc."User" on "User"."TribalID" = users.id
+                    left join cqc."User" U on U."TribalID" = users.id
+					
+					join cqc."Login" l on U."RegistrationID" = l."RegistrationID"
+					join migration.userwriter w on w."UID"=u."UserUID"::varchar and w."Username"=l."Username"
+
     where users.status <> 4
       and establishment_user.establishment_id=estb_id;
 /* in (156182, 59, 248, 669, 187078, 215842, 162286, 2533, 295
@@ -108,7 +114,7 @@ BEGIN
           CurrentUser.loweremail,
           CurrentUser.users_telephone,
           CurrentUser.passwordquestion,
-          NULL,
+          CurrentUser.customdecrypt,
           NewUserRole::cqc.user_role,
           CurrentUser.creationdate,
           MigrationTimestamp,

@@ -18,10 +18,11 @@ DECLARE
 BEGIN
   RAISE NOTICE '... mapping other jobs';
 
-  OPEN MyOtherJobs FOR SELECT jobs.sfcid AS sfcid
+  OPEN MyOtherJobs FOR SELECT jobs.sfcid AS sfcid, worker_provision.otherdescription AS other
     FROM worker_otherjobrole
 	    INNER JOIN migration.jobs ON jobs.tribalid=worker_otherjobrole.jobrole
-    where worker_id = _tribalId;
+	    INNER JOIN worker_provision ON worker_otherjobrole.worker_id=worker_provision.worker_id
+    where worker_otherjobrole.worker_id = _tribalId;
 
   -- first delete any existing "other jobs"
   DELETE FROM cqc."WorkerJobs" WHERE "WorkerFK" = _sfcid;
@@ -31,8 +32,8 @@ BEGIN
       FETCH MyOtherJobs INTO CurrrentOtherJob;
       EXIT WHEN NOT FOUND;
 
-      INSERT INTO cqc."WorkerJobs" ("WorkerFK", "JobFK")
-        VALUES (_sfcid, CurrrentOtherJob.sfcid)
+      INSERT INTO cqc."WorkerJobs" ("WorkerFK", "JobFK","Other")
+        VALUES (_sfcid, CurrrentOtherJob.sfcid,CurrrentOtherJob.other)
         ON CONFLICT DO NOTHING;
 
       EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Failed to process other jobs: % (%)', _tribalId, _sfcid;
