@@ -44,6 +44,7 @@ BEGIN
       wp.hourlyrate,
       worker_decrypted.dob_dcd as target_dob,
       worker_decrypted.ni_dcd as target_ni,
+	  split_part(wp.jobrolespecialisms,';', 1) as nursefirstspecialism,
       w.*
     from worker w
       inner join cqc."Establishment" on w.establishment_id = "Establishment"."TribalID"
@@ -52,6 +53,8 @@ BEGIN
           inner join cqc."Job" on "Job"."JobID" = mj.sfcid
           on mj.tribalid = wp.jobrole
         on w.id = wp.worker_id
+	  left join cqc."NurseSpecialism" ns on split_part(wp.jobrolespecialisms,';', 1)=ns."ID"::varchar
+      left join public.lookupitem li on wp.jobrolespecialisms=li.value and lookuptype_id = 41 and jobrole=95
       left join cqc."Worker" on "Worker"."TribalID" = w.id
       left join (SELECT country.numeric AS originalcountrycode, "ID" AS targetcountryid
                  FROM country

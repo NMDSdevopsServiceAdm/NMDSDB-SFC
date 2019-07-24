@@ -48,7 +48,8 @@ AS $BODY$DECLARE
   NiNumber VARCHAR(15);
   JobRoleCategory VARCHAR(30);
   LocalIdentifier VARCHAR(255);
-
+  NurseSpecialismFK INTEGER;
+  
 BEGIN
   RAISE NOTICE '... mapping easy properties (Gender, Disability, British Citizenship....)';
 
@@ -436,6 +437,10 @@ BEGIN
 
   END IF;
   
+  NurseSpecialismFK = NULL;
+  IF (_workerRecord.nursefirstspecialism) IS NOT NULL THEN
+	NurseSpecialismFK = _workerRecord.nursefirstspecialism;
+  END IF;
 
   -- update the Worker record
   select now() INTO NowTimestamp;
@@ -528,10 +533,10 @@ BEGIN
     "RegisteredNurseValue" = CASE WHEN JobRoleCategory IS NOT NULL THEN JobRoleCategory::cqc.worker_registerednurses_enum ELSE NULL END,
     "RegisteredNurseSavedAt" = CASE WHEN JobRoleCategory IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "RegisteredNurseSavedBy" = CASE WHEN JobRoleCategory IS NOT NULL THEN 'migration' ELSE NULL END,
-    "NurseSpecialismFKValue" = NULL,
+    "NurseSpecialismFKValue" = CASE WHEN NurseSpecialismFK IS NOT NULL THEN NurseSpecialismFK ELSE NULL END,
     "NurseSpecialismFKOther" = NULL,
-    "NurseSpecialismFKSavedAt" = NULL,
-    "NurseSpecialismFKSavedBy" = NULL,
+    "NurseSpecialismFKSavedAt" = CASE WHEN NurseSpecialismFK IS NOT NULL THEN NowTimestamp ELSE NULL END,
+    "NurseSpecialismFKSavedBy" = CASE WHEN NurseSpecialismFK IS NOT NULL THEN 'migration' ELSE NULL END,
     "LocalIdentifierValue" = LocalIdentifier,
     "LocalIdentifierSavedAt" = CASE WHEN LocalIdentifier IS NOT NULL THEN NowTimestamp ELSE NULL END,
     "LocalIdentifierSavedBy" = CASE WHEN LocalIdentifier IS NOT NULL THEN 'migration' ELSE NULL END,

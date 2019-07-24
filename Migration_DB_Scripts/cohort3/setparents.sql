@@ -16,7 +16,7 @@ BEGIN
 	update cqc."Establishment" est
 		set "ParentID" = npe."EstablishmentID", "ParentUID" = npe."EstablishmentUID"
 		from cqc."Establishment" nce
-			left join establishment ooe on ope.id=nce."TribalID"
+			left join establishment oce on oce.id=nce."TribalID"
 			left join cqc."Establishment" npe on oce.parentid=npe."TribalID"
 		where nce."EstablishmentID"=est."EstablishmentID";
 

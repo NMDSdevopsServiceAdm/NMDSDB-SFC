@@ -1,0 +1,4 @@
+
+-- Cohort3 scripts to change standing migration helper data
+
+update migration.services set sfcid=18 where tribalid=12 and sfcid=15
