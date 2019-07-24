@@ -17,7 +17,6 @@ AS $BODY$DECLARE
   MigrationUser VARCHAR(10);
   ThisEstablishmentID INTEGER;
   NewWorkerUID UUID;
-  MigrationTimestamp timestamp without time zone;
   NewContract VARCHAR(50);
   NewMainJobFK INTEGER;
   NewWorkerID INTEGER;
@@ -25,7 +24,6 @@ BEGIN
   NotMapped := 'Not Mapped';
   MappedEmpty := 'Was empty';
   MigrationUser := 'migration';
-  MigrationTimestamp := clock_timestamp();
 
   OPEN AllWorkers FOR select
       w.id as id,
@@ -34,6 +32,7 @@ BEGIN
       w.bulkuploadidentifier,
       w.employmentstatus,
       w.createddate,
+      w.updateddate,
       "Job"."JobID" as jobid,
       "Worker"."ID" as newworkerid,
       originalcountrycode,
@@ -129,7 +128,7 @@ BEGIN
         NewContract::cqc."WorkerContract",
         CurrentWorker.jobid,
         CurrentWorker.createddate,
-        MigrationTimestamp,
+        CASE WHEN CurrentWorker.updateddate IS NOT NULL THEN CurrentWorker.updateddate ELSE CurrentWorker.createddate END,
         MigrationUser
       ) returning "ID"
 	  INTO NewWorkerID;

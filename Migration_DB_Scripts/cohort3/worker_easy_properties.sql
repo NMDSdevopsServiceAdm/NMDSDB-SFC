@@ -100,7 +100,7 @@ BEGIN
   ELSIF (_workerRecord.gender=2) THEN
     Gender = 'Female';
   ELSIF (_workerRecord.gender=0) THEN
-    Gender = 'Unknown';
+    Gender = 'Don''t know';
   ELSIF (_workerRecord.gender=3) THEN
     Gender = 'Other';
   END IF;
