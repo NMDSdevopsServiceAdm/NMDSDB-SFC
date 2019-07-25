@@ -6,8 +6,9 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
     "Establishment"."DataSource" AS "EstablishmentDataSource",
     "Establishment"."TribalID" AS "TribalEstablishmentID",
     "Establishment"."NmdsID",
-    "Establishment"."Address",
+    "Establishment"."Address1",
     "Establishment"."LocationID",
+    "Establishment"."ProvID",
     "Establishment"."PostCode",
     "Establishment"."IsRegulated",
     "Establishment"."OverallWdfEligibility",
@@ -162,11 +163,15 @@ CREATE OR REPLACE VIEW "cqc"."AllEstablishmentAndWorkersVW" AS
     "Worker"."Archived",
     "Worker"."LeaveReasonFK",
     "Worker"."LeaveReasonOther",
+	  "Worker"."RegisteredNurseValue",
+	  "NurseSpecialism"."Specialism" AS "NurseSpecialismValue",
     "Worker".created AS "WorkerCreated",
     "Worker".updated As "WorkerUpdated"
   from
     cqc."Establishment"
-		LEFT JOIN cqc."Worker" ON "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK"
+		LEFT JOIN cqc."Worker"
+			LEFT JOIN cqc."NurseSpecialism" on "NurseSpecialism"."ID" = "Worker"."NurseSpecialismFKValue"
+			ON "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK"
 		LEFT JOIN
 			(SELECT
 				"Establishment"."EstablishmentID" "EstablishmentID",
