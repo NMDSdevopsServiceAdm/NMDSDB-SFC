@@ -14,6 +14,7 @@ increment INTEGER := 500;
 BEGIN
 
 truncate migration.errorlog;
+truncate migration.runlog;
 
 FOR loop_counter IN 0..20000 by increment LOOP
     raise NOTICE 'Establishments %',loop_counter;

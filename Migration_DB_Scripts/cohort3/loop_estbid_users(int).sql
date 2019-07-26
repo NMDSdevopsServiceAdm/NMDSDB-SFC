@@ -15,6 +15,9 @@ DECLARE
         Allestbid  REFCURSOR;
         currentestbid record;
 Begin 
+
+INSERT INTO "migration"."runlog"(item,limitvalue,offsetvalue,created)values('loop_estbid_users', n,o,now());
+
 OPEN Allestbid  for 
 select id 
 from establishment e

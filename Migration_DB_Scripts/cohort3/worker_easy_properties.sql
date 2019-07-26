@@ -20,7 +20,7 @@ AS $BODY$DECLARE
   SocialCareStartDateValue VARCHAR(5);
   SocialCareStartDateYear INTEGER;
   DaysSickValue VARCHAR(5);
-  DaysSickDays INTEGER;
+  DaysSickDays NUMERIC(4,1);
   IsBritshCitizen VARCHAR(10);
   ZeroHourContract VARCHAR(10);
   SocialCareQualification VARCHAR(10);
@@ -388,11 +388,24 @@ BEGIN
   AnnualHourlyPayValue = NULL;
   AnnualHourlyPayRate = NULL;
   IF (_workerRecord.salaryinterval IS NOT NULL) THEN
-
-    IF (_workerRecord.salaryinterval = 250 AND _workerRecord.hourlyrate IS NOT NULL) THEN
+    IF (_workerRecord.salaryinterval = 253) THEN    -- unpaid
+      AnnualHourlyPayValue = NULL;
+      AnnualHourlyPayRate = NULL;
+    ELSIF (_workerRecord.salaryinterval = 250 AND _workerRecord.hourlyrate IS NOT NULL) THEN
       AnnualHourlyPayValue = 'Annually';
       AnnualHourlyPayRate = _workerRecord.salary;
+    ELSIF (_workerRecord.salaryinterval = 252 AND _workerRecord.hourlyrate IS NOT NULL) THEN
+      AnnualHourlyPayValue = 'Hourly';
+      AnnualHourlyPayRate = _workerRecord.hourlyrate;
+    ELSIF (_workerRecord.salaryinterval = 251 AND _workerRecord.hourlyrate IS NOT NULL) THEN
+      AnnualHourlyPayValue = 'Annually';
+      AnnualHourlyPayRate = _workerRecord.hourlyrate*12;
     END IF;
+  END IF;
+
+
+  IF (_workerRecord.salaryinterval IS NOT NULL) THEN
+
   END IF;
 
   -- date of birth

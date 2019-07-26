@@ -10,6 +10,7 @@ DECLARE
 BEGIN
 
 truncate migration.errorlog;
+truncate migration.runlog;
 
 FOR loop_counter IN 0..999 by 100 LOOP
     raise NOTICE 'Establishments %',loop_counter;

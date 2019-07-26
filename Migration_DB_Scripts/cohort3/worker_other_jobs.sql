@@ -19,10 +19,9 @@ BEGIN
   RAISE NOTICE '... mapping other jobs';
 
   OPEN MyOtherJobs FOR SELECT jobs.sfcid AS sfcid, worker_provision.otherdescription AS other
-    FROM worker_otherjobrole
-	    INNER JOIN migration.jobs ON jobs.tribalid=worker_otherjobrole.jobrole
-	    INNER JOIN worker_provision ON worker_otherjobrole.worker_id=worker_provision.worker_id
-    where worker_otherjobrole.worker_id = _tribalId;
+    FROM worker_provision
+	    INNER JOIN migration.jobs ON jobs.tribalid=worker_provision.jobrole
+    where worker_provision.worker_id = _tribalId;
 
   -- first delete any existing "other jobs"
   DELETE FROM cqc."WorkerJobs" WHERE "WorkerFK" = _sfcid;

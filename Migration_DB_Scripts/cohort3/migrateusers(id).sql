@@ -33,9 +33,9 @@ BEGIN
   TargetHash := NULL;
 
   OPEN AllUsers FOR select 
-cqc."Establishment"."EstablishmentID" AS establishmentid, U."TribalID" AS
- newuserid, users.*, establishment_user.*, establishment.telephone as users_telephone,
- w."CustomDecrypt" as customdecrypt
+cqc."Establishment"."EstablishmentID" AS establishmentid, U."TribalID" AS newuserid, 
+  w."CustomDecrypt" AS customdecrypt,
+  users.*, establishment_user.*, establishment.telephone as users_telephone
     from
       users
         inner join establishment_user on establishment_user.user_id = users.id
@@ -44,8 +44,7 @@ cqc."Establishment"."EstablishmentID" AS establishmentid, U."TribalID" AS
             on "Establishment"."TribalID" = establishment_user.establishment_id
                     left join cqc."User" U on U."TribalID" = users.id
 					
-					join cqc."Login" l on U."RegistrationID" = l."RegistrationID"
-					join migration.userwriter w on w."UID"=u."UserUID"::varchar and w."Username"=l."Username"
+					left join migration.userwriter w on w."UID"=users.uniqueid and w."Username"=users.lowerusername
 
     where users.status <> 4
       and establishment_user.establishment_id=estb_id;
@@ -58,6 +57,7 @@ cqc."Establishment"."EstablishmentID" AS establishmentid, U."TribalID" AS
   BEGIN
     FETCH AllUsers INTO CurrentUser;
     EXIT WHEN NOT FOUND;
+
 
     IF CurrentUser.newuserid IS NULL THEN
       FullName := CurrentUser.firstname || ' ' || CurrentUser.lastname;
