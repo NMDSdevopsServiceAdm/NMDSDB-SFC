@@ -1028,17 +1028,6 @@ insert into cqc."Job" ("JobID", "JobName") values (28, 'Supervisor');
 insert into cqc."Job" ("JobID", "JobName") values (29, 'Technician');
 
 
-
--- https://trello.com/c/LgdigwUb - duplicate establishment; partial unqiue index: https://trello.com/c/QAzbzesV
-DROP INDEX IF EXISTS cqc."Establishment_unique_registration";
-DROP INDEX IF EXISTS cqc."Establishment_unique_registration_with_locationid";
-CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration" ON cqc."Establishment" ("NameValue", "PostCode", "LocationID") WHERE "Archived" = false;
-CREATE UNIQUE INDEX IF NOT EXISTS "Establishment_unique_registration_with_locationid" ON cqc."Establishment" ("NameValue", "PostCode") WHERE "Archived" = false AND "LocationID" IS NULL;
-
--- https://trello.com/c/AscBN35F/47-18-bulk-upload-local-identifiers-establishment
-ALTER TABLE ONLY cqc."Establishment"
-    ADD CONSTRAINT "establishment_LocalIdentifier_unq" UNIQUE ("LocalIdentifierValue");
-
 INSERT INTO cqc."Cssr" ("CssrID", "CssR", "LocalAuthority", "LocalCustodianCode", "Region", "RegionID", "NmdsIDLetter") VALUES 
 (807, 'West Sussex', 'Adur', 3805, 'South East', 6, 'H'),
 (102, 'Cumbria', 'Allerdale', 905, 'North West', 5, 'F'),
