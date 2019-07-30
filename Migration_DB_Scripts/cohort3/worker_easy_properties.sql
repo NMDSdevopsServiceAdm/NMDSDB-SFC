@@ -403,11 +403,6 @@ BEGIN
     END IF;
   END IF;
 
-
-  IF (_workerRecord.salaryinterval IS NOT NULL) THEN
-
-  END IF;
-
   -- date of birth
   DateOfBirth = NULL;
   IF (_workerRecord.target_dob IS NOT NULL) THEN
