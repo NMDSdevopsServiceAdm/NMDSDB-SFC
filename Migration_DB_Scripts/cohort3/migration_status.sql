@@ -8,28 +8,28 @@ CREATE OR REPLACE VIEW migration.status AS
     x.report
    FROM ( SELECT 'Establishment'::text AS name,
             count(*) AS score,
-            'of 20,276'::text AS report
+            'of 20,283'::text AS report
            FROM cqc."Establishment"
         UNION
          SELECT 'Estabs(child)'::text AS name,
             count(*) AS score,
-            'of 10,035'::text
+            'of 11,492'::text
            FROM cqc."Establishment" report
           WHERE report."ParentID" IS NOT NULL
         UNION
          SELECT 'User'::text AS name,
             count(*) AS score,
-            'of 19,655'::text AS report
+            'of 19,668'::text AS report
            FROM cqc."User"
         UNION
          SELECT 'Login'::text AS name,
             count(*) AS score,
-            'of 19,655'::text AS report
+            'of 19,668'::text AS report
            FROM cqc."Login"
         UNION
          SELECT 'Worker'::text AS name,
             count(*) AS score,
-            'of 697,208'::text AS report
+            'of 697,467'::text AS report
            FROM cqc."Worker"
         UNION
          SELECT 'Training'::text AS name,
@@ -39,7 +39,7 @@ CREATE OR REPLACE VIEW migration.status AS
         UNION
          SELECT 'Qualifications'::text AS name,
             count(*) AS score,
-            'of 363,051'::text AS report
+            'of 373,736'::text AS report
            FROM cqc."WorkerQualifications"
         UNION
          SELECT 'ErrorLog'::text AS name,

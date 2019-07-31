@@ -28,28 +28,30 @@ BEGIN
 
   INSERT INTO cqc."EstablishmentCapacity" ("EstablishmentID", "ServiceCapacityID","Answer") (
 	select DISTINCT _sfcid,servicecapacityid,answer from (
-		SELECT e.id,ms.sfcid, pst.totalcapacity, pst.currentutilisation,cap.capacityType,cap.questionsequence,cap.servicecapacityid,
-		case WHEN capacitytype = 'Capacity' THEN pst.totalcapacity ELSE pst.currentutilisation END as answer
-			FROM establishment e
-			  INNER JOIN provision p
-				INNER JOIN provision_servicetype pst
-				  INNER JOIN migration.services ms ON pst.servicetype_id = ms.tribalid
-				  ON pst.provision_id = p.id
-				ON p.establishment_id = e.id
-			
-			JOIN (
-			SELECT
-				  "ServiceCapacityID" servicecapacityid,
-				  "ServiceID" AS serviceid,
-				  "Question" as question,
-				  "Sequence" as questionsequence,
-				  "Type" as capacityType
-				FROM cqc."ServicesCapacity"
-				ORDER BY questionsequence) as cap on cap.serviceid = ms.sfcid
-		order by 1,2,6
+		select id,sfcid,capacityType,questionsequence,servicecapacityid,SUM(answer) as answer from (
+			SELECT e.id,ms.sfcid, pst.totalcapacity, pst.currentutilisation,cap.capacityType,cap.questionsequence,cap.servicecapacityid,
+			case WHEN capacitytype = 'Capacity' THEN pst.totalcapacity ELSE pst.currentutilisation END as answer
+				FROM establishment e
+				  INNER JOIN provision p
+					INNER JOIN provision_servicetype pst
+					  INNER JOIN migration.services ms ON pst.servicetype_id = ms.tribalid
+					  ON pst.provision_id = p.id
+					ON p.establishment_id = e.id
+				
+				JOIN (
+				SELECT
+					  "ServiceCapacityID" servicecapacityid,
+					  "ServiceID" AS serviceid,
+					  "Question" as question,
+					  "Sequence" as questionsequence,
+					  "Type" as capacityType
+					FROM cqc."ServicesCapacity"
+					ORDER BY questionsequence) as cap on cap.serviceid = ms.sfcid
+			order by 1,2,6
+		) as ungrouped
+		group by id,sfcid,capacityType,questionsequence,servicecapacityid
 	) as changes
 	where answer is not null
-	  AND id NOT in (select "TribalID" from migration.excludecapability)
 	  AND id=_tribalId
   );
 --  ON CONFLICT DO NOTHING;
