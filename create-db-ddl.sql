@@ -853,14 +853,6 @@ ALTER TABLE ONLY cqc."EstablishmentJobs"
 
 
 --
--- Name: Establishment estloc_fk; Type: FK CONSTRAINT; Schema: cqc; Owner: sfcadmin
---
-
-ALTER TABLE ONLY cqc."Establishment"
-    ADD CONSTRAINT estloc_fk FOREIGN KEY ("LocationID") REFERENCES cqcref.location(locationid);
-
-
---
 -- Name: EstablishmentServices estsrvc_estb_fk; Type: FK CONSTRAINT; Schema: cqc; Owner: sfcadmin
 --
 
