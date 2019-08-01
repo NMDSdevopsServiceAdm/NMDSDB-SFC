@@ -1,11 +1,12 @@
--- FUNCTION: migration.establishment_local_authorities(integer, integer, integer)
+StartersValue-- FUNCTION: migration.establishment_local_authorities(integer, integer, integer)
 
 -- DROP FUNCTION migration.establishment_local_authorities(integer, integer, integer);
 
 CREATE OR REPLACE FUNCTION migration.establishment_local_authorities(
 	_tribalid integer,
 	_sfcid integer,
-	_visiblecsci integer)
+	_visiblecsci integer,
+	_isregulated boolean)
     RETURNS void
     LANGUAGE 'plpgsql'
 
@@ -80,6 +81,10 @@ BEGIN
       ShareWithCQC = false;
     END IF;
   END IF;
+  
+  IF(_isregulated = false) THEN
+      ShareWithCQC = false;
+  END IF;
 
   -- update the Establishment's ShareWithLA change property
   SELECT count(0) FROM cqc."EstablishmentLocalAuthority" WHERE "EstablishmentID" = _sfcid INTO TotalLocalAuthorities;
@@ -112,5 +117,5 @@ BEGIN
 END;
 $BODY$;
 
-ALTER FUNCTION migration.establishment_local_authorities(integer, integer, integer)
+ALTER FUNCTION migration.establishment_local_authorities(integer, integer, integer,boolean)
     OWNER TO postgres;

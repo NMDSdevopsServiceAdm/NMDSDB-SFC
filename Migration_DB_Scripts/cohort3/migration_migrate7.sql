@@ -18,7 +18,10 @@ Begin
 --truncate migration.runlog;
 
 OPEN Allestbid  for 
-        select id from (select "TribalID" as id from migration.excludecapability) as X order by 1 asc
+        select id from (
+values
+(209925)
+		)  as t (id) order by 1 asc
 ;
 Loop
 Begin

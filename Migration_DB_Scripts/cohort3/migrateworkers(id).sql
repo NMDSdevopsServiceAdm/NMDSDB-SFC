@@ -20,6 +20,8 @@ AS $BODY$DECLARE
   NewContract VARCHAR(50);
   NewMainJobFK INTEGER;
   NewWorkerID INTEGER;
+  DataSource VARCHAR(6);
+  LocalIdentifier VARCHAR(50);
 BEGIN
   NotMapped := 'Not Mapped';
   MappedEmpty := 'Was empty';
@@ -46,6 +48,7 @@ BEGIN
       worker_decrypted.ni_dcd as target_ni,
 	  split_part(wp.jobrolespecialisms,';', 1) as nursefirstspecialism,
 	  w.salary,
+	  w.source,
       w.*
     from worker w
       inner join cqc."Establishment" on w.establishment_id = "Establishment"."TribalID"
@@ -70,7 +73,7 @@ BEGIN
                     ON migrationnationality.tribalid = country.id
                 ) AS MappedNationalities ON MappedNationalities.originalnationalitycode = w.nationality
       left join worker_decrypted on worker_decrypted.id = w.id
-    where (w.employmentstatus = 195 or w.localidentifier is not null)   -- employmenbt status of 195 is volunteer (we're not migrating volunteer workers)
+    where w.employmentstatus != 195   -- employmenbt status of 195 is volunteer (we're not migrating volunteer workers)
       and "Establishment"."TribalID"=estb_id;
 	  
   LOOP
@@ -95,6 +98,21 @@ BEGIN
           SELECT uuid_in(md5(random()::text || clock_timestamp()::text)::cstring) "UID"
         ) v1uuid
       INTO NewWorkerUID;
+
+	  CASE CurrentWorker.source
+	    WHEN 'BULK UPLOAD' THEN
+		  DataSource = 'Bulk';
+		WHEN 'BULK UPLOAD v2' THEN
+		  DataSource = 'Bulk';
+		ELSE
+		  DataSource = 'Online';
+	  END CASE;
+
+      IF (CurrentWorker.iocalidentifier is NULL) THEN
+		LocalIdentifier = 'Not Provided';
+	  ELSE
+	    LocalIdentifier = substring(CurrentWorker.iocalidentifier,0,50);
+	  END IF;
 
       IF (CurrentWorker.employmentstatus IS NULL) THEN
             NewContract = 'Permanent';
@@ -121,6 +139,7 @@ BEGIN
         "NameOrIdValue",
         "ContractValue",
         "MainJobFKValue",
+		"DataSource",
         "created",
         "updated",
         "updatedby"
@@ -128,9 +147,10 @@ BEGIN
         CurrentWorker.id,
         NewWorkerUID,
         CurrentWorker.establishmentid,
-        substring(CurrentWorker.localidentifier,0,50),
+        LocalIdentifier,
         NewContract::cqc."WorkerContract",
         CurrentWorker.jobid,
+		DataSource::cqc."DataSource",
         CurrentWorker.createddate,
         CASE WHEN CurrentWorker.updateddate IS NOT NULL THEN CurrentWorker.updateddate ELSE CurrentWorker.createddate END,
         MigrationUser

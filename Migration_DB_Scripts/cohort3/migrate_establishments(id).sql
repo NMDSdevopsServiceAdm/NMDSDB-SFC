@@ -20,6 +20,7 @@ DECLARE
   NewEstablishmentUID UUID;
   MigrationTimestamp timestamp without time zone;
   NewIsRegulated BOOLEAN;
+  DataSource VARCHAR(6);
   NewEmployerType VARCHAR(40);
   NewIsCqcRegistered BOOLEAN;
   Owner VARCHAR(10);
@@ -49,6 +50,7 @@ BEGIN
       e.createddate,
 	  e.updateddate,
       e.visiblecsci,
+	  e.source,
       ms.sfcid as sfc_tribal_mainserviceid,
       "Establishment"."EstablishmentID" as newestablishmentid
     from establishment e
@@ -66,12 +68,20 @@ BEGIN
     EXIT WHEN NOT FOUND;
 
 	RAISE NOTICE 'Processing tribal establishment: % (%)', CurrentEstablishment.id, CurrentEstablishment.newestablishmentid;
+
+    CASE 
+	  WHEN CurrentEstablishment.locationid IS NULL THEN
+	    NewIsRegulated = false;
+	  ELSE
+	    NewIsRegulated = true;
+    END CASE;
+
     IF CurrentEstablishment.newestablishmentid IS NOT NULL THEN
       -- we have already migrated this record - prepare to enrich/embellish the Establishment
       PERFORM migration.establishment_other_services(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
       PERFORM migration.establishment_capacities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
       PERFORM migration.establishment_service_users(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
-      PERFORM migration.establishment_local_authorities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid, CurrentEstablishment.visiblecsci);
+      PERFORM migration.establishment_local_authorities(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid, CurrentEstablishment.visiblecsci, NewIsRegulated);
       PERFORM migration.establishment_jobs(CurrentEstablishment.id, CurrentEstablishment.newestablishmentid);
     ELSE
       -- we have not yet migrated this record because there is no "newestablishmentid" - prepare a basic Establishment for inserting
@@ -99,13 +109,15 @@ BEGIN
           Owner = 'Workplace';
       END CASE;
 
-	  CASE 
-        WHEN CurrentEstablishment.locationid IS NULL THEN
-          NewIsRegulated = false;
-        ELSE
-          NewIsRegulated = true;
-      END CASE;
-	  
+	  CASE CurrentEstablishment.source
+	    WHEN 'BULK UPLOAD' THEN
+		  DataSource = 'Bulk';
+		WHEN 'BULK UPLOAD v2' THEN
+		  DataSource = 'Bulk';
+		ELSE
+		  DataSource = 'Online';
+	  END CASE;
+	
       CASE CurrentEstablishment.employertypeid
         WHEN 130 THEN
           NewEmployerType = 'Local Authority (adult services)';
@@ -150,6 +162,7 @@ BEGIN
         "EmployerTypeValue",
         "NumberOfStaffValue",
 		"IsParent",
+		"DataSource",
 		"Owner",
 		"ParentAccess",
 		"LastBulkUploaded",
@@ -176,6 +189,7 @@ BEGIN
         NewEmployerType::cqc.est_employertype_enum,
         CurrentEstablishment.numberofstaff,
 		CurrentEstablishment.isparent::boolean,
+		DataSource::cqc."DataSource",
 		Owner::cqc.establishment_owner,
 		ParentAccess::cqc.establishment_parent_access_permission,
 		CurrentEstablishment.updateddate,
@@ -188,7 +202,7 @@ BEGIN
       PERFORM migration.establishment_other_services(CurrentEstablishment.id, ThisEstablishmentID);
       PERFORM migration.establishment_capacities(CurrentEstablishment.id, ThisEstablishmentID);
       PERFORM migration.establishment_service_users(CurrentEstablishment.id, ThisEstablishmentID);
-      PERFORM migration.establishment_local_authorities(CurrentEstablishment.id, ThisEstablishmentID, CurrentEstablishment.visiblecsci);
+      PERFORM migration.establishment_local_authorities(CurrentEstablishment.id, ThisEstablishmentID, CurrentEstablishment.visiblecsci, NewIsRegulated);
       PERFORM migration.establishment_jobs(CurrentEstablishment.id, ThisEstablishmentID);
 
     END IF;
