@@ -107,23 +107,25 @@ BEGIN
   -- update the Establishment's Vacancies, Starters and Leavers change properties
   -- if there are no records, then all Vacancies, Starters and Leavers are "Don't know"
 
-  IF (TotalStaff = 0) THEN
+  IF (TotalLeavers = 0 AND TotalStarters = 0 AND TotalVacancies = 0) THEN
     RAISE NOTICE '...... don''t know vacancies, starters and leavers';
     UPDATE
       cqc."Establishment"
     SET
       "VacanciesSavedAt" = now(),
       "VacanciesSavedBy" = 'migration',
-      "VacanciesValue" = 'Don''t know',
+      "VacanciesValue" = NULL,
       "StartersSavedAt" = now(),
       "StartersSavedBy" = 'migration',
-      "StartersValue" = 'Don''t know',
+      "StartersValue" = NULL,
       "LeaversSavedAt" = now(),
       "LeaversSavedBy" = 'migration',
-      "LeaversValue" = 'Don''t know'
+      "LeaversValue" = NULL
     WHERE
       "EstablishmentID" = _sfcid;
+
   ELSE
+  
     IF (TotalVacancies = 0) THEN
       RAISE NOTICE '...... have no vacancies';
       UPDATE

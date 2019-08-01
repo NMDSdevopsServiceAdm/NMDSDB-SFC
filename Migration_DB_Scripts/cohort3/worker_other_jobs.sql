@@ -21,7 +21,7 @@ BEGIN
   OPEN MyOtherJobs FOR SELECT jobs.sfcid AS sfcid, worker_otherjobrole.otherdescription AS other
     FROM worker_provision
 	    INNER JOIN migration.jobs ON jobs.tribalid=worker_provision.jobrole
-	left join worker_otherjobrole on worker_otherjobrole.worker_id=worker_provision.worker_id
+	  join worker_otherjobrole on worker_otherjobrole.worker_id=worker_provision.worker_id
     where worker_provision.worker_id = _tribalId;
 
   -- first delete any existing "other jobs"
@@ -42,6 +42,7 @@ BEGIN
 
   -- update the Worker's OtherServices change property
   SELECT count(0) FROM cqc."WorkerJobs" WHERE "WorkerFK" = _sfcid INTO TotalOtherJobs;
+
   IF (TotalOtherJobs > 0) THEN
     UPDATE
       cqc."Worker"
@@ -51,7 +52,18 @@ BEGIN
       "OtherJobsSavedBy" = 'migration'
     WHERE
       "ID" = _sfcid;
-  END IF;END;
+  ELSE
+    UPDATE
+      cqc."Worker"
+    SET
+      "OtherJobsValue" = 'No'::cqc."WorkerOtherJobs",
+      "OtherJobsSavedAt" = now(),
+      "OtherJobsSavedBy" = 'migration'
+    WHERE
+      "ID" = _sfcid;
+  END IF;
+  
+  END;
 $BODY$;
 
 ALTER FUNCTION migration.worker_other_jobs(integer, integer)

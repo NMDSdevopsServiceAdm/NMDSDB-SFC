@@ -20,7 +20,8 @@ Begin
 OPEN Allestbid  for 
         select id from (
 values
-(209925)
+
+(4946)
 		)  as t (id) order by 1 asc
 ;
 Loop
