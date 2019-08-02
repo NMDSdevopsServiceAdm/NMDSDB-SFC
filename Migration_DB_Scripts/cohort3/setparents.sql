@@ -20,12 +20,15 @@ BEGIN
 			left join cqc."Establishment" npe on oce.parentid=npe."TribalID"
 		where nce."EstablishmentID"=est."EstablishmentID";
 
-	update cqc."Establishment"
-		set "IsParent" = true
-		from cqc."Establishment" e
-			join cqc."Establishment" p on e."ParentID"=p."EstablishmentID"
-		where p."IsParent" = false;
-
+		update cqc."Establishment" upd
+			set "IsParent" = true
+			where "EstablishmentID" in (
+				select DISTINCT p."EstablishmentID"--,p."EstablishmentUID",c."EstablishmentID",c."ParentUID"
+					from cqc."Establishment" p
+					join cqc."Establishment" c on c."ParentID"=p."EstablishmentID"
+					where p."IsParent"=false
+		);
+		
 END;
 $BODY$;
 

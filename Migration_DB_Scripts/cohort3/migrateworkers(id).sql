@@ -108,7 +108,7 @@ BEGIN
 		  DataSource = 'Online';
 	  END CASE;
 
-      IF (CurrentWorker.iocalidentifier is NULL) THEN
+      IF (CurrentWorker.localidentifier is NULL) THEN
 		LocalIdentifier = 'Not Provided';
 	  ELSE
 	    LocalIdentifier = substring(CurrentWorker.iocalidentifier,0,50);

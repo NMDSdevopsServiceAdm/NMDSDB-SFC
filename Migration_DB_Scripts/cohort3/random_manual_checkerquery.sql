@@ -1,4 +1,4 @@
-select e."Address1",e."Address2",e."Address3",e."Town",e."County",e."PostCode",
+select e."NmdsID",e."Address1",e."Address2",e."Address3",e."Town",e."County",e."PostCode",
 a."CssR",c."LocalCustodianCode",c."Region",
 e."LastBulkUploaded",e."updated",
 (select max("SocialCareQualificationFKSavedAt")

@@ -101,9 +101,9 @@ BEGIN
   ELSIF (_workerRecord.gender=2) THEN
     Gender = 'Female';
   ELSIF (_workerRecord.gender=0) THEN
-    Gender = 'Don''t know';
+    Gender = NULL;
   ELSIF (_workerRecord.gender=3) THEN
-    Gender = 'Other';
+    Gender = 'Don''t know';
   END IF;
 
   IsBritshCitizen = NULL;
@@ -311,7 +311,7 @@ BEGIN
     ELSIF (_workerRecord.ethnicity = 48) THEN
       EthnicityFK = 19;
     ELSIF (_workerRecord.ethnicity = -1) THEN
-      EthnicityFK = 2;
+      EthnicityFK = NULL;
     END IF;
   END IF;
 
