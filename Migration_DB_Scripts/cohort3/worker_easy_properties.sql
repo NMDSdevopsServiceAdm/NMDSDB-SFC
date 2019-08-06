@@ -95,6 +95,7 @@ BEGIN
     Disability = 'Yes';
   END IF;
 
+  RAISE NOTICE 'Gender 3';
   Gender = NULL;
   IF (_workerRecord.gender=1) THEN
     Gender = 'Male';
@@ -391,7 +392,7 @@ BEGIN
     IF (_workerRecord.salaryinterval = 253) THEN    -- unpaid
       AnnualHourlyPayValue = NULL;
       AnnualHourlyPayRate = NULL;
-    ELSIF (_workerRecord.salaryinterval = 250 AND _workerRecord.hourlyrate IS NOT NULL) THEN
+    ELSIF (_workerRecord.salaryinterval = 250 AND _workerRecord.salary IS NOT NULL) THEN
       AnnualHourlyPayValue = 'Annually';
       AnnualHourlyPayRate = _workerRecord.salary;
     ELSIF (_workerRecord.salaryinterval = 252 AND _workerRecord.hourlyrate IS NOT NULL) THEN
