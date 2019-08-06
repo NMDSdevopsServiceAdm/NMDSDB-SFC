@@ -827,7 +827,7 @@ insert into migration.jobs (tribalid, sfcid) values
   (107, 21),
   (108, 1),
   (109, 24),
-  (140, 18),
+  (140, 19),
   (141, 17),
   (142, 16),
   (143, 7),
