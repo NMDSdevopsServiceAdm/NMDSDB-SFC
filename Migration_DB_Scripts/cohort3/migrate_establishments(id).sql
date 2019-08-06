@@ -42,6 +42,7 @@ BEGIN
 	  e.isparent,
       p.locationid,
 	  p.registrationid,
+    p.registrationtype,
       e.postcode,
 	  e.localidentifier,
       e.type as employertypeid,
@@ -70,10 +71,10 @@ BEGIN
 	RAISE NOTICE 'Processing tribal establishment: % (%)', CurrentEstablishment.id, CurrentEstablishment.newestablishmentid;
 
     CASE 
-	  WHEN CurrentEstablishment.locationid IS NULL THEN
-	    NewIsRegulated = false;
-	  ELSE
+	  WHEN CurrentEstablishment.registrationtype = 2 THEN
 	    NewIsRegulated = true;
+	  ELSE
+	    NewIsRegulated = false;
     END CASE;
 
     IF CurrentEstablishment.newestablishmentid IS NOT NULL THEN
