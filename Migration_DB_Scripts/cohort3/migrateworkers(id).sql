@@ -73,7 +73,7 @@ BEGIN
                     ON migrationnationality.tribalid = country.id
                 ) AS MappedNationalities ON MappedNationalities.originalnationalitycode = w.nationality
       left join worker_decrypted on worker_decrypted.id = w.id
-    where w.employmentstatus != 195   -- employmenbt status of 195 is volunteer (we're not migrating volunteer workers)
+    where (w.employmentstatus != 195 or w.employmentstatus is null)   -- employment status of 195 is volunteer (we're not migrating volunteer workers)
       and "Establishment"."TribalID"=estb_id;
 	  
   LOOP
@@ -108,10 +108,10 @@ BEGIN
 		  DataSource = 'Online';
 	  END CASE;
 
-      IF (CurrentWorker.localidentifier is NULL) THEN
-		LocalIdentifier = 'Not Provided';
+    IF (CurrentWorker.localidentifier is NULL) THEN
+		  LocalIdentifier = 'Not Provided';
 	  ELSE
-	    LocalIdentifier = substring(CurrentWorker.iocalidentifier,0,50);
+	    LocalIdentifier = substring(CurrentWorker.localidentifier,0,50);
 	  END IF;
 
       IF (CurrentWorker.employmentstatus IS NULL) THEN
