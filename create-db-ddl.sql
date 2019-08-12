@@ -140,6 +140,8 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "PostCode" text,
     "IsRegulated" boolean NOT NULL,
     "OverallWdfEligibility" timestamp without time zone NULL,
+    "StaffWdfEligibility" timestamp without time zone NULL,
+    "EstablishmentWdfEligibility" timestamp without time zone NULL,
     "LastWdfEligibility" timestamp without time zone NULL,
     "IsParent" BOOLEAN DEFAULT FALSE,
     "ParentID" INTEGER NULL,
