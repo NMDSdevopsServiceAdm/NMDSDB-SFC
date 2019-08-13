@@ -146,7 +146,7 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "ParentID" INTEGER NULL,
     "ParentUID" UUID NULL,
     "DataOwner" cqc.establishment_owner NOT NULL DEFAULT 'Workplace',
-    "DataPermissions" cqc.establishment_data_access_permission NULL,
+    "DataPermissions" cqc.establishment_data_access_permission DEFAULT 'None',
     "DataSource" cqc."DataSource" DEFAULT 'Online',
     "NameValue" text NOT NULL,
     "NameSavedAt" TIMESTAMP NULL,
