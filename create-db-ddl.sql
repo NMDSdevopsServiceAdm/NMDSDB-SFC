@@ -109,9 +109,10 @@ CREATE TYPE cqc.establishment_owner AS ENUM (
     'Workplace',
     'Parent'
 );
-CREATE TYPE cqc.establishment_parent_access_permission AS ENUM (
+CREATE TYPE cqc.establishment_data_access_permission AS ENUM (
     'Workplace',
-    'Workplace and Staff'
+    'Workplace and Staff',
+    'None'
 );
 
 DROP TYPE IF EXISTS cqc."DataSource";
@@ -144,8 +145,8 @@ CREATE TABLE IF NOT EXISTS cqc."Establishment" (
     "IsParent" BOOLEAN DEFAULT FALSE,
     "ParentID" INTEGER NULL,
     "ParentUID" UUID NULL,
-    "Owner" cqc.establishment_owner NOT NULL DEFAULT 'Workplace',
-    "ParentAccess" cqc.establishment_parent_access_permission NULL,
+    "DataOwner" cqc.establishment_owner NOT NULL DEFAULT 'Workplace',
+    "DataPermissions" cqc.establishment_data_access_permission DEFAULT 'None',
     "DataSource" cqc."DataSource" DEFAULT 'Online',
     "NameValue" text NOT NULL,
     "NameSavedAt" TIMESTAMP NULL,
