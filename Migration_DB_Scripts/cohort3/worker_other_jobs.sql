@@ -17,20 +17,24 @@ DECLARE
   TotalOtherJobs INTEGER;
 BEGIN
   RAISE NOTICE '... mapping other jobs';
-
+  
   OPEN MyOtherJobs FOR SELECT jobs.sfcid AS sfcid, worker_otherjobrole.otherdescription AS other
-    FROM worker_provision
-	    INNER JOIN migration.jobs ON jobs.tribalid=worker_provision.jobrole
-	  join worker_otherjobrole on worker_otherjobrole.worker_id=worker_provision.worker_id
-    where worker_provision.worker_id = _tribalId;
+  FROM worker_provision
+    inner join worker_otherjobrole
+      INNER JOIN migration.jobs ON jobs.tribalid=worker_otherjobrole.jobrole
+      on worker_otherjobrole.worker_id=worker_provision.worker_id
+  WHERE worker_provision.worker_id = _tribalId;
 
   -- first delete any existing "other jobs"
+  RAISE NOTICE '.... deleting existing other jobs: WorkerFK - %', _sfcid;
   DELETE FROM cqc."WorkerJobs" WHERE "WorkerFK" = _sfcid;
 
   LOOP
     BEGIN
       FETCH MyOtherJobs INTO CurrrentOtherJob;
       EXIT WHEN NOT FOUND;
+	  
+	  RAISE NOTICE '... mapping other jobs: %', CurrrentOtherJob.sfcid;
 
       INSERT INTO cqc."WorkerJobs" ("WorkerFK", "JobFK","Other")
         VALUES (_sfcid, CurrrentOtherJob.sfcid,CurrrentOtherJob.other)
