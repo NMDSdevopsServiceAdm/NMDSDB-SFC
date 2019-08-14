@@ -24,7 +24,7 @@ DECLARE
   NewEmployerType VARCHAR(40);
   NewIsCqcRegistered BOOLEAN;
   Owner VARCHAR(10);
-  ParentAccess VARCHAR(20);
+  DataAccess VARCHAR(20);
 BEGIN
   NotMapped := 'Not Mapped';
   MappedEmpty := 'Was empty';
@@ -96,11 +96,11 @@ BEGIN
 
 	  CASE CurrentEstablishment.nonownerviewrights
         WHEN 1 THEN
-          ParentAccess = 'Workplace';
+          DataAccess = 'Workplace';
         WHEN 3 THEN
-          ParentAccess = 'Workplace and Staff';
+          DataAccess = 'Workplace and Staff';
         ELSE
-          ParentAccess = NULL;
+          DataAccess = 'None';
       END CASE;
 
       CASE CurrentEstablishment.ismyparentallowedtoedit
@@ -165,7 +165,7 @@ BEGIN
 		"IsParent",
 		"DataSource",
 		"Owner",
-		"ParentAccess",
+		"DataAccess",
 		"LastBulkUploaded",
         "created",
         "updated",
@@ -192,7 +192,7 @@ BEGIN
 		CurrentEstablishment.isparent::boolean,
 		DataSource::cqc."DataSource",
 		Owner::cqc.establishment_owner,
-		ParentAccess::cqc.establishment_parent_access_permission,
+		DataAccess::cqc.establishment_parent_access_permission,
 		CurrentEstablishment.updateddate,
         CurrentEstablishment.createddate,
 		CurrentEstablishment.updateddate,

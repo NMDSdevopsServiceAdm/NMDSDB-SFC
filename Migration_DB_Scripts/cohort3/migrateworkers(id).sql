@@ -43,6 +43,7 @@ BEGIN
       targetnationalityid,
       wp.jobrolecategory,
       wp.contractedhours,
+      wp.additionalhours,
       wp.hourlyrate,
       worker_decrypted.dob_dcd as target_dob,
       worker_decrypted.ni_dcd as target_ni,
