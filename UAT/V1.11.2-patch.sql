@@ -43,7 +43,6 @@ from cqc."Establishment"
 	left join cqc."Establishment" as parents on parents."EstablishmentID" = "Establishment"."ParentID"
 	left join cqc."Worker" as workers on workers."EstablishmentFK" = "Establishment"."EstablishmentID" and workers."Archived"=false
 where "Establishment"."Archived"=false
-  and ("Establishment"."ParentID"=479 OR "Establishment"."EstablishmentID"=479)
 group by
 	"Establishment"."NmdsID",
 	"Establishment"."EstablishmentID",
