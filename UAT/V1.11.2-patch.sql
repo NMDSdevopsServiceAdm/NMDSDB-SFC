@@ -10,9 +10,10 @@ CREATE OR REPLACE FUNCTION cqc.wdfsummaryreport(effectiveDate DATE)
     "PostCode" text,
     "Region" text,
     "CSSR" text,
-    "EstablishmentUpdated" timestamp with time zone,
+    "EstablishmentUpdated" timestamp without time zone,
+		"NumberOfStaff" integer,
     "ParentID" integer,
-    "OverallWdfEligibility" timestamp with time zone,
+    "OverallWdfEligibility" timestamp without time zone,
     "ParentNmdsID" text,
     "ParentEstablishmentID" integer,
     "ParentName" text,
@@ -31,6 +32,7 @@ BEGIN
 	pcode.region as "Region",
 	pcode.cssr as "CSSR",
 	"Establishment".updated,
+	"Establishment"."NumberOfStaffValue" AS "NumberOfStaff",
 	"Establishment"."ParentID",
 	"Establishment"."OverallWdfEligibility",
 	parents."NmdsID"::text As "ParentNmdsID",
@@ -74,6 +76,12 @@ BEGIN
   from cqcref.pcodedata
   group by postcode, local_custodian_code;
 
+	ALTER TABLE cqcref.pcode  OWNER to sfcadmin;
+	GRANT SELECT ON TABLE cqcref.pcode TO "Read_Only_Role";
+	GRANT SELECT ON TABLE cqcref.pcode TO "Read_Update_Role";
+	GRANT SELECT ON TABLE cqcref.pcode TO "Sfc_Admin_Role";
+	GRANT ALL ON TABLE cqcref.pcode TO sfcadmin;
+
   alter table cqcref.pcode add column postcode_part text;
   alter table cqcref.pcode add column region text;
   alter table cqcref.pcode add column cssr text;
@@ -84,6 +92,9 @@ BEGIN
   update cqcref.pcode
   set region="Cssr"."Region", cssr="Cssr"."CssR"
   from cqc."Cssr" where "Cssr"."LocalCustodianCode" = pcode.local_custodian_code;
+
+	CREATE INDEX "pcode_postcode" on cqcref.pcode (postcode);
+  CREATE INDEX "pcode_postcode_PART" on cqcref.pcode (postcode_PART);
 
 END;
 $$ LANGUAGE plpgsql;
