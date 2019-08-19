@@ -11,6 +11,12 @@ BEGIN
   from cqcref.pcodedata
   group by postcode, local_custodian_code;
 
+  ALTER TABLE cqcref.pcode  OWNER to sfcadmin;
+	GRANT SELECT ON TABLE cqcref.pcode TO "Read_Only_Role";
+	GRANT SELECT ON TABLE cqcref.pcode TO "Read_Update_Role";
+	GRANT SELECT ON TABLE cqcref.pcode TO "Sfc_Admin_Role";
+	GRANT ALL ON TABLE cqcref.pcode TO sfcadmin;
+
   alter table cqcref.pcode add column postcode_part text;
   alter table cqcref.pcode add column region text;
   alter table cqcref.pcode add column cssr text;
