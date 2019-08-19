@@ -93,6 +93,9 @@ BEGIN
   set region="Cssr"."Region", cssr="Cssr"."CssR"
   from cqc."Cssr" where "Cssr"."LocalCustodianCode" = pcode.local_custodian_code;
 
+	CREATE INDEX "pcode_postcode" on cqcref.pcode (postcode);
+  CREATE INDEX "pcode_postcode_PART" on cqcref.pcode (postcode_PART);
+
 END;
 $$ LANGUAGE plpgsql;
 
