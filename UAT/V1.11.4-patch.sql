@@ -1,8 +1,8 @@
 -- https://trello.com/c/jpuHetzL
 
-drop table cqc.”20190819_wdf” ;
-create table cqc.”20190819_wdf” (nmdsid text, tribalid integer, achieved text);
-insert into cqc.”20190819_wdf” (nmdsid, tribalid, achieved) values
+drop table cqc."20190819_wdf" ;
+create table cqc."20190819_wdf" (nmdsid text, tribalid integer, achieved text);
+insert into cqc."20190819_wdf" (nmdsid, tribalid, achieved) values
   ('C342719',239966, '01/04/2019'),
   ('F90868',3582, '01/05/2019'),
   ('E70270',2134, '01/05/2019'),
@@ -3088,10 +3088,7 @@ insert into cqc.”20190819_wdf” (nmdsid, tribalid, achieved) values
   ('I294405',192160, '31/05/2019');
 
 
-alter table cqc.”20190819_wdf” add column achievedDate date;
-update cqc.”20190819_wdf” set achievedDate = concat(substring(achieved from 7 for 4), '-', substring(achieved  from 4 for 2), '-', substring(achieved  from 1 for 2))::date
+alter table cqc."20190819_wdf" add column achievedDate date;
+update cqc."20190819_wdf" set achievedDate = concat(substring(achieved from 7 for 4), '-', substring(achieved  from 4 for 2), '-', substring(achieved  from 1 for 2))::date;
 
-update cqc."Establishment"
-set "OverallWdfEligibility" = TheSource.achieveddate::timestamp with time zone
-from cqc.”20190819_wdf” as TheSource
-where "Establishment"."TribalID" = TheSource.tribalid;
+update cqc."Establishment" set "OverallWdfEligibility" = TheSource.achieveddate::timestamp with time zone from cqc."20190819_wdf" as TheSource where "Establishment"."TribalID" = TheSource.tribalid;;
