@@ -1,5 +1,34 @@
 -- https://trello.com/c/UsiGWFJU
 
+DROP TABLE IF EXISTS cqc."LocalAuthorityReportEstablishment";
+CREATE TABLE cqc."LocalAuthorityReportEstablishment" (
+	"ID" SERIAL NOT NULL PRIMARY KEY,
+	"ReportFrom" DATE NOT NULL,
+	"ReportTo" DATE NOT NULL,
+	"EstablishmentFK" INTEGER NOT NULL
+);
+
+DROP TABLE IF EXISTS cqc."LocalAuthorityReportWorker";
+CREATE TABLE cqc."LocalAuthorityReportWorker" (
+	"ID" SERIAL NOT NULL PRIMARY KEY,
+	"LocalAuthorityReportEstablishmentFK" INTEGER NOT NULL,
+	"WorkerFK" INTEGER NOT NULL
+);
+
+-- only run these on dev, staging and accessibility/demo databases
+-- GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE cqc."LocalAuthorityReportEstablishment" TO "Sfc_App_Role";
+-- GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE cqc."LocalAuthorityReportEstablishment" TO "Sfc_Admin_Role";
+-- GRANT ALL ON TABLE cqc."LocalAuthorityReportEstablishment" TO sfcadmin;
+-- GRANT INSERT, SELECT, UPDATE ON TABLE cqc."LocalAuthorityReportEstablishment" TO "Read_Update_Role";
+-- GRANT SELECT ON TABLE cqc."LocalAuthorityReportEstablishment" TO "Read_Only_Role";
+
+-- GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE cqc."LocalAuthorityReportWorker" TO "Sfc_App_Role";
+-- GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE cqc."LocalAuthorityReportWorker" TO "Sfc_Admin_Role";
+-- GRANT ALL ON TABLE cqc."LocalAuthorityReportWorker" TO sfcadmin;
+-- GRANT INSERT, SELECT, UPDATE ON TABLE cqc."LocalAuthorityReportWorker" TO "Read_Update_Role";
+-- GRANT SELECT ON TABLE cqc."LocalAuthorityReportWorker" TO "Read_Only_Role";
+
+
 DROP FUNCTION IF EXISTS cqc.localAuthorityReportEstablishment;
 CREATE OR REPLACE FUNCTION cqc.localAuthorityReportEstablishment(establishmentID INTEGER, reportFrom DATE, reportTo DATE)
  RETURNS BOOLEAN 
@@ -61,9 +90,14 @@ BEGIN
 	success := true;
 	
 	RAISE NOTICE 'localAuthorityReport (%) from % to %', establishmentID, reportFrom, reportTo;
+	
+	-- first delete all Local Authority report data related to this establishment
+	DELETE FROM cqc."LocalAuthorityReportWorker" WHERE "LocalAuthorityReportEstablishmentFK" in (SELECT "ID" FROM cqc."LocalAuthorityReportEstablishment" WHERE "EstablishmentFK"=establishmentID);
+	DELETE FROM cqc."LocalAuthorityReportEstablishment" WHERE "EstablishmentFK"=establishmentID;
 
 	SELECT cqc.localAuthorityReportEstablishment(establishmentID, reportFrom, reportTo) INTO establishmentReportStatus;
 	SELECT cqc.localAuthorityReportWorker(establishmentID, reportFrom, reportTo) INTO workerReportStatus;
+	
 	
 	IF NOT (establishmentReportStatus AND workerReportStatus) THEN
 		success := false;
@@ -78,6 +112,7 @@ BEGIN
 
 END; $$
 LANGUAGE 'plpgsql';
+
 
 
 
