@@ -6,6 +6,7 @@ CREATE TABLE cqc."LocalAuthorityReportEstablishment" (
 	"ReportFrom" DATE NOT NULL,
 	"ReportTo" DATE NOT NULL,
 	"EstablishmentFK" INTEGER NOT NULL,
+	"WorkplaceFK" INTEGER NOT NULL,
 	"WorkplaceName" TEXT NOT NULL,
 	"WorkplaceID" TEXT NOT NULL,
 	"LastUpdatedDate" DATE NOT NULL,
@@ -83,10 +84,210 @@ DECLARE
 	success BOOLEAN;
 	v_error_msg TEXT;
 	v_error_stack TEXT;
+	AllEstablishments REFCURSOR;
+	CurrentEstablishment RECORD;
+	CalculatedServiceUserGroups TEXT;
+	CalculatedCapacity INTEGER;
+	CalculatedUtilisation INTEGER;
+	CalculatedVacancies INTEGER;
+	CalculatedStarters INTEGER;
+	CalculatedLeavers INTEGER;
+	CalculatedNumberOfStaff INTEGER;
 BEGIN
 	success := true;
 	
 	RAISE NOTICE 'localAuthorityReportEstablishment (%) from % to %', establishmentID, reportFrom, reportTo;
+	
+	OPEN AllEstablishments FOR
+	SELECT
+		"Establishment"."EstablishmentID",
+		"NmdsID",
+		"NameValue",
+		"EmployerTypeValue",
+		"EmployerTypeSavedAt",
+		MainService.name AS "MainService",
+		"MainServiceFKSavedAt",
+		(select count(0) from cqc."EstablishmentServiceUsers" where "EstablishmentServiceUsers"."EstablishmentID" = "Establishment"."EstablishmentID") AS "ServiceUsersCount",
+		"ServiceUsersSavedAt",
+		"VacanciesValue",
+		(select sum("Total") from cqc."EstablishmentJobs" where "EstablishmentJobs"."EstablishmentID" = "Establishment"."EstablishmentID" AND "EstablishmentJobs"."JobType" = 'Vacancies') AS "Vacancies",
+		"VacanciesSavedAt",
+		"StartersValue",
+		(select sum("Total") from cqc."EstablishmentJobs" where "EstablishmentJobs"."EstablishmentID" = "Establishment"."EstablishmentID" AND "EstablishmentJobs"."JobType" = 'Starters') AS "Starters",
+		"StartersSavedAt",
+		"LeaversValue",
+		(select sum("Total") from cqc."EstablishmentJobs" where "EstablishmentJobs"."EstablishmentID" = "Establishment"."EstablishmentID" AND "EstablishmentJobs"."JobType" = 'Leavers') AS "Leavers",
+		"LeaversSavedAt",
+		"NumberOfStaffValue",
+		"NumberOfStaffSavedAt",
+		"EstablishmentMainServicesWithCapacitiesVW"."CAPACITY" AS "Capacities",
+		"EstablishmentMainServicesWithCapacitiesVW"."CAPACITY" AS "Utilisations",
+		"CapacityServicesSavedAt",
+		"NumberOfStaffValue",
+		"NumberOfStaffSavedAt",
+		updated,
+		to_char(updated, 'DD/MM/YYYY') AS lastupdateddate
+    FROM
+      cqc."Establishment"
+	  	LEFT JOIN cqc.services as MainService on "Establishment"."MainServiceFKValue" = MainService.id
+		LEFT JOIN cqc."EstablishmentMainServicesWithCapacitiesVW" on "EstablishmentMainServicesWithCapacitiesVW"."EstablishmentID" = "Establishment"."EstablishmentID"
+    WHERE
+		("Establishment"."EstablishmentID" = establishmentID OR "Establishment"."ParentID" = establishmentID) AND
+		"Archived" = false
+	ORDER BY
+		"EstablishmentID";
+	
+	LOOP
+		FETCH AllEstablishments INTO CurrentEstablishment;
+		EXIT WHEN NOT FOUND;
+		
+		RAISE NOTICE 'localAuthorityReportEstablishment: %, %, %, %, %, %',
+			CurrentEstablishment."EstablishmentID",
+			CurrentEstablishment."NmdsID",
+			CurrentEstablishment."NameValue",
+			CurrentEstablishment.lastupdateddate,
+			CurrentEstablishment."EmployerTypeValue",
+			CurrentEstablishment."MainService";
+		RAISE NOTICE 'localAuthorityReportEstablishment: %, %',
+			CurrentEstablishment."ServiceUsersCount",
+			CurrentEstablishment."NumberOfStaffValue"
+			;
+		RAISE NOTICE 'localAuthorityReportEstablishment: %, %, %, %, %, %',
+			CurrentEstablishment."VacanciesValue",
+			CurrentEstablishment."Vacancies",
+			CurrentEstablishment."StartersValue",
+			CurrentEstablishment."Starters",
+			CurrentEstablishment."LeaversValue",
+			CurrentEstablishment."Leavers"
+			;
+		RAISE NOTICE 'localAuthorityReportEstablishment: %, %, %',
+			CurrentEstablishment."Capacities",
+			CurrentEstablishment."Utilisations",
+			CurrentEstablishment."CapacityServicesSavedAt"
+			;
+			
+			
+		IF CurrentEstablishment."ServiceUsersSavedAt"::DATE >= reportFrom THEN
+			IF CurrentEstablishment."ServiceUsersCount" > 0 THEN
+				CalculatedServiceUserGroups := 'Completed';
+			ELSE
+				CalculatedServiceUserGroups := 'n/a';
+			END IF;
+		ELSE
+			CalculatedServiceUserGroups := '-99';
+		END IF;
+		
+		IF CurrentEstablishment."Capacities" IS NOT NULL AND CurrentEstablishment."CapacityServicesSavedAt"::DATE >= reportFrom THEN
+			IF CurrentEstablishment."Capacities" = -1 THEN
+				CalculatedCapacity := '0';
+			ELSE
+				CalculatedCapacity := CurrentEstablishment."Capacities";
+			END IF;
+			IF CurrentEstablishment."Utilisations" = -1 THEN
+				CalculatedUtilisation := '0';
+			ELSE
+				CalculatedUtilisation := CurrentEstablishment."Utilisations";
+			END IF;
+		ELSIF CurrentEstablishment."Capacities" IS NULL THEN
+			CalculatedCapacity := null;
+			CalculatedUtilisation := null;
+		ELSE
+			CalculatedCapacity := -99;
+			CalculatedUtilisation := -99;
+		END IF;
+		
+		IF CurrentEstablishment."VacanciesSavedAt"::DATE >= reportFrom THEN
+			IF CurrentEstablishment."VacanciesValue" = 'With Jobs' THEN
+				CalculatedVacancies := CurrentEstablishment."Vacancies";
+			ELSE
+				CalculatedVacancies := 0;
+			END IF;
+		ELSE
+			CalculatedVacancies := '-99';
+		END IF;
+		
+		IF CurrentEstablishment."StartersSavedAt"::DATE >= reportFrom THEN
+			IF CurrentEstablishment."StartersValue" = 'With Jobs' THEN
+				CalculatedStarters := CurrentEstablishment."Starters";
+			ELSE
+				CalculatedStarters := 0;
+			END IF;
+		ELSE
+			CalculatedStarters := '-99';
+		END IF;
+		
+		IF CurrentEstablishment."LeaversSavedAt"::DATE >= reportFrom THEN
+			IF CurrentEstablishment."LeaversValue" = 'With Jobs' THEN
+				CalculatedLeavers := CurrentEstablishment."Leavers";
+			ELSE
+				CalculatedLeavers := 0;
+			END IF;
+		ELSE
+			CalculatedLeavers := '-99';
+		END IF;
+		
+		IF CurrentEstablishment."NumberOfStaffSavedAt"::DATE >= reportFrom THEN
+			CalculatedNumberOfStaff := CurrentEstablishment."NumberOfStaffValue";
+		ELSE
+			CalculatedNumberOfStaff := '-99';
+		END IF;
+		
+		insert into cqc."LocalAuthorityReportEstablishment" (
+			"ReportFrom",
+			"ReportTo",
+			"EstablishmentFK",
+			"WorkplaceFK",
+			"WorkplaceName",
+			"WorkplaceID",
+			"LastUpdatedDate",
+			"EstablishmentType",
+			"MainService",
+			"ServiceUserGroups",
+			"CapacityOfMainService",
+			"UtilisationOfMainService",
+			"NumberOfVacancies",
+			"NumberOfStarters",
+			"NumberOfLeavers",
+			"NumberOfStaffRecords",
+			"WorkplaceComplete",
+			"NumberOfIndividualStaffRecords",
+			"PercentageOfStaffRecords",
+			"NumberOfStaffRecordsNotAgency",
+			"NumberOfCompleteStaffNotAgency",
+			"PercentageOfCompleteStaffRecords",
+			"NumberOfAgencyStaffRecords",
+			"NumberOfCompleteAgencyStaffRecords",
+			"PercentageOfCompleteAgencyStaffRecords"
+		) values (
+			reportFrom,
+			reportTo,
+			establishmentID,
+			CurrentEstablishment."EstablishmentID",
+			CurrentEstablishment."NameValue",
+			CurrentEstablishment."NmdsID",
+			CurrentEstablishment.updated::DATE,
+			CurrentEstablishment."EmployerTypeValue",
+			CurrentEstablishment."MainService",
+			CalculatedServiceUserGroups,
+			CalculatedCapacity,
+			CalculatedUtilisation,
+			CalculatedVacancies,
+			CalculatedStarters,
+			CalculatedLeavers,
+			--CurrentEstablishment."NumberOfStaffValue",
+			CalculatedNumberOfStaff,
+			false,
+			0,
+			0::DECIMAL(4,1),
+			0,
+			0,
+			0::DECIMAL(4,1),
+			0,
+			0,
+			0::DECIMAL(4,1)
+		);
+		
+	END LOOP;
 
 	RETURN success;
 	
@@ -97,6 +298,7 @@ BEGIN
 
 END; $$
 LANGUAGE 'plpgsql';
+
 
 DROP FUNCTION IF EXISTS cqc.localAuthorityReportWorker;
 CREATE OR REPLACE FUNCTION cqc.localAuthorityReportWorker(establishmentID INTEGER, reportFrom DATE, reportTo DATE)
