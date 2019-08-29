@@ -5,15 +5,61 @@ CREATE TABLE cqc."LocalAuthorityReportEstablishment" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,
 	"ReportFrom" DATE NOT NULL,
 	"ReportTo" DATE NOT NULL,
-	"EstablishmentFK" INTEGER NOT NULL
+	"EstablishmentFK" INTEGER NOT NULL,
+	"WorkplaceName" TEXT NOT NULL,
+	"WorkplaceID" TEXT NOT NULL,
+	"LastUpdatedDate" DATE NOT NULL,
+	"EstablishmentType" TEXT NOT NULL,
+	"MainService" TEXT NOT NULL,
+	"ServiceUserGroups" TEXT NOT NULL,
+	"CapacityOfMainService" INTEGER NULL,							-- a null value is equivalent to N/A
+	"UtilisationOfMainService" INTEGER NULL,					-- a null value is equivalent to N/A
+	"NumberOfVacancies" INTEGER NOT NULL,
+	"NumberOfStarters" INTEGER NOT NULL,
+	"NumberOfLeavers" INTEGER NOT NULL,
+	"NumberOfStaffRecords" INTEGER NOT NULL,
+	"NumberOfNonAgencyStaffRecords" INTEGER NOT NULL,
+	--"NumberOfAgencyStaffRecords" INTEGER NOT NULL,
+	"WorkplaceComplete" BOOLEAN NULL,							-- a null value is equivalent to N/A
+	"NumberOfIndividualStaffRecords" INTEGER NOT NULL,
+	"PercentageOfStaffRecords" NUMERIC(3,1) NOT NULL,	-- a number of 12.4 has a precision of 3 (digits in total) and a scale of 1 (decimal place)
+	"NumberOfStaffRecordsNotAgency" INTEGER NOT NULL,
+	"NumberOfCompleteStaffNotAgency" INTEGER NOT NULL,
+	"PercentageOfCompleteStaffRecords" NUMERIC(3,1) NOT NULL,
+	"NumberOfAgencyStaffRecords" INTEGER NOT NULL,
+	"NumberOfCompleteAgencyStaffRecords" INTEGER NOT NULL,
+	"PercentageOfCompleteAgencyStaffRecords" NUMERIC(3,1) NOT NULL,
+	CONSTRAINT "EstablishmentFK_WorkplaceID" UNIQUE ("EstablishmentFK", "WorkplaceID")
 );
+CREATE INDEX LocalAuthorityReportEstablishment_EstablishmentFK on cqc."LocalAuthorityReportEstablishment" ("EstablishmentFK");
 
+-- intentionally not using foreign key constraints - although the worker records relate to the establishment records; they used separately
 DROP TABLE IF EXISTS cqc."LocalAuthorityReportWorker";
 CREATE TABLE cqc."LocalAuthorityReportWorker" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,
 	"LocalAuthorityReportEstablishmentFK" INTEGER NOT NULL,
-	"WorkerFK" INTEGER NOT NULL
+	"WorkerFK" INTEGER NOT NULL,
+	"LocalID" TEXT,
+	"WorkplaceName" TEXT NOT NULL,
+	"WorkplaceID" TEXT NOT NULL,
+	"Gender" TEXT NOT NULL,
+	"DateOfBirth" TEXT NOT NULL,
+	"Ethnicity" TEXT NOT NULL,
+	"MainJob" TEXT NOT NULL,
+	"EmploymentStatus" TEXT NOT NULL,
+	"ContractedAverageHours" TEXT NOT NULL,
+	"SickDays" TEXT NOT NULL,
+	"PayInterval" TEXT NOT NULL,
+	"RateOfPay" TEXT NOT NULL,
+	"RelevantSocialCareQualification" TEXT NOT NULL,
+	"HighestSocialCareQualification" TEXT NOT NULL,
+	"NonSocialCareQualification" TEXT NOT NULL,
+	"LastUpdated" DATE NOT NULL,
+	"StaffRecordComplete" BOOLEAN NOT NULL,
+	CONSTRAINT "LocalAuthorityReportEstablishmentFK_WorkerFK" UNIQUE ("LocalAuthorityReportEstablishmentFK", "WorkerFK")
 );
+CREATE INDEX LocalAuthorityReportWorker_LocalAuthorityReportEstablishmentFK on cqc."LocalAuthorityReportWorker" ("LocalAuthorityReportEstablishmentFK");
+CREATE INDEX LocalAuthorityReportWorker_WorkerFK on cqc."LocalAuthorityReportWorker" ("WorkerFK");
 
 -- only run these on dev, staging and accessibility/demo databases
 -- GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE cqc."LocalAuthorityReportEstablishment" TO "Sfc_App_Role";
