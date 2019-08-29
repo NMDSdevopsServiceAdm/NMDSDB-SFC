@@ -18,17 +18,17 @@ CREATE TABLE cqc."LocalAuthorityReportEstablishment" (
 	"NumberOfStarters" INTEGER NOT NULL,
 	"NumberOfLeavers" INTEGER NOT NULL,
 	"NumberOfStaffRecords" INTEGER NOT NULL,
-	"NumberOfNonAgencyStaffRecords" INTEGER NOT NULL,
+	--"NumberOfNonAgencyStaffRecords" INTEGER NOT NULL,
 	--"NumberOfAgencyStaffRecords" INTEGER NOT NULL,
 	"WorkplaceComplete" BOOLEAN NULL,							-- a null value is equivalent to N/A
 	"NumberOfIndividualStaffRecords" INTEGER NOT NULL,
-	"PercentageOfStaffRecords" NUMERIC(3,1) NOT NULL,	-- a number of 12.4 has a precision of 3 (digits in total) and a scale of 1 (decimal place)
+	"PercentageOfStaffRecords" NUMERIC(4,1) NOT NULL,	-- a number of 100.4 has a precision of 4 (digits in total) and a scale of 1 (decimal place)
 	"NumberOfStaffRecordsNotAgency" INTEGER NOT NULL,
 	"NumberOfCompleteStaffNotAgency" INTEGER NOT NULL,
-	"PercentageOfCompleteStaffRecords" NUMERIC(3,1) NOT NULL,
+	"PercentageOfCompleteStaffRecords" NUMERIC(4,1) NOT NULL,
 	"NumberOfAgencyStaffRecords" INTEGER NOT NULL,
 	"NumberOfCompleteAgencyStaffRecords" INTEGER NOT NULL,
-	"PercentageOfCompleteAgencyStaffRecords" NUMERIC(3,1) NOT NULL,
+	"PercentageOfCompleteAgencyStaffRecords" NUMERIC(4,1) NOT NULL,
 	CONSTRAINT "EstablishmentFK_WorkplaceID" UNIQUE ("EstablishmentFK", "WorkplaceID")
 );
 CREATE INDEX LocalAuthorityReportEstablishment_EstablishmentFK on cqc."LocalAuthorityReportEstablishment" ("EstablishmentFK");
