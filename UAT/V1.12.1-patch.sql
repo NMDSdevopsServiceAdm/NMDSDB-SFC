@@ -94,7 +94,7 @@ DECLARE
 	CalculatedStarters INTEGER;
 	CalculatedLeavers INTEGER;
 	CalculatedNumberOfStaff INTEGER;
-	CalculatedWorkplaceComplete BOOLEAN := true;
+	CalculatedWorkplaceComplete BOOLEAN;
 BEGIN
 	success := true;
 	
@@ -253,7 +253,7 @@ BEGIN
 		-- 7. If vacancies is not -99 (0 or more is acceptable)
 		-- 8. If starters is not -99 (0 or more is acceptable)
 		-- 9. If leavers is not -99 (0 or more is acceptable)
-		
+		CalculatedWorkplaceComplete := true;
 		IF SUBSTRING(CalculatedEmployerType::text from 1 for 15) <> 'Local Authority' THEN
 			RAISE NOTICE 'employer type is NOT local authority: %', SUBSTRING(CalculatedEmployerType::text from 1 for 15);
 			CalculatedWorkplaceComplete := false;
@@ -450,6 +450,15 @@ BEGIN
 		FETCH AllWorkers INTO CurrentWorker;
 		EXIT WHEN NOT FOUND;
 		
+		RAISE NOTICE 'localAuthorityReportWorker: %, %, %, %, %, % %',
+			CurrentWorker."NameOrIdValue",
+			CurrentWorker."Ethnicity",
+			CurrentWorker."GenderValue",
+			CurrentWorker.updated,
+			CurrentWorker."ContractValue",
+			CurrentWorker."AnnualHourlyPayRate",
+			CurrentWorker."AnnualHourlyPayRate";
+		
 		IF CurrentWorker."GenderSavedAt"::DATE >= reportFrom THEN
 			CalculatedGender := CurrentWorker."GenderValue"::TEXT;
 		ELSE
@@ -607,7 +616,67 @@ BEGIN
 			END IF;
 		END IF;
 		
+		-- now calculate worker completion
+		CalculatedStaffComplete := true;
+		IF CalculatedGender in ('Missing', 'Too Old', 'n/a')  THEN
+			RAISE NOTICE 'calculated gender is NOT valid: %', CalculatedGender;
+			CalculatedStaffComplete := false;
+		END IF;
 
+		IF CalculatedDateOfBirth in ('Missing', 'Too Old', 'n/a')  THEN
+			RAISE NOTICE 'calculated date of birth is NOT valid: %', CalculatedDateOfBirth;
+			CalculatedStaffComplete := false;
+		END IF;
+		
+		IF CalculatedEthnicity in ('Missing', 'Too Old', 'n/a')  THEN
+			RAISE NOTICE 'calculated ethnicity is NOT valid: %', CalculatedEthnicity;
+			CalculatedStaffComplete := false;
+		END IF;
+
+		IF CalculatedMainJobRole in ('Missing', 'Too Old', 'n/a')  THEN
+			RAISE NOTICE 'calculated main job role is NOT valid: %', CalculatedMainJobRole;
+			CalculatedStaffComplete := false;
+		END IF;
+		
+		IF CalculatedEmploymentStatus in ('Missing', 'Too Old', 'n/a')  THEN
+			RAISE NOTICE 'calculated contract is NOT valid: %', CalculatedEmploymentStatus;
+			CalculatedStaffComplete := false;
+		END IF;
+
+		IF CalculatedSickDays in ('Missing', 'Too Old', 'n/a')  THEN
+			RAISE NOTICE 'calculated days sick is NOT valid: %', CalculatedSickDays;
+			CalculatedStaffComplete := false;
+		END IF;
+		
+		IF CalculatedPayInterval in ('Missing', 'Too Old', 'n/a')  THEN
+			RAISE NOTICE 'calculated pay interval is NOT valid: %', CalculatedPayInterval;
+			CalculatedStaffComplete := false;
+		END IF;
+		
+		IF CalculatedPayRate in ('Missing', 'Too Old', 'n/a')  THEN
+			RAISE NOTICE 'calculated pay rate is NOT valid: %', CalculatedPayRate;
+			CalculatedStaffComplete := false;
+		END IF;
+		
+		IF CalculatedRelevantSocialCareQualification in ('Missing', 'Too Old', 'n/a')  THEN
+			RAISE NOTICE 'calculated relevant social care qualification is NOT valid: %', CalculatedRelevantSocialCareQualification;
+			CalculatedStaffComplete := false;
+		END IF;
+		
+		IF CalculatedHighestSocialCareQualification in ('Missing', 'Too Old', 'n/a')  THEN
+			RAISE NOTICE 'calculated highest social care qualification is NOT valid: %', CalculatedHighestSocialCareQualification;
+			CalculatedStaffComplete := false;
+		END IF;
+		
+		IF CalculatedNonSocialCareQualification in ('Missing', 'Too Old', 'n/a')  THEN
+			RAISE NOTICE 'calculated relevant non-social care qualification is NOT valid: %', CalculatedNonSocialCareQualification;
+			CalculatedStaffComplete := false;
+		END IF;
+		
+		IF CalculatedContractedAverageHours in ('Missing', 'Too Old', 'n/a')  THEN
+			RAISE NOTICE 'calculated contracted/average hours is NOT valid: %', CalculatedContractedAverageHours;
+			CalculatedStaffComplete := false;
+		END IF;
 		
 		INSERT INTO cqc."LocalAuthorityReportWorker" (
 			"LocalAuthorityReportEstablishmentFK",
@@ -662,6 +731,7 @@ BEGIN
 
 END; $$
 LANGUAGE 'plpgsql';
+
 
 
 DROP FUNCTION IF EXISTS cqc.localAuthorityReport;
