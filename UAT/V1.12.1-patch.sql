@@ -305,10 +305,8 @@ BEGIN
 		   CalculatedWorkplaceComplete := true;
 		END IF;
 		
-		RAISE NOTICE 'Establishment complete is: %', CalculatedWorkplaceComplete;
-		
-	
-		insert into cqc."LocalAuthorityReportEstablishment" (
+
+		INSERT INTO cqc."LocalAuthorityReportEstablishment" (
 			"ReportFrom",
 			"ReportTo",
 			"EstablishmentFK",
@@ -334,7 +332,7 @@ BEGIN
 			"NumberOfAgencyStaffRecords",
 			"NumberOfCompleteAgencyStaffRecords",
 			"PercentageOfCompleteAgencyStaffRecords"
-		) values (
+		) VALUES (
 			reportFrom,
 			reportTo,
 			establishmentID,
@@ -383,10 +381,277 @@ DECLARE
 	success BOOLEAN;
 	v_error_msg TEXT;
 	v_error_stack TEXT;
+	AllWorkers REFCURSOR;
+	CurrentWorker RECORD;
+	CalculatedGender TEXT;
+	CalculatedDateOfBirth TEXT;
+	CalculatedEthnicity TEXT;
+	CalculatedMainJobRole TEXT;
+	CalculatedEmploymentStatus TEXT;
+	CalculatedSickDays TEXT;
+	CalculatedPayInterval TEXT;
+	CalculatedPayRate TEXT;
+	CalculatedRelevantSocialCareQualification TEXT;
+	CalculatedHighestSocialCareQualification TEXT;
+	CalculatedNonSocialCareQualification TEXT;
+	CalculatedContractedAverageHours TEXT;
+	CalculatedStaffComplete BOOLEAN := true;
 BEGIN
 	success := true;
 	
 	RAISE NOTICE 'localAuthorityReportWorker (%) from % to %', establishmentID, reportFrom, reportTo;
+	
+	OPEN AllWorkers FOR
+	SELECT
+		"LocalAuthorityReportEstablishment"."ID" AS "LocalAuthorityReportEstablishmentFK",
+		"LocalAuthorityReportEstablishment"."WorkplaceName",
+		"LocalAuthorityReportEstablishment"."WorkplaceID",
+		"Worker".updated,
+		"Worker"."ID" AS "WorkerID",
+		"Worker"."NameOrIdValue",
+		"Worker"."GenderValue",
+		"Worker"."GenderSavedAt",
+		"Worker"."DateOfBirthValue",
+		"Worker"."DateOfBirthSavedAt",
+		"Ethnicity"."Ethnicity" AS "Ethnicity",
+		"Worker"."EthnicityFKValue",
+		"Worker"."EthnicityFKSavedAt",
+		"Job"."JobName" AS "MainJobRole",
+		"Worker"."MainJobFKValue",
+		"Worker"."MainJobFKSavedAt",
+		"ContractValue",
+		"ContractSavedAt",
+		"WeeklyHoursContractedValue",
+		"WeeklyHoursContractedSavedAt",
+		"WeeklyHoursAverageValue",
+		"WeeklyHoursAverageSavedAt",
+		"DaysSickValue",
+		"DaysSickSavedAt",
+		"AnnualHourlyPayValue",
+		"AnnualHourlyPayRate",
+		"AnnualHourlyPaySavedAt",
+		"QualificationInSocialCareValue",
+		"QualificationInSocialCareSavedAt",
+		"Qualification"."Level" AS "QualificationInSocialCare",
+		"SocialCareQualificationFKValue",
+		"SocialCareQualificationFKSavedAt",
+		"OtherQualificationsValue",
+		"OtherQualificationsSavedAt"
+	FROM cqc."Worker"
+		INNER JOIN cqc."Establishment" on "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK" AND "Establishment"."Archived" = false AND ("Establishment"."EstablishmentID" = establishmentID OR "Establishment"."ParentID" = establishmentID)
+		INNER JOIN cqc."LocalAuthorityReportEstablishment" on "LocalAuthorityReportEstablishment"."WorkplaceFK" = "Establishment"."EstablishmentID"
+		LEFT JOIN cqc."Ethnicity" on "Worker"."EthnicityFKValue" = "Ethnicity"."ID"
+		LEFT JOIN cqc."Job" on "Worker"."MainJobFKValue" = "Job"."JobID"
+		LEFT JOIN cqc."Qualification" on "Worker"."SocialCareQualificationFKValue" = "Qualification"."ID"
+	WHERE
+		"Worker"."Archived" = false;
+
+	LOOP
+		FETCH AllWorkers INTO CurrentWorker;
+		EXIT WHEN NOT FOUND;
+		
+		IF CurrentWorker."GenderSavedAt"::DATE >= reportFrom THEN
+			CalculatedGender := CurrentWorker."GenderValue"::TEXT;
+		ELSE
+			IF CurrentWorker."GenderSavedAt" IS NULL THEN
+				CalculatedGender := 'Missing';
+			ELSE
+				CalculatedGender := 'Too Old';
+			END IF;
+		END IF;
+		
+		IF CurrentWorker."DateOfBirthSavedAt"::DATE >= reportFrom THEN
+			CalculatedDateOfBirth := TO_CHAR(CurrentWorker."DateOfBirthValue", 'DD/MM/YYYY');
+		ELSE
+			IF CurrentWorker."DateOfBirthSavedAt" IS NULL THEN
+				CalculatedDateOfBirth := 'Missing';
+			ELSE
+				CalculatedDateOfBirth := 'Too Old';
+			END IF;
+		END IF;
+
+		IF CurrentWorker."EthnicityFKSavedAt"::DATE >= reportFrom THEN
+			CalculatedEthnicity := CurrentWorker."Ethnicity";
+		ELSE
+			IF CurrentWorker."EthnicityFKSavedAt" IS NULL THEN
+				CalculatedEthnicity := 'Missing';
+			ELSE
+				CalculatedEthnicity := 'Too Old';
+			END IF;
+		END IF;
+		
+		IF CurrentWorker."MainJobFKSavedAt"::DATE >= reportFrom THEN
+			CalculatedMainJobRole := CurrentWorker."MainJobRole";
+		ELSE
+			IF CurrentWorker."MainJobFKSavedAt" IS NULL THEN
+				CalculatedMainJobRole := 'Missing';
+			ELSE
+				CalculatedMainJobRole := 'Too Old';
+			END IF;
+		END IF;
+
+		IF CurrentWorker."ContractSavedAt"::DATE >= reportFrom THEN
+			CalculatedEmploymentStatus := CurrentWorker."MainJobRole";
+		ELSE
+			IF CurrentWorker."ContractSavedAt" IS NULL THEN
+				CalculatedEmploymentStatus := 'Missing';
+			ELSE
+				CalculatedEmploymentStatus := 'Too Old';
+			END IF;
+		END IF;
+
+		IF CurrentWorker."ContractSavedAt"::DATE >= reportFrom THEN
+			CalculatedEmploymentStatus := CurrentWorker."MainJobRole";
+		ELSE
+			IF CurrentWorker."ContractSavedAt" IS NULL THEN
+				CalculatedEmploymentStatus := 'Missing';
+			ELSE
+				CalculatedEmploymentStatus := 'Too Old';
+			END IF;
+		END IF;
+
+		IF CurrentWorker."ContractSavedAt"::DATE >= reportFrom THEN
+			CalculatedEmploymentStatus := CurrentWorker."ContractValue";
+		ELSE
+			IF CurrentWorker."ContractSavedAt" IS NULL THEN
+				CalculatedEmploymentStatus := 'Missing';
+			ELSE
+				CalculatedEmploymentStatus := 'Too Old';
+			END IF;
+		END IF;
+		
+		IF CurrentWorker."DaysSickSavedAt"::DATE >= reportFrom THEN
+			CalculatedSickDays := CurrentWorker."DaysSickValue";
+		ELSE
+			IF CurrentWorker."DaysSickSavedAt" IS NULL THEN
+				CalculatedSickDays := 'Missing';
+			ELSE
+				CalculatedSickDays := 'Too Old';
+			END IF;
+		END IF;
+		
+		IF CurrentWorker."AnnualHourlyPaySavedAt"::DATE >= reportFrom THEN
+			CalculatedPayInterval := CurrentWorker."AnnualHourlyPayValue";
+			
+			IF CurrentWorker."AnnualHourlyPayRate" IS NOT NULL THEN
+				CalculatedPayRate := CurrentWorker."AnnualHourlyPayRate";
+			ELSE
+				CalculatedPayRate := 'n/a';
+			END IF;
+		ELSE
+			IF CurrentWorker."AnnualHourlyPaySavedAt" IS NULL THEN
+				CalculatedPayInterval := 'Missing';
+				CalculatedPayRate := 'Missing';
+			ELSE
+				CalculatedPayInterval := 'Too Old';
+				CalculatedPayRate := 'Too Old';
+			END IF;
+		END IF;
+		
+		
+		IF CurrentWorker."QualificationInSocialCareSavedAt"::DATE >= reportFrom THEN
+			CalculatedRelevantSocialCareQualification := CurrentWorker."QualificationInSocialCareValue";
+			
+			-- the highest social care qualification level is only relevant if knowing the qualification in social care
+			IF CurrentWorker."QualificationInSocialCareValue" IS NOT NULL AND CurrentWorker."QualificationInSocialCareValue" = 'Yes' THEN
+				IF CurrentWorker."SocialCareQualificationFKSavedAt"::DATE >= reportFrom THEN
+					CalculatedHighestSocialCareQualification := CurrentWorker."QualificationInSocialCare";
+				ELSE
+					IF CurrentWorker."SocialCareQualificationFKSavedAt" IS NULL THEN
+						CalculatedHighestSocialCareQualification := 'Missing';
+					ELSE
+						CalculatedHighestSocialCareQualification := 'Too Old';
+					END IF;
+				END IF;
+			ELSE
+				CalculatedHighestSocialCareQualification := 'n/a';
+			END IF;
+		ELSE
+			IF CurrentWorker."QualificationInSocialCareSavedAt" IS NULL THEN
+				CalculatedRelevantSocialCareQualification := 'Missing';
+			ELSE
+				CalculatedRelevantSocialCareQualification := 'Too Old';
+			END IF;
+		END IF;
+		
+		IF CurrentWorker."OtherQualificationsSavedAt"::DATE >= reportFrom THEN
+			CalculatedNonSocialCareQualification := CurrentWorker."OtherQualificationsValue";			
+		ELSE
+			IF CurrentWorker."OtherQualificationsSavedAt" IS NULL THEN
+				CalculatedNonSocialCareQualification := 'Missing';
+			ELSE
+				CalculatedNonSocialCareQualification := 'Too Old';
+			END IF;
+		END IF;
+		
+		-- if contract type is perm/temp contracted hours else average hours
+		IF CurrentWorker."ContractValue" in ('Permanent', 'Temporary') THEN
+			IF CurrentWorker."WeeklyHoursContractedSavedAt"::DATE >= reportFrom THEN
+				CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursContractedValue";			
+			ELSE
+				IF CurrentWorker."WeeklyHoursContractedSavedAt" IS NULL THEN
+					CalculatedContractedAverageHours := 'Missing';
+				ELSE
+					CalculatedContractedAverageHours := 'Too Old';
+				END IF;
+			END IF;
+		ELSE
+			IF CurrentWorker."WeeklyHoursAverageSavedAt"::DATE >= reportFrom THEN
+				CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursAverageValue";			
+			ELSE
+				IF CurrentWorker."WeeklyHoursAverageSavedAt" IS NULL THEN
+					CalculatedContractedAverageHours := 'Missing';
+				ELSE
+					CalculatedContractedAverageHours := 'Too Old';
+				END IF;
+			END IF;
+		END IF;
+		
+
+		
+		INSERT INTO cqc."LocalAuthorityReportWorker" (
+			"LocalAuthorityReportEstablishmentFK",
+			"WorkerFK",
+			"LocalID",
+			"WorkplaceName",
+			"WorkplaceID",
+			"Gender",
+			"DateOfBirth",
+			"Ethnicity",
+			"MainJob",
+			"EmploymentStatus",
+			"ContractedAverageHours",
+			"SickDays",
+			"PayInterval",
+			"RateOfPay",
+			"RelevantSocialCareQualification",
+			"HighestSocialCareQualification",
+			"NonSocialCareQualification",
+			"LastUpdated",
+			"StaffRecordComplete"
+		) VALUES (
+			CurrentWorker."LocalAuthorityReportEstablishmentFK",
+			CurrentWorker."WorkerID",
+			CurrentWorker."NameOrIdValue",
+			CurrentWorker."WorkplaceName",
+			CurrentWorker."WorkplaceID",
+			CalculatedGender,
+			CalculatedDateOfBirth,
+			CalculatedEthnicity,
+			CalculatedMainJobRole,
+			CalculatedEmploymentStatus,
+			CalculatedContractedAverageHours,
+			CalculatedSickDays,
+			CalculatedPayInterval,
+			CalculatedPayRate,
+			CalculatedRelevantSocialCareQualification,
+			CalculatedHighestSocialCareQualification,
+			CalculatedNonSocialCareQualification,
+			CurrentWorker.updated,
+			CalculatedStaffComplete
+		);
+		
+	END LOOP;
 	
 	RETURN success;
 	
