@@ -86,6 +86,7 @@ DECLARE
 	v_error_stack TEXT;
 	AllEstablishments REFCURSOR;
 	CurrentEstablishment RECORD;
+	CalculatedEmployerType TEXT;
 	CalculatedServiceUserGroups TEXT;
 	CalculatedCapacity INTEGER;
 	CalculatedUtilisation INTEGER;
@@ -93,6 +94,7 @@ DECLARE
 	CalculatedStarters INTEGER;
 	CalculatedLeavers INTEGER;
 	CalculatedNumberOfStaff INTEGER;
+	CalculatedWorkplaceComplete BOOLEAN := true;
 BEGIN
 	success := true;
 	
@@ -106,6 +108,7 @@ BEGIN
 		"EmployerTypeValue",
 		"EmployerTypeSavedAt",
 		MainService.name AS "MainService",
+		"MainServiceFKValue",
 		"MainServiceFKSavedAt",
 		(select count(0) from cqc."EstablishmentServiceUsers" where "EstablishmentServiceUsers"."EstablishmentID" = "Establishment"."EstablishmentID") AS "ServiceUsersCount",
 		"ServiceUsersSavedAt",
@@ -141,34 +144,18 @@ BEGIN
 		FETCH AllEstablishments INTO CurrentEstablishment;
 		EXIT WHEN NOT FOUND;
 		
-		RAISE NOTICE 'localAuthorityReportEstablishment: %, %, %, %, %, %',
+		RAISE NOTICE 'localAuthorityReportEstablishment: %, %, %, %, %, % %',
 			CurrentEstablishment."EstablishmentID",
 			CurrentEstablishment."NmdsID",
 			CurrentEstablishment."NameValue",
 			CurrentEstablishment.lastupdateddate,
 			CurrentEstablishment."EmployerTypeValue",
+			CurrentEstablishment."MainServiceFKValue",
 			CurrentEstablishment."MainService";
-		RAISE NOTICE 'localAuthorityReportEstablishment: %, %',
-			CurrentEstablishment."ServiceUsersCount",
-			CurrentEstablishment."NumberOfStaffValue"
-			;
-		RAISE NOTICE 'localAuthorityReportEstablishment: %, %, %, %, %, %',
-			CurrentEstablishment."VacanciesValue",
-			CurrentEstablishment."Vacancies",
-			CurrentEstablishment."StartersValue",
-			CurrentEstablishment."Starters",
-			CurrentEstablishment."LeaversValue",
-			CurrentEstablishment."Leavers"
-			;
-		RAISE NOTICE 'localAuthorityReportEstablishment: %, %, %',
-			CurrentEstablishment."Capacities",
-			CurrentEstablishment."Utilisations",
-			CurrentEstablishment."CapacityServicesSavedAt"
-			;
-			
-			
-		IF CurrentEstablishment."ServiceUsersSavedAt"::DATE >= reportFrom THEN
-			IF CurrentEstablishment."ServiceUsersCount" > 0 THEN
+		
+		IF CurrentEstablishment."MainServiceFKValue" = 16 OR CurrentEstablishment."ServiceUsersSavedAt"::DATE >= reportFrom THEN
+			-- 16 is Head ofice services
+			IF CurrentEstablishment."MainServiceFKValue" <> 16 AND CurrentEstablishment."ServiceUsersCount" > 0 THEN
 				CalculatedServiceUserGroups := 'Completed';
 			ELSE
 				CalculatedServiceUserGroups := 'n/a';
@@ -232,6 +219,77 @@ BEGIN
 			CalculatedNumberOfStaff := '-99';
 		END IF;
 		
+		IF CurrentEstablishment."EmployerTypeValue" IS NOT NULL THEN
+			CalculatedEmployerType := CurrentEstablishment."EmployerTypeValue";
+		ELSE
+			CalculatedEmployerType := '-99';
+		END IF;
+		
+		-- calculated the workplace "completed" flag is only true if:
+		-- 1. The establishment type is one of Local Authority
+		-- 2. The main service is known
+		-- 3. The service user group is not -99 (n/a and completed are acceptable)
+		-- 4. If the capacity of main service is not -99 (NULL is acceptable as is 0 or more)
+		-- 5. If the utilisation of main service is not -99 (NULL is acceptable as is 0 or more)
+		-- 6. If number of staff is not -99 (0 or more is acceptable)
+		-- 7. If vacancies is not -99 (0 or more is acceptable)
+		-- 8. If starters is not -99 (0 or more is acceptable)
+		-- 9. If leavers is not -99 (0 or more is acceptable)
+		
+		IF SUBSTRING(CalculatedEmployerType::text from 1 for 15) <> 'Local Authority' THEN
+			RAISE NOTICE 'employer type is NOT local authority: %', SUBSTRING(CalculatedEmployerType::text from 1 for 15);
+			CalculatedWorkplaceComplete := false;
+		END IF;
+		
+		IF CalculatedServiceUserGroups = '-99' THEN
+			RAISE NOTICE 'calculated service groups is NOT valid: %', CalculatedServiceUserGroups;
+			CalculatedWorkplaceComplete := false;
+		END IF;
+		
+		IF CalculatedCapacity IS NOT NULL AND CalculatedCapacity = -99 THEN
+			RAISE NOTICE 'calculated capacity is NOT valid: %', CalculatedCapacity;
+			CalculatedWorkplaceComplete := false;
+		END IF;
+		
+		IF CalculatedUtilisation IS NOT NULL AND CalculatedUtilisation = -99 THEN
+			RAISE NOTICE 'calculated utilisation is NOT valid: %', CalculatedUtilisation;
+			CalculatedWorkplaceComplete := false;
+		END IF;
+		
+		IF CalculatedNumberOfStaff = -99 THEN
+			RAISE NOTICE 'calculated number of staff is NOT valid: %', CalculatedNumberOfStaff;
+			CalculatedWorkplaceComplete := false;
+		END IF;
+		
+		IF CalculatedVacancies = -99 THEN
+			RAISE NOTICE 'calculated vacancies is NOT valid: %', CalculatedVacancies;
+			CalculatedWorkplaceComplete := false;
+		END IF;
+		IF CalculatedStarters = -99 THEN
+			RAISE NOTICE 'calculated starters is NOT valid: %', CalculatedStarters;
+			CalculatedWorkplaceComplete := false;
+		END IF;
+		IF CalculatedLeavers = -99 THEN
+			RAISE NOTICE 'calculated leavers is NOT valid: %', CalculatedLeavers;
+			CalculatedWorkplaceComplete := false;
+		END IF;
+		
+		IF SUBSTRING(CalculatedEmployerType::text from 1 for 15) = 'Local Authority'
+		   --CurrentEstablishment."MainService"
+		   AND CalculatedServiceUserGroups <> '-99'
+		   AND (CalculatedCapacity IS NULL OR CalculatedCapacity <> '-99' )
+		   AND (CalculatedUtilisation IS NULL OR CalculatedUtilisation <> '-99')
+		   AND CalculatedNumberOfStaff <> -99
+		   AND CalculatedVacancies <> -99
+		   AND CalculatedStarters <> -99
+		   AND CalculatedLeavers <> -99
+			THEN
+		   CalculatedWorkplaceComplete := true;
+		END IF;
+		
+		RAISE NOTICE 'Establishment complete is: %', CalculatedWorkplaceComplete;
+		
+	
 		insert into cqc."LocalAuthorityReportEstablishment" (
 			"ReportFrom",
 			"ReportTo",
@@ -266,7 +324,7 @@ BEGIN
 			CurrentEstablishment."NameValue",
 			CurrentEstablishment."NmdsID",
 			CurrentEstablishment.updated::DATE,
-			CurrentEstablishment."EmployerTypeValue",
+			CalculatedEmployerType,
 			CurrentEstablishment."MainService",
 			CalculatedServiceUserGroups,
 			CalculatedCapacity,
@@ -274,9 +332,8 @@ BEGIN
 			CalculatedVacancies,
 			CalculatedStarters,
 			CalculatedLeavers,
-			--CurrentEstablishment."NumberOfStaffValue",
 			CalculatedNumberOfStaff,
-			false,
+			CalculatedWorkplaceComplete,
 			0,
 			0::DECIMAL(4,1),
 			0,
