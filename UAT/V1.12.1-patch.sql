@@ -563,10 +563,10 @@ BEGIN
 			
 			-- the highest social care qualification level is only relevant if knowing the qualification in social care
 			IF CurrentWorker."QualificationInSocialCareValue" IS NOT NULL AND CurrentWorker."QualificationInSocialCareValue" = 'Yes' THEN
-				IF CurrentWorker."SocialCareQualificationFKSavedAt"::DATE >= reportFrom THEN
+				IF CurrentWorker."QualificationInSocialCareValue" IS NOT NULL AND CurrentWorker."SocialCareQualificationFKSavedAt"::DATE >= reportFrom THEN
 					CalculatedHighestSocialCareQualification := CurrentWorker."QualificationInSocialCare";
 				ELSE
-					IF CurrentWorker."SocialCareQualificationFKSavedAt" IS NULL THEN
+					IF CurrentWorker."SocialCareQualificationFKSavedAt" IS NULL OR CurrentWorker."QualificationInSocialCareValue" IS NULL THEN
 						CalculatedHighestSocialCareQualification := 'Missing';
 					ELSE
 						CalculatedHighestSocialCareQualification := 'Too Old';
@@ -578,8 +578,10 @@ BEGIN
 		ELSE
 			IF CurrentWorker."QualificationInSocialCareSavedAt" IS NULL THEN
 				CalculatedRelevantSocialCareQualification := 'Missing';
+				CalculatedHighestSocialCareQualification := 'n/a';
 			ELSE
 				CalculatedRelevantSocialCareQualification := 'Too Old';
+				CalculatedHighestSocialCareQualification := 'n/a';
 			END IF;
 		END IF;
 		
