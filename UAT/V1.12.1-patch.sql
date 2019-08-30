@@ -129,17 +129,35 @@ BEGIN
 		"NumberOfStaffValue",
 		"NumberOfStaffSavedAt",
 		updated,
-		to_char(updated, 'DD/MM/YYYY') AS lastupdateddate
+		to_char(updated, 'DD/MM/YYYY') AS lastupdateddate,
+		"NumberOfIndividualStaffRecords",
+		"NumberOfStaffRecordsNotAgency",
+		"NumberOfAgencyStaffRecords"
     FROM
       cqc."Establishment"
 	  	LEFT JOIN cqc.services as MainService on "Establishment"."MainServiceFKValue" = MainService.id
 		LEFT JOIN cqc."EstablishmentMainServicesWithCapacitiesVW" on "EstablishmentMainServicesWithCapacitiesVW"."EstablishmentID" = "Establishment"."EstablishmentID"
+		LEFT JOIN (
+			SELECT
+				"EstablishmentID",
+				count("Worker"."ID") AS "NumberOfIndividualStaffRecords",
+				count("Worker"."ID") FILTER (WHERE "Worker"."ContractValue" in ('Permanent', 'Temporary')) AS "NumberOfStaffRecordsNotAgency",
+				count("Worker"."ID") FILTER (WHERE "Worker"."ContractValue" not in ('Permanent', 'Temporary')) AS "NumberOfAgencyStaffRecords"
+			FROM
+			  cqc."Establishment"
+				LEFT JOIN cqc."Worker" on "Worker"."EstablishmentFK" = "Establishment"."EstablishmentID" AND "Worker"."Archived" = false
+			WHERE
+				("Establishment"."EstablishmentID" = establishmentID OR "Establishment"."ParentID" = establishmentID) AND
+				"Establishment"."Archived" = false
+			GROUP BY
+				"EstablishmentID"
+		) "EstablishmentWorkers" ON "EstablishmentWorkers"."EstablishmentID" = "Establishment"."EstablishmentID"
     WHERE
 		("Establishment"."EstablishmentID" = establishmentID OR "Establishment"."ParentID" = establishmentID) AND
 		"Archived" = false
 	ORDER BY
 		"EstablishmentID";
-	
+		
 	LOOP
 		FETCH AllEstablishments INTO CurrentEstablishment;
 		EXIT WHEN NOT FOUND;
@@ -334,14 +352,14 @@ BEGIN
 			CalculatedLeavers,
 			CalculatedNumberOfStaff,
 			CalculatedWorkplaceComplete,
-			0,
-			0::DECIMAL(4,1),
-			0,
-			0,
-			0::DECIMAL(4,1),
-			0,
-			0,
-			0::DECIMAL(4,1)
+			CurrentEstablishment."NumberOfIndividualStaffRecords",
+			(CurrentEstablishment."NumberOfIndividualStaffRecords" / CalculatedNumberOfStaff * 100)::DECIMAL(4,1),
+			CurrentEstablishment."NumberOfStaffRecordsNotAgency",
+			CurrentEstablishment."NumberOfStaffRecordsNotAgency",
+			100::DECIMAL(4,1),
+			CurrentEstablishment."NumberOfAgencyStaffRecords",
+			CurrentEstablishment."NumberOfAgencyStaffRecords",
+			100::DECIMAL(4,1)
 		);
 		
 	END LOOP;
