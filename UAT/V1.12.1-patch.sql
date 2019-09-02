@@ -142,10 +142,10 @@ BEGIN
 			SELECT
 				"EstablishmentFK",
 				count("LocalAuthorityReportWorker"."WorkerFK") AS "NumberOfIndividualStaffRecords",
-				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" in ('Permanent', 'Temporary')) AS "NumberOfStaffRecordsNotAgency",
-				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" in ('Permanent', 'Temporary') AND "LocalAuthorityReportWorker"."StaffRecordComplete" = true) AS "NumberOfStaffRecordsNotAgencyCompleted",
-				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" not in ('Permanent', 'Temporary')) AS "NumberOfAgencyStaffRecords",
-				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" not in ('Permanent', 'Temporary') AND "LocalAuthorityReportWorker"."StaffRecordComplete" = true) AS "NumberOfAgencyStaffRecordsCompleted"
+				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" not in ('Agency')) AS "NumberOfStaffRecordsNotAgency",
+				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" not in ('Agency') AND "LocalAuthorityReportWorker"."StaffRecordComplete" = true) AS "NumberOfStaffRecordsNotAgencyCompleted",
+				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" in ('Agency')) AS "NumberOfAgencyStaffRecords",
+				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" in ('Agency') AND "LocalAuthorityReportWorker"."StaffRecordComplete" = true) AS "NumberOfAgencyStaffRecordsCompleted"
 			FROM cqc."LocalAuthorityReportWorker"
 			WHERE
 				"LocalAuthorityReportWorker"."EstablishmentFK" = establishmentID
