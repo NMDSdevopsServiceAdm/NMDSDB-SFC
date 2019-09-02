@@ -131,7 +131,9 @@ BEGIN
 		to_char(updated, 'DD/MM/YYYY') AS lastupdateddate,
 		"NumberOfIndividualStaffRecords",
 		"NumberOfStaffRecordsNotAgency",
-		"NumberOfAgencyStaffRecords"
+		"NumberOfAgencyStaffRecords",
+		"NumberOfStaffRecordsNotAgencyCompleted",
+		"NumberOfAgencyStaffRecordsCompleted"
     FROM
       cqc."Establishment"
 	  	LEFT JOIN cqc.services as MainService on "Establishment"."MainServiceFKValue" = MainService.id
@@ -279,7 +281,7 @@ BEGIN
 			RAISE NOTICE 'calculated leavers is NOT valid: %', CalculatedLeavers;
 			CalculatedWorkplaceComplete := false;
 		END IF;
-	
+
 		INSERT INTO cqc."LocalAuthorityReportEstablishment" (
 			"ReportFrom",
 			"ReportTo",
@@ -325,13 +327,13 @@ BEGIN
 			CalculatedNumberOfStaff,
 			CalculatedWorkplaceComplete,
 			CurrentEstablishment."NumberOfIndividualStaffRecords",
-			CASE WHEN CalculatedNumberOfStaff <> 'Missing' THEN (CurrentEstablishment."NumberOfIndividualStaffRecords" / CalculatedNumberOfStaffInt * 100)::DECIMAL(4,1) ELSE 0.00::DECIMAL(4,1) END,
+			CASE WHEN CalculatedNumberOfStaff <> 'Missing' THEN ((CurrentEstablishment."NumberOfIndividualStaffRecords"::NUMERIC / CalculatedNumberOfStaffInt::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 0.00::DECIMAL(4,1) END,
 			CurrentEstablishment."NumberOfStaffRecordsNotAgency",
-			CurrentEstablishment."NumberOfStaffRecordsNotAgency",
-			100::DECIMAL(4,1),
+			CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted",
+			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" > 0 THEN ((CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted"::NUMERIC / CurrentEstablishment."NumberOfStaffRecordsNotAgency"::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 2.21::DECIMAL(4,1) END,
 			CurrentEstablishment."NumberOfAgencyStaffRecords",
-			CurrentEstablishment."NumberOfAgencyStaffRecords",
-			100::DECIMAL(4,1)
+			CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted",
+			CASE WHEN CurrentEstablishment."NumberOfAgencyStaffRecords" > 0 THEN ((CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted"::NUMERIC / CurrentEstablishment."NumberOfAgencyStaffRecords"::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 2.22::DECIMAL(4,1) END
 		);
 		
 	END LOOP;
@@ -669,7 +671,7 @@ BEGIN
 	DELETE FROM cqc."LocalAuthorityReportEstablishment" WHERE "EstablishmentFK"=establishmentID;
 
 	SELECT cqc.localAuthorityReportWorker(establishmentID, reportFrom, reportTo) INTO workerReportStatus;
-	--SELECT cqc.localAuthorityReportEstablishment(establishmentID, reportFrom, reportTo) INTO establishmentReportStatus;
+	SELECT cqc.localAuthorityReportEstablishment(establishmentID, reportFrom, reportTo) INTO establishmentReportStatus;
 	
 	
 	IF NOT (establishmentReportStatus AND workerReportStatus) THEN
