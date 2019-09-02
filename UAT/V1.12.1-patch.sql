@@ -326,14 +326,14 @@ BEGIN
 			CalculatedLeavers,
 			CalculatedNumberOfStaff,
 			CalculatedWorkplaceComplete,
-			CurrentEstablishment."NumberOfIndividualStaffRecords",
-			CASE WHEN CalculatedNumberOfStaff <> 'Missing' THEN ((CurrentEstablishment."NumberOfIndividualStaffRecords"::NUMERIC / CalculatedNumberOfStaffInt::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 0.00::DECIMAL(4,1) END,
-			CurrentEstablishment."NumberOfStaffRecordsNotAgency",
-			CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted",
-			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" > 0 THEN ((CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted"::NUMERIC / CurrentEstablishment."NumberOfStaffRecordsNotAgency"::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 2.21::DECIMAL(4,1) END,
-			CurrentEstablishment."NumberOfAgencyStaffRecords",
-			CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted",
-			CASE WHEN CurrentEstablishment."NumberOfAgencyStaffRecords" > 0 THEN ((CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted"::NUMERIC / CurrentEstablishment."NumberOfAgencyStaffRecords"::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 2.22::DECIMAL(4,1) END
+			CASE WHEN CurrentEstablishment."NumberOfIndividualStaffRecords" IS NOT NULL THEN CurrentEstablishment."NumberOfIndividualStaffRecords" ELSE 0 END,
+			CASE WHEN CalculatedNumberOfStaff <> 'Missing' AND CurrentEstablishment."NumberOfIndividualStaffRecords" IS NOT NULL THEN ((CurrentEstablishment."NumberOfIndividualStaffRecords"::NUMERIC / CalculatedNumberOfStaffInt::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 0.00::DECIMAL(4,1) END,
+			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" IS NOT NULL THEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" ELSE 0 END,
+			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted" IS NOT NULL THEN CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted" ELSE 0 END,
+			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" > 0 AND CurrentEstablishment."NumberOfStaffRecordsNotAgency" IS NOT NULL AND CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted" IS NOT NULL THEN ((CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted"::NUMERIC / CurrentEstablishment."NumberOfStaffRecordsNotAgency"::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 0.0::DECIMAL(4,1) END,
+			CASE WHEN CurrentEstablishment."NumberOfAgencyStaffRecords" IS NOT NULL THEN CurrentEstablishment."NumberOfAgencyStaffRecords" ELSE 0 END,
+			CASE WHEN CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted" IS NOT NULL THEN CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted" ELSE 0 END,
+			CASE WHEN CurrentEstablishment."NumberOfAgencyStaffRecords" > 0 AND CurrentEstablishment."NumberOfAgencyStaffRecords" IS NOT NULL AND CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted" IS NOT NULL THEN ((CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted"::NUMERIC / CurrentEstablishment."NumberOfAgencyStaffRecords"::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 0.0::DECIMAL(4,1) END
 		);
 		
 	END LOOP;
@@ -482,6 +482,7 @@ BEGIN
 			END IF;
 		ELSE
 			CalculatedPayRate := 'Missing';
+			CalculatedPayInterval := 'Missing';
 		END IF;
 		
 		IF CurrentWorker."QualificationInSocialCareValue" IS NOT NULL THEN
