@@ -425,6 +425,8 @@ BEGIN
 		"WeeklyHoursContractedSavedAt",
 		"WeeklyHoursAverageValue",
 		"WeeklyHoursAverageSavedAt",
+		"ZeroHoursContractValue",
+		"ZeroHoursContractSavedAt",
 		"DaysSickValue",
 		"DaysSickSavedAt",
 		"AnnualHourlyPayValue",
@@ -444,7 +446,8 @@ BEGIN
 		LEFT JOIN cqc."Job" on "Worker"."MainJobFKValue" = "Job"."JobID"
 		LEFT JOIN cqc."Qualification" on "Worker"."SocialCareQualificationFKValue" = "Qualification"."ID"
 	WHERE
-		"Worker"."Archived" = false;
+		"Worker"."Archived" = false
+	ORDER BY "LocalAuthorityReportEstablishment"."WorkplaceName", "Worker"."NameOrIdValue";
 
 	LOOP
 		FETCH AllWorkers INTO CurrentWorker;
@@ -459,223 +462,161 @@ BEGIN
 			CurrentWorker."AnnualHourlyPayRate",
 			CurrentWorker."AnnualHourlyPayRate";
 		
-		IF CurrentWorker."GenderSavedAt"::DATE >= reportFrom THEN
+		IF CurrentWorker."GenderSavedAt" IS NULL THEN
+			CalculatedGender := 'Missing';
+		ELSE
 			CalculatedGender := CurrentWorker."GenderValue"::TEXT;
-		ELSE
-			IF CurrentWorker."GenderSavedAt" IS NULL THEN
-				CalculatedGender := 'Missing';
-			ELSE
-				CalculatedGender := 'Too Old';
-			END IF;
 		END IF;
 		
-		IF CurrentWorker."DateOfBirthSavedAt"::DATE >= reportFrom THEN
+		IF CurrentWorker."DateOfBirthSavedAt" IS NULL THEN
+			CalculatedDateOfBirth := 'Missing';
+		ELSE
 			CalculatedDateOfBirth := TO_CHAR(CurrentWorker."DateOfBirthValue", 'DD/MM/YYYY');
-		ELSE
-			IF CurrentWorker."DateOfBirthSavedAt" IS NULL THEN
-				CalculatedDateOfBirth := 'Missing';
-			ELSE
-				CalculatedDateOfBirth := 'Too Old';
-			END IF;
 		END IF;
 
-		IF CurrentWorker."EthnicityFKSavedAt"::DATE >= reportFrom THEN
+		IF CurrentWorker."EthnicityFKSavedAt" IS NULL THEN
+			CalculatedEthnicity := 'Missing';
+		ELSE
 			CalculatedEthnicity := CurrentWorker."Ethnicity";
-		ELSE
-			IF CurrentWorker."EthnicityFKSavedAt" IS NULL THEN
-				CalculatedEthnicity := 'Missing';
-			ELSE
-				CalculatedEthnicity := 'Too Old';
-			END IF;
 		END IF;
 		
-		IF CurrentWorker."MainJobFKSavedAt"::DATE >= reportFrom THEN
+		IF CurrentWorker."MainJobFKSavedAt" IS NULL THEN
+			CalculatedMainJobRole := 'Missing';
+		ELSE
 			CalculatedMainJobRole := CurrentWorker."MainJobRole";
-		ELSE
-			IF CurrentWorker."MainJobFKSavedAt" IS NULL THEN
-				CalculatedMainJobRole := 'Missing';
-			ELSE
-				CalculatedMainJobRole := 'Too Old';
-			END IF;
 		END IF;
 
-		IF CurrentWorker."ContractSavedAt"::DATE >= reportFrom THEN
-			CalculatedEmploymentStatus := CurrentWorker."MainJobRole";
+		IF CurrentWorker."ContractValue" IS NULL THEN
+			CalculatedEmploymentStatus := 'Missing';
 		ELSE
-			IF CurrentWorker."ContractSavedAt" IS NULL THEN
-				CalculatedEmploymentStatus := 'Missing';
-			ELSE
-				CalculatedEmploymentStatus := 'Too Old';
-			END IF;
-		END IF;
-
-		IF CurrentWorker."ContractSavedAt"::DATE >= reportFrom THEN
-			CalculatedEmploymentStatus := CurrentWorker."MainJobRole";
-		ELSE
-			IF CurrentWorker."ContractSavedAt" IS NULL THEN
-				CalculatedEmploymentStatus := 'Missing';
-			ELSE
-				CalculatedEmploymentStatus := 'Too Old';
-			END IF;
-		END IF;
-
-		IF CurrentWorker."ContractSavedAt"::DATE >= reportFrom THEN
 			CalculatedEmploymentStatus := CurrentWorker."ContractValue";
-		ELSE
-			IF CurrentWorker."ContractSavedAt" IS NULL THEN
-				CalculatedEmploymentStatus := 'Missing';
-			ELSE
-				CalculatedEmploymentStatus := 'Too Old';
-			END IF;
 		END IF;
 		
-		IF CurrentWorker."DaysSickSavedAt"::DATE >= reportFrom THEN
+		IF CurrentWorker."DaysSickValue" IS NULL THEN
+			CalculatedSickDays := 'Missing';
+		ELSE
 			CalculatedSickDays := CurrentWorker."DaysSickValue";
-		ELSE
-			IF CurrentWorker."DaysSickSavedAt" IS NULL THEN
-				CalculatedSickDays := 'Missing';
-			ELSE
-				CalculatedSickDays := 'Too Old';
-			END IF;
 		END IF;
 		
-		IF CurrentWorker."AnnualHourlyPaySavedAt"::DATE >= reportFrom THEN
+		IF CurrentWorker."AnnualHourlyPayValue" IS NOT NULL THEN
 			CalculatedPayInterval := CurrentWorker."AnnualHourlyPayValue";
-			
-			IF CurrentWorker."AnnualHourlyPayRate" IS NOT NULL THEN
-				CalculatedPayRate := CurrentWorker."AnnualHourlyPayRate";
-			ELSE
-				CalculatedPayRate := 'n/a';
-			END IF;
-		ELSE
-			IF CurrentWorker."AnnualHourlyPaySavedAt" IS NULL THEN
-				CalculatedPayInterval := 'Missing';
+
+			IF CurrentWorker."AnnualHourlyPayRate" IS NULL OR CurrentWorker."AnnualHourlyPayValue" = 'Don''t know' THEN
 				CalculatedPayRate := 'Missing';
 			ELSE
-				CalculatedPayInterval := 'Too Old';
-				CalculatedPayRate := 'Too Old';
+				CalculatedPayRate := CurrentWorker."AnnualHourlyPayRate";
 			END IF;
+		ELSE
+			CalculatedPayRate := 'Missing';
 		END IF;
 		
-		
-		IF CurrentWorker."QualificationInSocialCareSavedAt"::DATE >= reportFrom THEN
+		IF CurrentWorker."QualificationInSocialCareValue" IS NOT NULL THEN
 			CalculatedRelevantSocialCareQualification := CurrentWorker."QualificationInSocialCareValue";
-			
+		
 			-- the highest social care qualification level is only relevant if knowing the qualification in social care
-			IF CurrentWorker."QualificationInSocialCareValue" IS NOT NULL AND CurrentWorker."QualificationInSocialCareValue" = 'Yes' THEN
-				IF CurrentWorker."QualificationInSocialCareValue" IS NOT NULL AND CurrentWorker."SocialCareQualificationFKSavedAt"::DATE >= reportFrom THEN
+			IF CurrentWorker."QualificationInSocialCareValue" = 'Yes' THEN
+				IF CurrentWorker."QualificationInSocialCare" IS NOT NULL THEN
 					CalculatedHighestSocialCareQualification := CurrentWorker."QualificationInSocialCare";
 				ELSE
-					IF CurrentWorker."SocialCareQualificationFKSavedAt" IS NULL OR CurrentWorker."QualificationInSocialCareValue" IS NULL THEN
-						CalculatedHighestSocialCareQualification := 'Missing';
-					ELSE
-						CalculatedHighestSocialCareQualification := 'Too Old';
-					END IF;
+					CalculatedHighestSocialCareQualification := 'Missing';
 				END IF;
 			ELSE
 				CalculatedHighestSocialCareQualification := 'n/a';
 			END IF;
 		ELSE
-			IF CurrentWorker."QualificationInSocialCareSavedAt" IS NULL THEN
-				CalculatedRelevantSocialCareQualification := 'Missing';
-				CalculatedHighestSocialCareQualification := 'n/a';
-			ELSE
-				CalculatedRelevantSocialCareQualification := 'Too Old';
-				CalculatedHighestSocialCareQualification := 'n/a';
+			CalculatedRelevantSocialCareQualification := 'Missing';
+			CalculatedHighestSocialCareQualification := 'Missing';
+		END IF;
+
+		-- a social worker (27) and an occupational therapist (16) must both have qualifications relevant to social care - override the default checks
+		IF CurrentWorker."MainJobFKValue" IS NOT NULL and CurrentWorker."MainJobFKValue" in (16,27) THEN
+			IF CurrentWorker."QualificationInSocialCareValue" IS NULL OR CurrentWorker."QualificationInSocialCareValue" <> 'Yes' THEN
+				CalculatedRelevantSocialCareQualification := 'Must be yes';
+			END IF;
+			IF CurrentWorker."QualificationInSocialCare" IS NULL THEN
+				CalculatedRelevantSocialCareQualification := 'Must be yes';
 			END IF;
 		END IF;
 		
-		IF CurrentWorker."OtherQualificationsSavedAt"::DATE >= reportFrom THEN
-			CalculatedNonSocialCareQualification := CurrentWorker."OtherQualificationsValue";			
+		IF CurrentWorker."OtherQualificationsSavedAt" IS NULL THEN
+			CalculatedNonSocialCareQualification := 'Missing';
 		ELSE
-			IF CurrentWorker."OtherQualificationsSavedAt" IS NULL THEN
-				CalculatedNonSocialCareQualification := 'Missing';
-			ELSE
-				CalculatedNonSocialCareQualification := 'Too Old';
-			END IF;
+			CalculatedNonSocialCareQualification := CurrentWorker."OtherQualificationsValue";
 		END IF;
 		
 		-- if contract type is perm/temp contracted hours else average hours
 		IF CurrentWorker."ContractValue" in ('Permanent', 'Temporary') THEN
-			IF CurrentWorker."WeeklyHoursContractedSavedAt"::DATE >= reportFrom THEN
-				CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursContractedValue";			
+			-- if zero hours contractor, then use average hours not contracted hours
+			IF CurrentWorker."ZeroHoursContractValue" IS NOT NULL AND CurrentWorker."ZeroHoursContractValue" = 'Yes' THEN
+				CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursAverageValue";
 			ELSE
-				IF CurrentWorker."WeeklyHoursContractedSavedAt" IS NULL THEN
-					CalculatedContractedAverageHours := 'Missing';
-				ELSE
-					CalculatedContractedAverageHours := 'Too Old';
-				END IF;
+				CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursContractedValue";			
 			END IF;
 		ELSE
-			IF CurrentWorker."WeeklyHoursAverageSavedAt"::DATE >= reportFrom THEN
-				CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursAverageValue";			
-			ELSE
-				IF CurrentWorker."WeeklyHoursAverageSavedAt" IS NULL THEN
-					CalculatedContractedAverageHours := 'Missing';
-				ELSE
-					CalculatedContractedAverageHours := 'Too Old';
-				END IF;
-			END IF;
+			CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursAverageValue";
+		END IF;
+		IF CalculatedContractedAverageHours IS NULL THEN
+			CalculatedContractedAverageHours := 'Missing';
 		END IF;
 		
-		-- now calculate worker completion
+		-- now calculate worker completion - which for an agency worker only includes just contracted/average hours, main job and the two salary fields
 		CalculatedStaffComplete := true;
-		IF CalculatedGender in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedGender in ('Missing')  THEN
 			RAISE NOTICE 'calculated gender is NOT valid: %', CalculatedGender;
 			CalculatedStaffComplete := false;
 		END IF;
 
-		IF CalculatedDateOfBirth in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedDateOfBirth in ('Missing')  THEN
 			RAISE NOTICE 'calculated date of birth is NOT valid: %', CalculatedDateOfBirth;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedEthnicity in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedEthnicity in ('Missing')  THEN
 			RAISE NOTICE 'calculated ethnicity is NOT valid: %', CalculatedEthnicity;
 			CalculatedStaffComplete := false;
 		END IF;
 
-		IF CalculatedMainJobRole in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedMainJobRole in ('Missing')  THEN
 			RAISE NOTICE 'calculated main job role is NOT valid: %', CalculatedMainJobRole;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedEmploymentStatus in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus in ('Missing')  THEN
 			RAISE NOTICE 'calculated contract is NOT valid: %', CalculatedEmploymentStatus;
 			CalculatedStaffComplete := false;
 		END IF;
 
-		IF CalculatedSickDays in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedSickDays in ('Missing')  THEN
 			RAISE NOTICE 'calculated days sick is NOT valid: %', CalculatedSickDays;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedPayInterval in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedPayInterval in ('Missing')  THEN
 			RAISE NOTICE 'calculated pay interval is NOT valid: %', CalculatedPayInterval;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedPayRate in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedPayRate in ('Missing')  THEN
 			RAISE NOTICE 'calculated pay rate is NOT valid: %', CalculatedPayRate;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedRelevantSocialCareQualification in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedRelevantSocialCareQualification in ('Missing', 'Must be yes')  THEN
 			RAISE NOTICE 'calculated relevant social care qualification is NOT valid: %', CalculatedRelevantSocialCareQualification;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedHighestSocialCareQualification in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedHighestSocialCareQualification in ('Missing', 'Must be yes')  THEN
 			RAISE NOTICE 'calculated highest social care qualification is NOT valid: %', CalculatedHighestSocialCareQualification;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedNonSocialCareQualification in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedNonSocialCareQualification in ('Missing')  THEN
 			RAISE NOTICE 'calculated relevant non-social care qualification is NOT valid: %', CalculatedNonSocialCareQualification;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedContractedAverageHours in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedContractedAverageHours in ('Missing')  THEN
 			RAISE NOTICE 'calculated contracted/average hours is NOT valid: %', CalculatedContractedAverageHours;
 			CalculatedStaffComplete := false;
 		END IF;
