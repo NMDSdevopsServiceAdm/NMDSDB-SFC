@@ -36,7 +36,7 @@ CREATE INDEX LocalAuthorityReportEstablishment_EstablishmentFK on cqc."LocalAuth
 DROP TABLE IF EXISTS cqc."LocalAuthorityReportWorker";
 CREATE TABLE cqc."LocalAuthorityReportWorker" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,
-	"LocalAuthorityReportEstablishmentFK" INTEGER NOT NULL,
+	"EstablishmentFK" INTEGER NOT NULL,
 	"WorkerFK" INTEGER NOT NULL,
 	"LocalID" TEXT,
 	"WorkplaceName" TEXT NOT NULL,
@@ -55,9 +55,9 @@ CREATE TABLE cqc."LocalAuthorityReportWorker" (
 	"NonSocialCareQualification" TEXT NOT NULL,
 	"LastUpdated" DATE NOT NULL,
 	"StaffRecordComplete" BOOLEAN NOT NULL,
-	CONSTRAINT "LocalAuthorityReportEstablishmentFK_WorkerFK" UNIQUE ("LocalAuthorityReportEstablishmentFK", "WorkerFK")
+	CONSTRAINT "EstablishmentFK_WorkerFK" UNIQUE ("EstablishmentFK", "WorkerFK")
 );
-CREATE INDEX LocalAuthorityReportWorker_LocalAuthorityReportEstablishmentFK on cqc."LocalAuthorityReportWorker" ("LocalAuthorityReportEstablishmentFK");
+CREATE INDEX LocalAuthorityReportWorker_EstablishmentFK on cqc."LocalAuthorityReportWorker" ("EstablishmentFK");
 CREATE INDEX LocalAuthorityReportWorker_WorkerFK on cqc."LocalAuthorityReportWorker" ("WorkerFK");
 
 -- only run these on dev, staging and accessibility/demo databases
@@ -138,19 +138,18 @@ BEGIN
 		LEFT JOIN cqc."EstablishmentMainServicesWithCapacitiesVW" on "EstablishmentMainServicesWithCapacitiesVW"."EstablishmentID" = "Establishment"."EstablishmentID"
 		LEFT JOIN (
 			SELECT
-				"EstablishmentID",
-				count("Worker"."ID") AS "NumberOfIndividualStaffRecords",
-				count("Worker"."ID") FILTER (WHERE "Worker"."ContractValue" in ('Permanent', 'Temporary')) AS "NumberOfStaffRecordsNotAgency",
-				count("Worker"."ID") FILTER (WHERE "Worker"."ContractValue" not in ('Permanent', 'Temporary')) AS "NumberOfAgencyStaffRecords"
-			FROM
-			  cqc."Establishment"
-				LEFT JOIN cqc."Worker" on "Worker"."EstablishmentFK" = "Establishment"."EstablishmentID" AND "Worker"."Archived" = false
+				"EstablishmentFK",
+				count("LocalAuthorityReportWorker"."WorkerFK") AS "NumberOfIndividualStaffRecords",
+				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" in ('Permanent', 'Temporary')) AS "NumberOfStaffRecordsNotAgency",
+				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" in ('Permanent', 'Temporary') AND "LocalAuthorityReportWorker"."StaffRecordComplete" = true) AS "NumberOfStaffRecordsNotAgencyCompleted",
+				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" not in ('Permanent', 'Temporary')) AS "NumberOfAgencyStaffRecords",
+				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" not in ('Permanent', 'Temporary') AND "LocalAuthorityReportWorker"."StaffRecordComplete" = true) AS "NumberOfAgencyStaffRecordsCompleted"
+			FROM cqc."LocalAuthorityReportWorker"
 			WHERE
-				("Establishment"."EstablishmentID" = establishmentID OR "Establishment"."ParentID" = establishmentID) AND
-				"Establishment"."Archived" = false
+				"LocalAuthorityReportWorker"."EstablishmentFK" = establishmentID
 			GROUP BY
-				"EstablishmentID"
-		) "EstablishmentWorkers" ON "EstablishmentWorkers"."EstablishmentID" = "Establishment"."EstablishmentID"
+				"EstablishmentFK"
+		) "EstablishmentWorkers" ON "EstablishmentWorkers"."EstablishmentFK" = "Establishment"."EstablishmentID"
     WHERE
 		("Establishment"."EstablishmentID" = establishmentID OR "Establishment"."ParentID" = establishmentID) AND
 		"Archived" = false
@@ -378,9 +377,9 @@ BEGIN
 	
 	OPEN AllWorkers FOR
 	SELECT
-		"LocalAuthorityReportEstablishment"."ID" AS "LocalAuthorityReportEstablishmentFK",
-		"LocalAuthorityReportEstablishment"."WorkplaceName",
-		"LocalAuthorityReportEstablishment"."WorkplaceID",
+	  "Establishment"."EstablishmentID" AS "WorkplaceFK",
+		"Establishment"."NameValue" AS "WorkplaceName",
+		"Establishment"."NmdsID" AS "WorkplaceID",
 		"Worker".updated,
 		"Worker"."ID" AS "WorkerID",
 		"Worker"."NameOrIdValue",
@@ -416,13 +415,11 @@ BEGIN
 		"OtherQualificationsSavedAt"
 	FROM cqc."Worker"
 		INNER JOIN cqc."Establishment" on "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK" AND "Establishment"."Archived" = false AND ("Establishment"."EstablishmentID" = establishmentID OR "Establishment"."ParentID" = establishmentID)
-		INNER JOIN cqc."LocalAuthorityReportEstablishment" on "LocalAuthorityReportEstablishment"."WorkplaceFK" = "Establishment"."EstablishmentID"
 		LEFT JOIN cqc."Ethnicity" on "Worker"."EthnicityFKValue" = "Ethnicity"."ID"
 		LEFT JOIN cqc."Job" on "Worker"."MainJobFKValue" = "Job"."JobID"
 		LEFT JOIN cqc."Qualification" on "Worker"."SocialCareQualificationFKValue" = "Qualification"."ID"
 	WHERE
-		"Worker"."Archived" = false
-	ORDER BY "LocalAuthorityReportEstablishment"."WorkplaceName", "Worker"."NameOrIdValue";
+		"Worker"."Archived" = false;
 
 	LOOP
 		FETCH AllWorkers INTO CurrentWorker;
@@ -597,7 +594,7 @@ BEGIN
 		END IF;
 		
 		INSERT INTO cqc."LocalAuthorityReportWorker" (
-			"LocalAuthorityReportEstablishmentFK",
+			"EstablishmentFK",
 			"WorkerFK",
 			"LocalID",
 			"WorkplaceName",
@@ -617,7 +614,7 @@ BEGIN
 			"LastUpdated",
 			"StaffRecordComplete"
 		) VALUES (
-			CurrentWorker."LocalAuthorityReportEstablishmentFK",
+			establishmentID,
 			CurrentWorker."WorkerID",
 			CurrentWorker."NameOrIdValue",
 			CurrentWorker."WorkplaceName",
@@ -668,11 +665,11 @@ BEGIN
 	RAISE NOTICE 'localAuthorityReport (%) from % to %', establishmentID, reportFrom, reportTo;
 	
 	-- first delete all Local Authority report data related to this establishment
-	DELETE FROM cqc."LocalAuthorityReportWorker" WHERE "LocalAuthorityReportEstablishmentFK" in (SELECT "ID" FROM cqc."LocalAuthorityReportEstablishment" WHERE "EstablishmentFK"=establishmentID);
+	DELETE FROM cqc."LocalAuthorityReportWorker" WHERE "EstablishmentFK"=establishmentID;
 	DELETE FROM cqc."LocalAuthorityReportEstablishment" WHERE "EstablishmentFK"=establishmentID;
 
-	SELECT cqc.localAuthorityReportEstablishment(establishmentID, reportFrom, reportTo) INTO establishmentReportStatus;
 	SELECT cqc.localAuthorityReportWorker(establishmentID, reportFrom, reportTo) INTO workerReportStatus;
+	--SELECT cqc.localAuthorityReportEstablishment(establishmentID, reportFrom, reportTo) INTO establishmentReportStatus;
 	
 	
 	IF NOT (establishmentReportStatus AND workerReportStatus) THEN
