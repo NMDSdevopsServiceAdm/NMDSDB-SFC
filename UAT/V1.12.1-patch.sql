@@ -13,16 +13,14 @@ CREATE TABLE cqc."LocalAuthorityReportEstablishment" (
 	"EstablishmentType" TEXT NOT NULL,
 	"MainService" TEXT NOT NULL,
 	"ServiceUserGroups" TEXT NOT NULL,
-	"CapacityOfMainService" INTEGER NULL,							-- a null value is equivalent to N/A
-	"UtilisationOfMainService" INTEGER NULL,					-- a null value is equivalent to N/A
-	"NumberOfVacancies" INTEGER NOT NULL,
-	"NumberOfStarters" INTEGER NOT NULL,
-	"NumberOfLeavers" INTEGER NOT NULL,
-	"NumberOfStaffRecords" INTEGER NOT NULL,
-	--"NumberOfNonAgencyStaffRecords" INTEGER NOT NULL,
-	--"NumberOfAgencyStaffRecords" INTEGER NOT NULL,
+	"CapacityOfMainService" TEXT NOT NULL,
+	"UtilisationOfMainService" TEXT NOT NULL,
+	"NumberOfVacancies" TEXT NOT NULL,
+	"NumberOfStarters" TEXT NOT NULL,
+	"NumberOfLeavers" TEXT NOT NULL,
+	"NumberOfStaffRecords" TEXT NOT NULL,
 	"WorkplaceComplete" BOOLEAN NULL,							-- a null value is equivalent to N/A
-	"NumberOfIndividualStaffRecords" INTEGER NOT NULL,
+	"NumberOfIndividualStaffRecords" TEXT NOT NULL,
 	"PercentageOfStaffRecords" NUMERIC(4,1) NOT NULL,	-- a number of 100.4 has a precision of 4 (digits in total) and a scale of 1 (decimal place)
 	"NumberOfStaffRecordsNotAgency" INTEGER NOT NULL,
 	"NumberOfCompleteStaffNotAgency" INTEGER NOT NULL,
@@ -88,12 +86,13 @@ DECLARE
 	CurrentEstablishment RECORD;
 	CalculatedEmployerType TEXT;
 	CalculatedServiceUserGroups TEXT;
-	CalculatedCapacity INTEGER;
-	CalculatedUtilisation INTEGER;
-	CalculatedVacancies INTEGER;
-	CalculatedStarters INTEGER;
-	CalculatedLeavers INTEGER;
-	CalculatedNumberOfStaff INTEGER;
+	CalculatedCapacity TEXT;
+	CalculatedUtilisation TEXT;
+	CalculatedVacancies TEXT;
+	CalculatedStarters TEXT;
+	CalculatedLeavers TEXT;
+	CalculatedNumberOfStaff TEXT;
+	CalculatedNumberOfStaffInt INTEGER;
 	CalculatedWorkplaceComplete BOOLEAN;
 BEGIN
 	success := true;
@@ -171,76 +170,66 @@ BEGIN
 			CurrentEstablishment."MainServiceFKValue",
 			CurrentEstablishment."MainService";
 		
-		IF CurrentEstablishment."MainServiceFKValue" = 16 OR CurrentEstablishment."ServiceUsersSavedAt"::DATE >= reportFrom THEN
-			-- 16 is Head ofice services
-			IF CurrentEstablishment."MainServiceFKValue" <> 16 AND CurrentEstablishment."ServiceUsersCount" > 0 THEN
-				CalculatedServiceUserGroups := 'Completed';
-			ELSE
-				CalculatedServiceUserGroups := 'n/a';
-			END IF;
+		-- 16 is Head ofice services
+		IF CurrentEstablishment."MainServiceFKValue" = 16 THEN
+			CalculatedServiceUserGroups := 'n/a';
+		ELSIF CurrentEstablishment."MainServiceFKValue" <> 16 AND CurrentEstablishment."ServiceUsersCount" > 0 THEN
+			CalculatedServiceUserGroups := 'Completed';
 		ELSE
-			CalculatedServiceUserGroups := '-99';
+			CalculatedServiceUserGroups := 'Missing';
 		END IF;
 		
-		IF CurrentEstablishment."Capacities" IS NOT NULL AND CurrentEstablishment."CapacityServicesSavedAt"::DATE >= reportFrom THEN
-			IF CurrentEstablishment."Capacities" = -1 THEN
-				CalculatedCapacity := '0';
-			ELSE
-				CalculatedCapacity := CurrentEstablishment."Capacities";
-			END IF;
-			IF CurrentEstablishment."Utilisations" = -1 THEN
-				CalculatedUtilisation := '0';
-			ELSE
-				CalculatedUtilisation := CurrentEstablishment."Utilisations";
-			END IF;
+		IF CurrentEstablishment."Capacities" = -1 THEN
+			CalculatedCapacity := 'Missing';
 		ELSIF CurrentEstablishment."Capacities" IS NULL THEN
-			CalculatedCapacity := null;
-			CalculatedUtilisation := null;
+			CalculatedCapacity := 'n/a';
 		ELSE
-			CalculatedCapacity := -99;
-			CalculatedUtilisation := -99;
+			CalculatedCapacity := CurrentEstablishment."Capacities"::TEXT;
+		END IF;
+		IF CurrentEstablishment."Utilisations" = -1 THEN
+			CalculatedUtilisation := 'Missing';
+		ELSIF CurrentEstablishment."Utilisations" IS NULL THEN
+			CalculatedUtilisation := 'n/a';
+		ELSE
+			CalculatedUtilisation := CurrentEstablishment."Utilisations"::TEXT;
 		END IF;
 		
-		IF CurrentEstablishment."VacanciesSavedAt"::DATE >= reportFrom THEN
-			IF CurrentEstablishment."VacanciesValue" = 'With Jobs' THEN
-				CalculatedVacancies := CurrentEstablishment."Vacancies";
-			ELSE
-				CalculatedVacancies := 0;
-			END IF;
+		IF CurrentEstablishment."VacanciesValue" IS NOT NULL AND CurrentEstablishment."VacanciesValue" = 'With Jobs' THEN
+			CalculatedVacancies := CurrentEstablishment."Vacancies"::TEXT;
+		ELSIF CurrentEstablishment."VacanciesValue" IS NULL THEN
+			CalculatedVacancies := 'Missing';
 		ELSE
-			CalculatedVacancies := '-99';
+			CalculatedVacancies := 0;
 		END IF;
-		
-		IF CurrentEstablishment."StartersSavedAt"::DATE >= reportFrom THEN
-			IF CurrentEstablishment."StartersValue" = 'With Jobs' THEN
-				CalculatedStarters := CurrentEstablishment."Starters";
-			ELSE
-				CalculatedStarters := 0;
-			END IF;
+
+		IF CurrentEstablishment."StartersValue" IS NOT NULL AND CurrentEstablishment."StartersValue" = 'With Jobs' THEN
+			CalculatedStarters := CurrentEstablishment."Starters"::TEXT;
+		ELSIF CurrentEstablishment."StartersValue" IS NULL THEN
+			CalculatedStarters := 'Missing';
 		ELSE
-			CalculatedStarters := '-99';
+			CalculatedStarters := 0;
 		END IF;
-		
-		IF CurrentEstablishment."LeaversSavedAt"::DATE >= reportFrom THEN
-			IF CurrentEstablishment."LeaversValue" = 'With Jobs' THEN
-				CalculatedLeavers := CurrentEstablishment."Leavers";
-			ELSE
-				CalculatedLeavers := 0;
-			END IF;
+
+		IF CurrentEstablishment."LeaversValue" IS NOT NULL AND CurrentEstablishment."LeaversValue" = 'With Jobs' THEN
+			CalculatedLeavers := CurrentEstablishment."Leavers"::TEXT;
+		ELSIF CurrentEstablishment."LeaversValue" IS NULL THEN
+			CalculatedLeavers := 'Missing';
 		ELSE
-			CalculatedLeavers := '-99';
+			CalculatedLeavers := 0;
 		END IF;
+
 		
-		IF CurrentEstablishment."NumberOfStaffSavedAt"::DATE >= reportFrom THEN
-			CalculatedNumberOfStaff := CurrentEstablishment."NumberOfStaffValue";
+		IF CurrentEstablishment."NumberOfStaffValue" IS NOT NULL THEN
+			CalculatedNumberOfStaff := CurrentEstablishment."NumberOfStaffValue"::TEXT;
+			CalculatedNumberOfStaffInt := CurrentEstablishment."NumberOfStaffValue";
 		ELSE
-			CalculatedNumberOfStaff := '-99';
+			CalculatedNumberOfStaff := 'Missing';
 		END IF;
 		
 		IF CurrentEstablishment."EmployerTypeValue" IS NOT NULL THEN
 			CalculatedEmployerType := CurrentEstablishment."EmployerTypeValue";
 		ELSE
-			CalculatedEmployerType := '-99';
+			CalculatedEmployerType := 'Missing';
 		END IF;
 		
 		-- calculated the workplace "completed" flag is only true if:
@@ -259,53 +248,39 @@ BEGIN
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
-		IF CalculatedServiceUserGroups = '-99' THEN
+		IF CalculatedServiceUserGroups = 'Missing' THEN
 			RAISE NOTICE 'calculated service groups is NOT valid: %', CalculatedServiceUserGroups;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
-		IF CalculatedCapacity IS NOT NULL AND CalculatedCapacity = -99 THEN
+		IF CalculatedCapacity = 'Missing' THEN
 			RAISE NOTICE 'calculated capacity is NOT valid: %', CalculatedCapacity;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
-		IF CalculatedUtilisation IS NOT NULL AND CalculatedUtilisation = -99 THEN
+		IF CalculatedUtilisation = 'Missing' THEN
 			RAISE NOTICE 'calculated utilisation is NOT valid: %', CalculatedUtilisation;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
-		IF CalculatedNumberOfStaff = -99 THEN
+		IF CalculatedNumberOfStaff = 'Missing' THEN
 			RAISE NOTICE 'calculated number of staff is NOT valid: %', CalculatedNumberOfStaff;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
-		IF CalculatedVacancies = -99 THEN
+		IF CalculatedVacancies = 'Missing' THEN
 			RAISE NOTICE 'calculated vacancies is NOT valid: %', CalculatedVacancies;
 			CalculatedWorkplaceComplete := false;
 		END IF;
-		IF CalculatedStarters = -99 THEN
+		IF CalculatedStarters = 'Missing' THEN
 			RAISE NOTICE 'calculated starters is NOT valid: %', CalculatedStarters;
 			CalculatedWorkplaceComplete := false;
 		END IF;
-		IF CalculatedLeavers = -99 THEN
+		IF CalculatedLeavers = 'Missing' THEN
 			RAISE NOTICE 'calculated leavers is NOT valid: %', CalculatedLeavers;
 			CalculatedWorkplaceComplete := false;
 		END IF;
-		
-		IF SUBSTRING(CalculatedEmployerType::text from 1 for 15) = 'Local Authority'
-		   --CurrentEstablishment."MainService"
-		   AND CalculatedServiceUserGroups <> '-99'
-		   AND (CalculatedCapacity IS NULL OR CalculatedCapacity <> '-99' )
-		   AND (CalculatedUtilisation IS NULL OR CalculatedUtilisation <> '-99')
-		   AND CalculatedNumberOfStaff <> -99
-		   AND CalculatedVacancies <> -99
-		   AND CalculatedStarters <> -99
-		   AND CalculatedLeavers <> -99
-			THEN
-		   CalculatedWorkplaceComplete := true;
-		END IF;
-		
-
+	
 		INSERT INTO cqc."LocalAuthorityReportEstablishment" (
 			"ReportFrom",
 			"ReportTo",
@@ -351,7 +326,7 @@ BEGIN
 			CalculatedNumberOfStaff,
 			CalculatedWorkplaceComplete,
 			CurrentEstablishment."NumberOfIndividualStaffRecords",
-			(CurrentEstablishment."NumberOfIndividualStaffRecords" / CalculatedNumberOfStaff * 100)::DECIMAL(4,1),
+			CASE WHEN CalculatedNumberOfStaff <> 'Missing' THEN (CurrentEstablishment."NumberOfIndividualStaffRecords" / CalculatedNumberOfStaffInt * 100)::DECIMAL(4,1) ELSE 0.00::DECIMAL(4,1) END,
 			CurrentEstablishment."NumberOfStaffRecordsNotAgency",
 			CurrentEstablishment."NumberOfStaffRecordsNotAgency",
 			100::DECIMAL(4,1),
