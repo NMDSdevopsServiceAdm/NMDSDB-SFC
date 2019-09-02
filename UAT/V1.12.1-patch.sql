@@ -37,6 +37,7 @@ DROP TABLE IF EXISTS cqc."LocalAuthorityReportWorker";
 CREATE TABLE cqc."LocalAuthorityReportWorker" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,
 	"EstablishmentFK" INTEGER NOT NULL,
+	"WorkplaceFK" INTEGER NOT NULL,
 	"WorkerFK" INTEGER NOT NULL,
 	"LocalID" TEXT,
 	"WorkplaceName" TEXT NOT NULL,
@@ -141,6 +142,7 @@ BEGIN
 		LEFT JOIN (
 			SELECT
 				"EstablishmentFK",
+				"WorkplaceFK",
 				count("LocalAuthorityReportWorker"."WorkerFK") AS "NumberOfIndividualStaffRecords",
 				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" not in ('Agency')) AS "NumberOfStaffRecordsNotAgency",
 				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" not in ('Agency') AND "LocalAuthorityReportWorker"."StaffRecordComplete" = true) AS "NumberOfStaffRecordsNotAgencyCompleted",
@@ -150,8 +152,8 @@ BEGIN
 			WHERE
 				"LocalAuthorityReportWorker"."EstablishmentFK" = establishmentID
 			GROUP BY
-				"EstablishmentFK"
-		) "EstablishmentWorkers" ON "EstablishmentWorkers"."EstablishmentFK" = "Establishment"."EstablishmentID"
+				"EstablishmentFK", "WorkplaceFK"
+		) "EstablishmentWorkers" ON "EstablishmentWorkers"."WorkplaceFK" = "Establishment"."EstablishmentID"
     WHERE
 		("Establishment"."EstablishmentID" = establishmentID OR "Establishment"."ParentID" = establishmentID) AND
 		"Archived" = false
@@ -598,6 +600,7 @@ BEGIN
 		
 		INSERT INTO cqc."LocalAuthorityReportWorker" (
 			"EstablishmentFK",
+			"WorkplaceFK",
 			"WorkerFK",
 			"LocalID",
 			"WorkplaceName",
@@ -617,7 +620,8 @@ BEGIN
 			"LastUpdated",
 			"StaffRecordComplete"
 		) VALUES (
-			establishmentID,
+			EstablishmentID,
+			CurrentWorker."WorkplaceFK",
 			CurrentWorker."WorkerID",
 			CurrentWorker."NameOrIdValue",
 			CurrentWorker."WorkplaceName",
