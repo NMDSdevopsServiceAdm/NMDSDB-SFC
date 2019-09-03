@@ -735,4 +735,6 @@ LANGUAGE 'plpgsql';
 
 
 
---select cqc.localAuthorityReport(1::INTEGER, '2019-06-10'::DATE, '2019-08-10'::DATE);
+--select cqc.localAuthorityReport(1::INTEGER, '2019-09-09'::DATE, '2019-10-11'::DATE);
+-- select * from cqc."LocalAuthorityReportEstablishment";
+-- select * from cqc."LocalAuthorityReportWorker";
