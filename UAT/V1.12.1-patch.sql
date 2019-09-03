@@ -568,6 +568,10 @@ BEGIN
 		
 		-- now calculate worker completion - which for an agency worker only includes just contracted/average hours, main job and the two salary fields
 		CalculatedStaffComplete := true;
+		IF CurrentWorker.updated::DATE < reportFrom THEN
+			RAISE NOTICE 'Worker record not been updated';
+			CalculatedStaffComplete := false;
+		END IF;
 		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedGender in ('Missing')  THEN
 			RAISE NOTICE 'calculated gender is NOT valid: %', CalculatedGender;
 			CalculatedStaffComplete := false;
