@@ -400,12 +400,15 @@ BEGIN
 		"ContractValue",
 		"ContractSavedAt",
 		"WeeklyHoursContractedValue",
+		"WeeklyHoursContractedHours",
 		"WeeklyHoursContractedSavedAt",
 		"WeeklyHoursAverageValue",
+		"WeeklyHoursAverageHours",
 		"WeeklyHoursAverageSavedAt",
 		"ZeroHoursContractValue",
 		"ZeroHoursContractSavedAt",
 		"DaysSickValue",
+		"DaysSickDays",
 		"DaysSickSavedAt",
 		"AnnualHourlyPayValue",
 		"AnnualHourlyPayRate",
@@ -471,7 +474,17 @@ BEGIN
 		IF CurrentWorker."DaysSickValue" IS NULL THEN
 			CalculatedSickDays := 'Missing';
 		ELSE
-			CalculatedSickDays := CurrentWorker."DaysSickValue";
+			IF CurrentWorker."DaysSickValue" = 'Yes' THEN
+				IF CurrentWorker."DaysSickDays" IS NOT NULL THEN
+					CalculatedSickDays = CurrentWorker."DaysSickDays"::TEXT;
+				ELSE
+					CalculatedSickDays = 'Missing';
+				END IF;
+			ELSIF CurrentWorker."DaysSickValue" = 'No' THEN
+				CalculatedSickDays := 'Don''t know';
+			ELSE
+				CalculatedSickDays := CurrentWorker."DaysSickValue";
+			END IF;
 		END IF;
 		
 		IF CurrentWorker."AnnualHourlyPayValue" IS NOT NULL THEN
@@ -525,16 +538,33 @@ BEGIN
 		IF CurrentWorker."ContractValue" in ('Permanent', 'Temporary') THEN
 			-- if zero hours contractor, then use average hours not contracted hours
 			IF CurrentWorker."ZeroHoursContractValue" IS NOT NULL AND CurrentWorker."ZeroHoursContractValue" = 'Yes' THEN
-				CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursAverageValue";
+				IF  CurrentWorker."ZeroHoursContractValue" = 'Yes' AND CurrentWorker."WeeklyHoursAverageHours" IS NOT NULL THEN
+					CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursAverageHours"::TEXT;
+				ELSIF CurrentWorker."ZeroHoursContractValue" = 'No' THEN
+					CalculatedContractedAverageHours := 'Don''t know';
+				ELSE
+					CalculatedContractedAverageHours := 'Missing';
+				END IF;
 			ELSE
-				CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursContractedValue";			
+				IF CurrentWorker."WeeklyHoursContractedValue" = 'Yes' AND CurrentWorker."WeeklyHoursContractedHours" IS NOT NULL THEN
+				ELSIF CurrentWorker."WeeklyHoursContractedValue" = 'No' THEN
+					CalculatedContractedAverageHours := 'Don''t know';
+				ELSE
+					CalculatedContractedAverageHours := 'Missing';
+				END IF;
 			END IF;
 		ELSE
-			CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursAverageValue";
+				IF  CurrentWorker."WeeklyHoursAverageValue" = 'Yes' AND CurrentWorker."WeeklyHoursAverageHours" IS NOT NULL THEN
+					CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursAverageHours"::TEXT;
+				ELSIF CurrentWorker."WeeklyHoursAverageValue" = 'No' THEN
+					CalculatedContractedAverageHours := 'Don''t know';
+				ELSE
+					CalculatedContractedAverageHours := 'Missing';
+				END IF;
 		END IF;
-		IF CalculatedContractedAverageHours IS NULL THEN
-			CalculatedContractedAverageHours := 'Missing';
-		END IF;
+		-- IF CalculatedContractedAverageHours IS NULL THEN
+		-- 	CalculatedContractedAverageHours := 'Missing';
+		-- END IF;
 		
 		-- now calculate worker completion - which for an agency worker only includes just contracted/average hours, main job and the two salary fields
 		CalculatedStaffComplete := true;
