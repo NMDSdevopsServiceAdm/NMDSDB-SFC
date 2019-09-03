@@ -246,6 +246,11 @@ BEGIN
 		-- 8. If starters is not -99 (0 or more is acceptable)
 		-- 9. If leavers is not -99 (0 or more is acceptable)
 		CalculatedWorkplaceComplete := true;
+		IF CurrentEstablishment.updated::DATE < reportFrom THEN
+			RAISE NOTICE 'Establishment record not been updated';
+			CalculatedWorkplaceComplete := false;
+		END IF;
+
 		IF SUBSTRING(CalculatedEmployerType::text from 1 for 15) <> 'Local Authority' THEN
 			RAISE NOTICE 'employer type is NOT local authority: %', SUBSTRING(CalculatedEmployerType::text from 1 for 15);
 			CalculatedWorkplaceComplete := false;
