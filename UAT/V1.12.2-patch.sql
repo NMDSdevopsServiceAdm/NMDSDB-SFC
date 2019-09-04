@@ -231,7 +231,7 @@ BEGIN
 		MyLocalAuthorities."LastYears",
 		CASE WHEN max(LAEstablishments2."LastUpdatedDate") > max(LAWorkers."LastUpdated") THEN max(LAEstablishments2."LastUpdatedDate") ELSE max(LAWorkers."LastUpdated") END AS "LatestUpdate",
 		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."WorkplaceComplete" = true) AS "WorkplacesCompleted",
-		count(LAWorkers."WorkplaceID") FILTER (WHERE LAWorkers."StaffRecordComplete" = true) AS "StaffCompleted",
+		sum(LAWorkers."CountIndividualStaffRecordsCompleted") AS "StaffCompleted",
 		count(LAEstablishments2."WorkplaceID") AS "NumberOfWorkplaces",
 		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."WorkplaceComplete" = true) AS "NumberOfWorkplacesCompleted",
 		count(LAEstablishments2."WorkplaceID") FILTER (WHERE SUBSTRING(LAEstablishments2."EstablishmentType" from 1 for 15) = 'Local Authority') AS "CountEstablishmentType",
@@ -244,22 +244,22 @@ BEGIN
 		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."NumberOfStarters" <> 'Missing') AS  "CountStarters",
 		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."NumberOfLeavers" <> 'Missing') AS  "CountLeavers",
 		sum(LAEstablishments2."NumberOfStaffRecords"::INTEGER) FILTER (WHERE LAEstablishments2."NumberOfStaffRecords" <> 'Missing') AS  "SumStaff",
-		count(LAWorkers."MainJob") AS  "CountIndividualStaffRecords",
-		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."EmploymentStatus" <> 'Agency') AS  "CountOfIndividualStaffRecordsNotAgency",
-		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."EmploymentStatus" <> 'Agency' AND LAWorkers."StaffRecordComplete" = true) AS  "CountOfIndividualStaffRecordsNotAgencyComplete",
-		1.11::DECIMAL(4,1),
-		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."EmploymentStatus" = 'Agency') AS  "CountOfIndividualStaffRecordsAgency",
-		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."EmploymentStatus" = 'Agency'  AND LAWorkers."StaffRecordComplete" = true) AS  "CountOfIndividualStaffRecordsAgencyComplete",
-		2.22::DECIMAL(4,1),
-		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."Gender" <> 'Missing') AS  "CountOfGender",
-		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."DateOfBirth" <> 'Missing') AS  "CountOfDateOfBirth",
-		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."Ethnicity" <> 'Missing') AS  "CountOfEthnicity",
-		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."MainJob" <> 'Missing') AS  "CountOfMainJobRole",
-		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."EmploymentStatus" <> 'Missing') AS  "CountOfEmploymentStatus",
-		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."ContractedAverageHours" <> 'Missing') AS  "CountOfContractedAverageHours",
-		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."SickDays" <> 'Missing') AS  "CountOfSickness",
-		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."PayInterval" <> 'Missing' AND LAWorkers."RateOfPay" <> 'Missing') AS  "CountOfPay",
-		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."RelevantSocialCareQualification" <> 'Missing' AND LAWorkers."HighestSocialCareQualification" <> 'Missing' AND LAWorkers."NonSocialCareQualification" <> 'Missing') AS  "CountOfQualification"
+		sum(LAWorkers."CountIndividualStaffRecords") AS "CountIndividualStaffRecords",
+		sum(LAWorkers."CountOfIndividualStaffRecordsNotAgency") AS "CountOfIndividualStaffRecordsNotAgency",
+		sum(LAWorkers."CountOfIndividualStaffRecordsNotAgencyComplete") AS "CountOfIndividualStaffRecordsNotAgencyComplete",
+		sum(LAWorkers."PercentageNotAgencyComplete") AS "PercentageNotAgencyComplete",
+		sum(LAWorkers."CountOfIndividualStaffRecordsAgency") AS "CountOfIndividualStaffRecordsAgency",
+		sum(LAWorkers."CountOfIndividualStaffRecordsAgencyComplete") AS "CountOfIndividualStaffRecordsAgencyComplete",
+		sum(LAWorkers."PercentageAgencyComplete") AS "PercentageAgencyComplete",
+		sum(LAWorkers."CountOfGender") AS "CountOfGender",
+		sum(LAWorkers."CountOfDateOfBirth") AS "CountOfDateOfBirth",
+		sum(LAWorkers."CountOfEthnicity") AS "CountOfEthnicity",
+		sum(LAWorkers."CountOfMainJobRole") AS "CountOfMainJobRole",
+		sum(LAWorkers."CountOfEmploymentStatus") AS "CountOfEmploymentStatus",
+		sum(LAWorkers."CountOfContractedAverageHours") AS "CountOfContractedAverageHours",
+		sum(LAWorkers."CountOfSickness") AS "CountOfSickness",
+		sum(LAWorkers."CountOfPay") AS "CountOfPay",
+		sum(LAWorkers."CountOfQualification") AS "CountOfQualification"
 	FROM (
 		VALUES
 			('Barking & Dagenham','G100283', 394),
@@ -420,8 +420,31 @@ BEGIN
 		) AS MyLocalAuthorities ("LocalAuthority", "NmdsID", "LastYears")
 	INNER JOIN cqc."LocalAuthorityReportEstablishment" LAEstablishments on LAEstablishments."WorkplaceID" = MyLocalAuthorities."NmdsID"
 	INNER JOIN cqc."LocalAuthorityReportEstablishment" LAEstablishments2 on LAEstablishments2."EstablishmentFK" = LAEstablishments."EstablishmentFK"
-	INNER JOIN cqc."LocalAuthorityReportWorker" LAWorkers on LAWorkers."WorkplaceFK" = LAEstablishments2."WorkplaceFK"
- 	GROUP BY
+	INNER JOIN (
+		SELECT 
+			"WorkplaceFK",
+			max("LastUpdated") AS "LastUpdated",
+			count(LAWorkers2."MainJob") AS  "CountIndividualStaffRecords",
+			count(LAWorkers2."MainJob") FILTER (WHERE LAWorkers2."StaffRecordComplete" = true)  AS  "CountIndividualStaffRecordsCompleted",
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."EmploymentStatus" <> 'Agency') AS  "CountOfIndividualStaffRecordsNotAgency",
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."EmploymentStatus" <> 'Agency' AND LAWorkers2."StaffRecordComplete" = true) AS  "CountOfIndividualStaffRecordsNotAgencyComplete",
+			0.00::DECIMAL(4,1) AS "PercentageNotAgencyComplete",
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."EmploymentStatus" = 'Agency') AS  "CountOfIndividualStaffRecordsAgency",
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."EmploymentStatus" = 'Agency'  AND LAWorkers2."StaffRecordComplete" = true) AS  "CountOfIndividualStaffRecordsAgencyComplete",
+			0.00::DECIMAL(4,1) AS "PercentageAgencyComplete",
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."Gender" <> 'Missing') AS  "CountOfGender",
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."DateOfBirth" <> 'Missing') AS  "CountOfDateOfBirth",
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."Ethnicity" <> 'Missing') AS  "CountOfEthnicity",
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."MainJob" <> 'Missing') AS  "CountOfMainJobRole",
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."EmploymentStatus" <> 'Missing') AS  "CountOfEmploymentStatus",
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."ContractedAverageHours" <> 'Missing') AS  "CountOfContractedAverageHours",
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."SickDays" <> 'Missing') AS  "CountOfSickness",
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."PayInterval" <> 'Missing' AND LAWorkers2."RateOfPay" <> 'Missing') AS  "CountOfPay",
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."RelevantSocialCareQualification" <> 'Missing' AND LAWorkers2."HighestSocialCareQualification" <> 'Missing' AND LAWorkers2."NonSocialCareQualification" <> 'Missing') AS  "CountOfQualification"
+		FROM cqc."LocalAuthorityReportWorker" LAWorkers2
+		group by LAWorkers2."WorkplaceFK"
+	) LAWorkers ON LAWorkers."WorkplaceFK" = LAEstablishments2."WorkplaceFK"
+	GROUP BY
  		MyLocalAuthorities."LocalAuthority",
  		LAEstablishments."WorkplaceName",
  		LAEstablishments."WorkplaceID",
