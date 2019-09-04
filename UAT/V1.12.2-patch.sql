@@ -212,21 +212,21 @@ BEGIN
 		LAEstablishments."WorkplaceName",
 		LAEstablishments."WorkplaceID",
 		LAEstablishments."EstablishmentFK" AS "PrimaryEstablishmentID",
-		max(LAEstablishments."LastUpdatedDate") AS "LatestUpdate",
-		count(LAEstablishments."WorkplaceID") FILTER (WHERE LAEstablishments."WorkplaceComplete" = true) AS "WorkplacesCompleted",
-		0::BIGINT AS "StaffCompleted",
-		count(LAEstablishments."WorkplaceID") AS "NumberOfWorkplaces",
-		count(LAEstablishments."WorkplaceID") FILTER (WHERE LAEstablishments."WorkplaceComplete" = true) AS "NumberOfWorkplacesCompleted",
-		count(LAEstablishments."WorkplaceID") FILTER (WHERE SUBSTRING(LAEstablishments."EstablishmentType" from 1 for 15) = 'Local Authority') AS "CountEstablishmentType",
-		count(LAEstablishments."WorkplaceID") AS  "CountMainService",			-- main service is mandatory
-		count(LAEstablishments."WorkplaceID") FILTER (WHERE LAEstablishments."ServiceUserGroups" <> 'Missing') AS  "CountServiceUserGroups",
-		count(LAEstablishments."WorkplaceID") FILTER (WHERE LAEstablishments."CapacityOfMainService" <> 'Missing') AS  "CountCapacity",
-		count(LAEstablishments."WorkplaceID") FILTER (WHERE LAEstablishments."UtilisationOfMainService" <> 'Missing') AS  "CountUiltisation",
-		count(LAEstablishments."WorkplaceID") FILTER (WHERE LAEstablishments."NumberOfStaffRecords" <> 'Missing') AS  "CountNumberOfStaff",
-		count(LAEstablishments."WorkplaceID") FILTER (WHERE LAEstablishments."NumberOfVacancies" <> 'Missing') AS  "CountVacancies",
-		count(LAEstablishments."WorkplaceID") FILTER (WHERE LAEstablishments."NumberOfStarters" <> 'Missing') AS  "CountStarters",
-		count(LAEstablishments."WorkplaceID") FILTER (WHERE LAEstablishments."NumberOfLeavers" <> 'Missing') AS  "CountLeavers",
-		sum(LAEstablishments."NumberOfStaffRecords"::INTEGER) FILTER (WHERE LAEstablishments."NumberOfStaffRecords" <> 'Missing') AS  "SumStaff"
+  		max(LAEstablishments2."LastUpdatedDate") AS "LatestUpdate",
+  		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."WorkplaceComplete" = true) AS "WorkplacesCompleted",
+  		0::BIGINT AS "StaffCompleted",
+  		count(LAEstablishments2."WorkplaceID") AS "NumberOfWorkplaces",
+  		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."WorkplaceComplete" = true) AS "NumberOfWorkplacesCompleted",
+   		count(LAEstablishments2."WorkplaceID") FILTER (WHERE SUBSTRING(LAEstablishments2."EstablishmentType" from 1 for 15) = 'Local Authority') AS "CountEstablishmentType",
+   		count(LAEstablishments2."WorkplaceID") AS  "CountMainService",			-- main service is mandatory
+   		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."ServiceUserGroups" <> 'Missing') AS  "CountServiceUserGroups",
+   		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."CapacityOfMainService" <> 'Missing') AS  "CountCapacity",
+   		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."UtilisationOfMainService" <> 'Missing') AS  "CountUiltisation",
+   		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."NumberOfStaffRecords" <> 'Missing') AS  "CountNumberOfStaff",
+   		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."NumberOfVacancies" <> 'Missing') AS  "CountVacancies",
+   		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."NumberOfStarters" <> 'Missing') AS  "CountStarters",
+   		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."NumberOfLeavers" <> 'Missing') AS  "CountLeavers",
+   		sum(LAEstablishments2."NumberOfStaffRecords"::INTEGER) FILTER (WHERE LAEstablishments2."NumberOfStaffRecords" <> 'Missing') AS  "SumStaff"
 	FROM (
 		VALUES
 			('Barking & Dagenham','G100283'),
@@ -381,14 +381,17 @@ BEGIN
 			('Wolverhampton','E118530'),
 			('Worcestershire','E235582'),
 			('York','J161268'),
-			('Wozziland', 'G1001020')
+			('Wozziland', 'G1001020'),
+			('Wozziland2', 'G1001010')
 		) AS MyLocalAuthorities ("LocalAuthority", "NmdsID")
 	INNER JOIN cqc."LocalAuthorityReportEstablishment" LAEstablishments on LAEstablishments."WorkplaceID" = MyLocalAuthorities."NmdsID"
-	GROUP BY
-		MyLocalAuthorities."LocalAuthority",
-		LAEstablishments."WorkplaceName",
-		LAEstablishments."WorkplaceID",
-		LAEstablishments."EstablishmentFK";
+	INNER JOIN cqc."LocalAuthorityReportEstablishment" LAEstablishments2 on LAEstablishments2."EstablishmentFK" = LAEstablishments."EstablishmentFK"
+ 	GROUP BY
+ 		MyLocalAuthorities."LocalAuthority",
+ 		LAEstablishments."WorkplaceName",
+ 		LAEstablishments."WorkplaceID",
+ 		LAEstablishments."EstablishmentFK";
+
 
 -- 	EXCEPTION WHEN OTHERS THEN
 -- 		GET STACKED DIAGNOSTICS v_error_stack=PG_EXCEPTION_CONTEXT, v_error_msg=MESSAGE_TEXT;
