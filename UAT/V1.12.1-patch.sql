@@ -13,16 +13,14 @@ CREATE TABLE cqc."LocalAuthorityReportEstablishment" (
 	"EstablishmentType" TEXT NOT NULL,
 	"MainService" TEXT NOT NULL,
 	"ServiceUserGroups" TEXT NOT NULL,
-	"CapacityOfMainService" INTEGER NULL,							-- a null value is equivalent to N/A
-	"UtilisationOfMainService" INTEGER NULL,					-- a null value is equivalent to N/A
-	"NumberOfVacancies" INTEGER NOT NULL,
-	"NumberOfStarters" INTEGER NOT NULL,
-	"NumberOfLeavers" INTEGER NOT NULL,
-	"NumberOfStaffRecords" INTEGER NOT NULL,
-	--"NumberOfNonAgencyStaffRecords" INTEGER NOT NULL,
-	--"NumberOfAgencyStaffRecords" INTEGER NOT NULL,
+	"CapacityOfMainService" TEXT NOT NULL,
+	"UtilisationOfMainService" TEXT NOT NULL,
+	"NumberOfVacancies" TEXT NOT NULL,
+	"NumberOfStarters" TEXT NOT NULL,
+	"NumberOfLeavers" TEXT NOT NULL,
+	"NumberOfStaffRecords" TEXT NOT NULL,
 	"WorkplaceComplete" BOOLEAN NULL,							-- a null value is equivalent to N/A
-	"NumberOfIndividualStaffRecords" INTEGER NOT NULL,
+	"NumberOfIndividualStaffRecords" TEXT NOT NULL,
 	"PercentageOfStaffRecords" NUMERIC(4,1) NOT NULL,	-- a number of 100.4 has a precision of 4 (digits in total) and a scale of 1 (decimal place)
 	"NumberOfStaffRecordsNotAgency" INTEGER NOT NULL,
 	"NumberOfCompleteStaffNotAgency" INTEGER NOT NULL,
@@ -38,7 +36,8 @@ CREATE INDEX LocalAuthorityReportEstablishment_EstablishmentFK on cqc."LocalAuth
 DROP TABLE IF EXISTS cqc."LocalAuthorityReportWorker";
 CREATE TABLE cqc."LocalAuthorityReportWorker" (
 	"ID" SERIAL NOT NULL PRIMARY KEY,
-	"LocalAuthorityReportEstablishmentFK" INTEGER NOT NULL,
+	"EstablishmentFK" INTEGER NOT NULL,
+	"WorkplaceFK" INTEGER NOT NULL,
 	"WorkerFK" INTEGER NOT NULL,
 	"LocalID" TEXT,
 	"WorkplaceName" TEXT NOT NULL,
@@ -57,9 +56,9 @@ CREATE TABLE cqc."LocalAuthorityReportWorker" (
 	"NonSocialCareQualification" TEXT NOT NULL,
 	"LastUpdated" DATE NOT NULL,
 	"StaffRecordComplete" BOOLEAN NOT NULL,
-	CONSTRAINT "LocalAuthorityReportEstablishmentFK_WorkerFK" UNIQUE ("LocalAuthorityReportEstablishmentFK", "WorkerFK")
+	CONSTRAINT "EstablishmentFK_WorkerFK" UNIQUE ("EstablishmentFK", "WorkerFK")
 );
-CREATE INDEX LocalAuthorityReportWorker_LocalAuthorityReportEstablishmentFK on cqc."LocalAuthorityReportWorker" ("LocalAuthorityReportEstablishmentFK");
+CREATE INDEX LocalAuthorityReportWorker_EstablishmentFK on cqc."LocalAuthorityReportWorker" ("EstablishmentFK");
 CREATE INDEX LocalAuthorityReportWorker_WorkerFK on cqc."LocalAuthorityReportWorker" ("WorkerFK");
 
 -- only run these on dev, staging and accessibility/demo databases
@@ -88,12 +87,13 @@ DECLARE
 	CurrentEstablishment RECORD;
 	CalculatedEmployerType TEXT;
 	CalculatedServiceUserGroups TEXT;
-	CalculatedCapacity INTEGER;
-	CalculatedUtilisation INTEGER;
-	CalculatedVacancies INTEGER;
-	CalculatedStarters INTEGER;
-	CalculatedLeavers INTEGER;
-	CalculatedNumberOfStaff INTEGER;
+	CalculatedCapacity TEXT;
+	CalculatedUtilisation TEXT;
+	CalculatedVacancies TEXT;
+	CalculatedStarters TEXT;
+	CalculatedLeavers TEXT;
+	CalculatedNumberOfStaff TEXT;
+	CalculatedNumberOfStaffInt INTEGER;
 	CalculatedWorkplaceComplete BOOLEAN;
 BEGIN
 	success := true;
@@ -132,26 +132,28 @@ BEGIN
 		to_char(updated, 'DD/MM/YYYY') AS lastupdateddate,
 		"NumberOfIndividualStaffRecords",
 		"NumberOfStaffRecordsNotAgency",
-		"NumberOfAgencyStaffRecords"
+		"NumberOfAgencyStaffRecords",
+		"NumberOfStaffRecordsNotAgencyCompleted",
+		"NumberOfAgencyStaffRecordsCompleted"
     FROM
       cqc."Establishment"
 	  	LEFT JOIN cqc.services as MainService on "Establishment"."MainServiceFKValue" = MainService.id
 		LEFT JOIN cqc."EstablishmentMainServicesWithCapacitiesVW" on "EstablishmentMainServicesWithCapacitiesVW"."EstablishmentID" = "Establishment"."EstablishmentID"
 		LEFT JOIN (
 			SELECT
-				"EstablishmentID",
-				count("Worker"."ID") AS "NumberOfIndividualStaffRecords",
-				count("Worker"."ID") FILTER (WHERE "Worker"."ContractValue" in ('Permanent', 'Temporary')) AS "NumberOfStaffRecordsNotAgency",
-				count("Worker"."ID") FILTER (WHERE "Worker"."ContractValue" not in ('Permanent', 'Temporary')) AS "NumberOfAgencyStaffRecords"
-			FROM
-			  cqc."Establishment"
-				LEFT JOIN cqc."Worker" on "Worker"."EstablishmentFK" = "Establishment"."EstablishmentID" AND "Worker"."Archived" = false
+				"EstablishmentFK",
+				"WorkplaceFK",
+				count("LocalAuthorityReportWorker"."WorkerFK") AS "NumberOfIndividualStaffRecords",
+				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" not in ('Agency')) AS "NumberOfStaffRecordsNotAgency",
+				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" not in ('Agency') AND "LocalAuthorityReportWorker"."StaffRecordComplete" = true) AS "NumberOfStaffRecordsNotAgencyCompleted",
+				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" in ('Agency')) AS "NumberOfAgencyStaffRecords",
+				count("LocalAuthorityReportWorker"."WorkerFK") FILTER (WHERE "LocalAuthorityReportWorker"."EmploymentStatus" in ('Agency') AND "LocalAuthorityReportWorker"."StaffRecordComplete" = true) AS "NumberOfAgencyStaffRecordsCompleted"
+			FROM cqc."LocalAuthorityReportWorker"
 			WHERE
-				("Establishment"."EstablishmentID" = establishmentID OR "Establishment"."ParentID" = establishmentID) AND
-				"Establishment"."Archived" = false
+				"LocalAuthorityReportWorker"."EstablishmentFK" = establishmentID
 			GROUP BY
-				"EstablishmentID"
-		) "EstablishmentWorkers" ON "EstablishmentWorkers"."EstablishmentID" = "Establishment"."EstablishmentID"
+				"EstablishmentFK", "WorkplaceFK"
+		) "EstablishmentWorkers" ON "EstablishmentWorkers"."WorkplaceFK" = "Establishment"."EstablishmentID"
     WHERE
 		("Establishment"."EstablishmentID" = establishmentID OR "Establishment"."ParentID" = establishmentID) AND
 		"Archived" = false
@@ -171,76 +173,66 @@ BEGIN
 			CurrentEstablishment."MainServiceFKValue",
 			CurrentEstablishment."MainService";
 		
-		IF CurrentEstablishment."MainServiceFKValue" = 16 OR CurrentEstablishment."ServiceUsersSavedAt"::DATE >= reportFrom THEN
-			-- 16 is Head ofice services
-			IF CurrentEstablishment."MainServiceFKValue" <> 16 AND CurrentEstablishment."ServiceUsersCount" > 0 THEN
-				CalculatedServiceUserGroups := 'Completed';
-			ELSE
-				CalculatedServiceUserGroups := 'n/a';
-			END IF;
+		-- 16 is Head ofice services
+		IF CurrentEstablishment."MainServiceFKValue" = 16 THEN
+			CalculatedServiceUserGroups := 'n/a';
+		ELSIF CurrentEstablishment."MainServiceFKValue" <> 16 AND CurrentEstablishment."ServiceUsersCount" > 0 THEN
+			CalculatedServiceUserGroups := 'Completed';
 		ELSE
-			CalculatedServiceUserGroups := '-99';
+			CalculatedServiceUserGroups := 'Missing';
 		END IF;
 		
-		IF CurrentEstablishment."Capacities" IS NOT NULL AND CurrentEstablishment."CapacityServicesSavedAt"::DATE >= reportFrom THEN
-			IF CurrentEstablishment."Capacities" = -1 THEN
-				CalculatedCapacity := '0';
-			ELSE
-				CalculatedCapacity := CurrentEstablishment."Capacities";
-			END IF;
-			IF CurrentEstablishment."Utilisations" = -1 THEN
-				CalculatedUtilisation := '0';
-			ELSE
-				CalculatedUtilisation := CurrentEstablishment."Utilisations";
-			END IF;
+		IF CurrentEstablishment."Capacities" = -1 THEN
+			CalculatedCapacity := 'Missing';
 		ELSIF CurrentEstablishment."Capacities" IS NULL THEN
-			CalculatedCapacity := null;
-			CalculatedUtilisation := null;
+			CalculatedCapacity := 'n/a';
 		ELSE
-			CalculatedCapacity := -99;
-			CalculatedUtilisation := -99;
+			CalculatedCapacity := CurrentEstablishment."Capacities"::TEXT;
+		END IF;
+		IF CurrentEstablishment."Utilisations" = -1 THEN
+			CalculatedUtilisation := 'Missing';
+		ELSIF CurrentEstablishment."Utilisations" IS NULL THEN
+			CalculatedUtilisation := 'n/a';
+		ELSE
+			CalculatedUtilisation := CurrentEstablishment."Utilisations"::TEXT;
 		END IF;
 		
-		IF CurrentEstablishment."VacanciesSavedAt"::DATE >= reportFrom THEN
-			IF CurrentEstablishment."VacanciesValue" = 'With Jobs' THEN
-				CalculatedVacancies := CurrentEstablishment."Vacancies";
-			ELSE
-				CalculatedVacancies := 0;
-			END IF;
+		IF CurrentEstablishment."VacanciesValue" IS NOT NULL AND CurrentEstablishment."VacanciesValue" = 'With Jobs' THEN
+			CalculatedVacancies := CurrentEstablishment."Vacancies"::TEXT;
+		ELSIF CurrentEstablishment."VacanciesValue" IS NULL THEN
+			CalculatedVacancies := 'Missing';
 		ELSE
-			CalculatedVacancies := '-99';
+			CalculatedVacancies := 0;
 		END IF;
-		
-		IF CurrentEstablishment."StartersSavedAt"::DATE >= reportFrom THEN
-			IF CurrentEstablishment."StartersValue" = 'With Jobs' THEN
-				CalculatedStarters := CurrentEstablishment."Starters";
-			ELSE
-				CalculatedStarters := 0;
-			END IF;
+
+		IF CurrentEstablishment."StartersValue" IS NOT NULL AND CurrentEstablishment."StartersValue" = 'With Jobs' THEN
+			CalculatedStarters := CurrentEstablishment."Starters"::TEXT;
+		ELSIF CurrentEstablishment."StartersValue" IS NULL THEN
+			CalculatedStarters := 'Missing';
 		ELSE
-			CalculatedStarters := '-99';
+			CalculatedStarters := 0;
 		END IF;
-		
-		IF CurrentEstablishment."LeaversSavedAt"::DATE >= reportFrom THEN
-			IF CurrentEstablishment."LeaversValue" = 'With Jobs' THEN
-				CalculatedLeavers := CurrentEstablishment."Leavers";
-			ELSE
-				CalculatedLeavers := 0;
-			END IF;
+
+		IF CurrentEstablishment."LeaversValue" IS NOT NULL AND CurrentEstablishment."LeaversValue" = 'With Jobs' THEN
+			CalculatedLeavers := CurrentEstablishment."Leavers"::TEXT;
+		ELSIF CurrentEstablishment."LeaversValue" IS NULL THEN
+			CalculatedLeavers := 'Missing';
 		ELSE
-			CalculatedLeavers := '-99';
+			CalculatedLeavers := 0;
 		END IF;
+
 		
-		IF CurrentEstablishment."NumberOfStaffSavedAt"::DATE >= reportFrom THEN
-			CalculatedNumberOfStaff := CurrentEstablishment."NumberOfStaffValue";
+		IF CurrentEstablishment."NumberOfStaffValue" IS NOT NULL THEN
+			CalculatedNumberOfStaff := CurrentEstablishment."NumberOfStaffValue"::TEXT;
+			CalculatedNumberOfStaffInt := CurrentEstablishment."NumberOfStaffValue";
 		ELSE
-			CalculatedNumberOfStaff := '-99';
+			CalculatedNumberOfStaff := 'Missing';
 		END IF;
 		
 		IF CurrentEstablishment."EmployerTypeValue" IS NOT NULL THEN
 			CalculatedEmployerType := CurrentEstablishment."EmployerTypeValue";
 		ELSE
-			CalculatedEmployerType := '-99';
+			CalculatedEmployerType := 'Missing';
 		END IF;
 		
 		-- calculated the workplace "completed" flag is only true if:
@@ -254,57 +246,48 @@ BEGIN
 		-- 8. If starters is not -99 (0 or more is acceptable)
 		-- 9. If leavers is not -99 (0 or more is acceptable)
 		CalculatedWorkplaceComplete := true;
+		IF CurrentEstablishment.updated::DATE < reportFrom THEN
+			RAISE NOTICE 'Establishment record not been updated';
+			CalculatedWorkplaceComplete := false;
+		END IF;
+
 		IF SUBSTRING(CalculatedEmployerType::text from 1 for 15) <> 'Local Authority' THEN
 			RAISE NOTICE 'employer type is NOT local authority: %', SUBSTRING(CalculatedEmployerType::text from 1 for 15);
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
-		IF CalculatedServiceUserGroups = '-99' THEN
+		IF CalculatedServiceUserGroups = 'Missing' THEN
 			RAISE NOTICE 'calculated service groups is NOT valid: %', CalculatedServiceUserGroups;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
-		IF CalculatedCapacity IS NOT NULL AND CalculatedCapacity = -99 THEN
+		IF CalculatedCapacity = 'Missing' THEN
 			RAISE NOTICE 'calculated capacity is NOT valid: %', CalculatedCapacity;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
-		IF CalculatedUtilisation IS NOT NULL AND CalculatedUtilisation = -99 THEN
+		IF CalculatedUtilisation = 'Missing' THEN
 			RAISE NOTICE 'calculated utilisation is NOT valid: %', CalculatedUtilisation;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
-		IF CalculatedNumberOfStaff = -99 THEN
+		IF CalculatedNumberOfStaff = 'Missing' THEN
 			RAISE NOTICE 'calculated number of staff is NOT valid: %', CalculatedNumberOfStaff;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
-		IF CalculatedVacancies = -99 THEN
+		IF CalculatedVacancies = 'Missing' THEN
 			RAISE NOTICE 'calculated vacancies is NOT valid: %', CalculatedVacancies;
 			CalculatedWorkplaceComplete := false;
 		END IF;
-		IF CalculatedStarters = -99 THEN
+		IF CalculatedStarters = 'Missing' THEN
 			RAISE NOTICE 'calculated starters is NOT valid: %', CalculatedStarters;
 			CalculatedWorkplaceComplete := false;
 		END IF;
-		IF CalculatedLeavers = -99 THEN
+		IF CalculatedLeavers = 'Missing' THEN
 			RAISE NOTICE 'calculated leavers is NOT valid: %', CalculatedLeavers;
 			CalculatedWorkplaceComplete := false;
 		END IF;
-		
-		IF SUBSTRING(CalculatedEmployerType::text from 1 for 15) = 'Local Authority'
-		   --CurrentEstablishment."MainService"
-		   AND CalculatedServiceUserGroups <> '-99'
-		   AND (CalculatedCapacity IS NULL OR CalculatedCapacity <> '-99' )
-		   AND (CalculatedUtilisation IS NULL OR CalculatedUtilisation <> '-99')
-		   AND CalculatedNumberOfStaff <> -99
-		   AND CalculatedVacancies <> -99
-		   AND CalculatedStarters <> -99
-		   AND CalculatedLeavers <> -99
-			THEN
-		   CalculatedWorkplaceComplete := true;
-		END IF;
-		
 
 		INSERT INTO cqc."LocalAuthorityReportEstablishment" (
 			"ReportFrom",
@@ -350,14 +333,14 @@ BEGIN
 			CalculatedLeavers,
 			CalculatedNumberOfStaff,
 			CalculatedWorkplaceComplete,
-			CurrentEstablishment."NumberOfIndividualStaffRecords",
-			(CurrentEstablishment."NumberOfIndividualStaffRecords" / CalculatedNumberOfStaff * 100)::DECIMAL(4,1),
-			CurrentEstablishment."NumberOfStaffRecordsNotAgency",
-			CurrentEstablishment."NumberOfStaffRecordsNotAgency",
-			100::DECIMAL(4,1),
-			CurrentEstablishment."NumberOfAgencyStaffRecords",
-			CurrentEstablishment."NumberOfAgencyStaffRecords",
-			100::DECIMAL(4,1)
+			CASE WHEN CurrentEstablishment."NumberOfIndividualStaffRecords" IS NOT NULL THEN CurrentEstablishment."NumberOfIndividualStaffRecords" ELSE 0 END,
+			CASE WHEN CalculatedNumberOfStaff <> 'Missing' AND CurrentEstablishment."NumberOfIndividualStaffRecords" IS NOT NULL THEN ((CurrentEstablishment."NumberOfIndividualStaffRecords"::NUMERIC / CalculatedNumberOfStaffInt::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 0.00::DECIMAL(4,1) END,
+			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" IS NOT NULL THEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" ELSE 0 END,
+			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted" IS NOT NULL THEN CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted" ELSE 0 END,
+			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" > 0 AND CurrentEstablishment."NumberOfStaffRecordsNotAgency" IS NOT NULL AND CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted" IS NOT NULL THEN ((CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted"::NUMERIC / CurrentEstablishment."NumberOfStaffRecordsNotAgency"::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 0.0::DECIMAL(4,1) END,
+			CASE WHEN CurrentEstablishment."NumberOfAgencyStaffRecords" IS NOT NULL THEN CurrentEstablishment."NumberOfAgencyStaffRecords" ELSE 0 END,
+			CASE WHEN CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted" IS NOT NULL THEN CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted" ELSE 0 END,
+			CASE WHEN CurrentEstablishment."NumberOfAgencyStaffRecords" > 0 AND CurrentEstablishment."NumberOfAgencyStaffRecords" IS NOT NULL AND CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted" IS NOT NULL THEN ((CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted"::NUMERIC / CurrentEstablishment."NumberOfAgencyStaffRecords"::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 0.0::DECIMAL(4,1) END
 		);
 		
 	END LOOP;
@@ -403,9 +386,9 @@ BEGIN
 	
 	OPEN AllWorkers FOR
 	SELECT
-		"LocalAuthorityReportEstablishment"."ID" AS "LocalAuthorityReportEstablishmentFK",
-		"LocalAuthorityReportEstablishment"."WorkplaceName",
-		"LocalAuthorityReportEstablishment"."WorkplaceID",
+	  "Establishment"."EstablishmentID" AS "WorkplaceFK",
+		"Establishment"."NameValue" AS "WorkplaceName",
+		"Establishment"."NmdsID" AS "WorkplaceID",
 		"Worker".updated,
 		"Worker"."ID" AS "WorkerID",
 		"Worker"."NameOrIdValue",
@@ -422,10 +405,15 @@ BEGIN
 		"ContractValue",
 		"ContractSavedAt",
 		"WeeklyHoursContractedValue",
+		"WeeklyHoursContractedHours",
 		"WeeklyHoursContractedSavedAt",
 		"WeeklyHoursAverageValue",
+		"WeeklyHoursAverageHours",
 		"WeeklyHoursAverageSavedAt",
+		"ZeroHoursContractValue",
+		"ZeroHoursContractSavedAt",
 		"DaysSickValue",
+		"DaysSickDays",
 		"DaysSickSavedAt",
 		"AnnualHourlyPayValue",
 		"AnnualHourlyPayRate",
@@ -439,7 +427,6 @@ BEGIN
 		"OtherQualificationsSavedAt"
 	FROM cqc."Worker"
 		INNER JOIN cqc."Establishment" on "Establishment"."EstablishmentID" = "Worker"."EstablishmentFK" AND "Establishment"."Archived" = false AND ("Establishment"."EstablishmentID" = establishmentID OR "Establishment"."ParentID" = establishmentID)
-		INNER JOIN cqc."LocalAuthorityReportEstablishment" on "LocalAuthorityReportEstablishment"."WorkplaceFK" = "Establishment"."EstablishmentID"
 		LEFT JOIN cqc."Ethnicity" on "Worker"."EthnicityFKValue" = "Ethnicity"."ID"
 		LEFT JOIN cqc."Job" on "Worker"."MainJobFKValue" = "Job"."JobID"
 		LEFT JOIN cqc."Qualification" on "Worker"."SocialCareQualificationFKValue" = "Qualification"."ID"
@@ -459,229 +446,200 @@ BEGIN
 			CurrentWorker."AnnualHourlyPayRate",
 			CurrentWorker."AnnualHourlyPayRate";
 		
-		IF CurrentWorker."GenderSavedAt"::DATE >= reportFrom THEN
+		IF CurrentWorker."GenderSavedAt" IS NULL THEN
+			CalculatedGender := 'Missing';
+		ELSE
 			CalculatedGender := CurrentWorker."GenderValue"::TEXT;
-		ELSE
-			IF CurrentWorker."GenderSavedAt" IS NULL THEN
-				CalculatedGender := 'Missing';
-			ELSE
-				CalculatedGender := 'Too Old';
-			END IF;
 		END IF;
 		
-		IF CurrentWorker."DateOfBirthSavedAt"::DATE >= reportFrom THEN
+		IF CurrentWorker."DateOfBirthSavedAt" IS NULL THEN
+			CalculatedDateOfBirth := 'Missing';
+		ELSE
 			CalculatedDateOfBirth := TO_CHAR(CurrentWorker."DateOfBirthValue", 'DD/MM/YYYY');
-		ELSE
-			IF CurrentWorker."DateOfBirthSavedAt" IS NULL THEN
-				CalculatedDateOfBirth := 'Missing';
-			ELSE
-				CalculatedDateOfBirth := 'Too Old';
-			END IF;
 		END IF;
 
-		IF CurrentWorker."EthnicityFKSavedAt"::DATE >= reportFrom THEN
+		IF CurrentWorker."EthnicityFKSavedAt" IS NULL THEN
+			CalculatedEthnicity := 'Missing';
+		ELSE
 			CalculatedEthnicity := CurrentWorker."Ethnicity";
-		ELSE
-			IF CurrentWorker."EthnicityFKSavedAt" IS NULL THEN
-				CalculatedEthnicity := 'Missing';
-			ELSE
-				CalculatedEthnicity := 'Too Old';
-			END IF;
 		END IF;
 		
-		IF CurrentWorker."MainJobFKSavedAt"::DATE >= reportFrom THEN
+		IF CurrentWorker."MainJobFKSavedAt" IS NULL THEN
+			CalculatedMainJobRole := 'Missing';
+		ELSE
 			CalculatedMainJobRole := CurrentWorker."MainJobRole";
-		ELSE
-			IF CurrentWorker."MainJobFKSavedAt" IS NULL THEN
-				CalculatedMainJobRole := 'Missing';
-			ELSE
-				CalculatedMainJobRole := 'Too Old';
-			END IF;
 		END IF;
 
-		IF CurrentWorker."ContractSavedAt"::DATE >= reportFrom THEN
-			CalculatedEmploymentStatus := CurrentWorker."MainJobRole";
+		IF CurrentWorker."ContractValue" IS NULL THEN
+			CalculatedEmploymentStatus := 'Missing';
 		ELSE
-			IF CurrentWorker."ContractSavedAt" IS NULL THEN
-				CalculatedEmploymentStatus := 'Missing';
-			ELSE
-				CalculatedEmploymentStatus := 'Too Old';
-			END IF;
-		END IF;
-
-		IF CurrentWorker."ContractSavedAt"::DATE >= reportFrom THEN
-			CalculatedEmploymentStatus := CurrentWorker."MainJobRole";
-		ELSE
-			IF CurrentWorker."ContractSavedAt" IS NULL THEN
-				CalculatedEmploymentStatus := 'Missing';
-			ELSE
-				CalculatedEmploymentStatus := 'Too Old';
-			END IF;
-		END IF;
-
-		IF CurrentWorker."ContractSavedAt"::DATE >= reportFrom THEN
 			CalculatedEmploymentStatus := CurrentWorker."ContractValue";
+		END IF;
+		
+		IF CurrentWorker."DaysSickValue" IS NULL THEN
+			CalculatedSickDays := 'Missing';
 		ELSE
-			IF CurrentWorker."ContractSavedAt" IS NULL THEN
-				CalculatedEmploymentStatus := 'Missing';
+			IF CurrentWorker."DaysSickValue" = 'Yes' THEN
+				IF CurrentWorker."DaysSickDays" IS NOT NULL THEN
+					CalculatedSickDays = CurrentWorker."DaysSickDays"::TEXT;
+				ELSE
+					CalculatedSickDays = 'Missing';
+				END IF;
+			ELSIF CurrentWorker."DaysSickValue" = 'No' THEN
+				CalculatedSickDays := 'Don''t know';
 			ELSE
-				CalculatedEmploymentStatus := 'Too Old';
+				CalculatedSickDays := CurrentWorker."DaysSickValue";
 			END IF;
 		END IF;
 		
-		IF CurrentWorker."DaysSickSavedAt"::DATE >= reportFrom THEN
-			CalculatedSickDays := CurrentWorker."DaysSickValue";
-		ELSE
-			IF CurrentWorker."DaysSickSavedAt" IS NULL THEN
-				CalculatedSickDays := 'Missing';
-			ELSE
-				CalculatedSickDays := 'Too Old';
-			END IF;
-		END IF;
-		
-		IF CurrentWorker."AnnualHourlyPaySavedAt"::DATE >= reportFrom THEN
+		IF CurrentWorker."AnnualHourlyPayValue" IS NOT NULL THEN
 			CalculatedPayInterval := CurrentWorker."AnnualHourlyPayValue";
-			
-			IF CurrentWorker."AnnualHourlyPayRate" IS NOT NULL THEN
-				CalculatedPayRate := CurrentWorker."AnnualHourlyPayRate";
-			ELSE
-				CalculatedPayRate := 'n/a';
-			END IF;
-		ELSE
-			IF CurrentWorker."AnnualHourlyPaySavedAt" IS NULL THEN
-				CalculatedPayInterval := 'Missing';
+
+			IF CurrentWorker."AnnualHourlyPayRate" IS NULL OR CurrentWorker."AnnualHourlyPayValue" = 'Don''t know' THEN
 				CalculatedPayRate := 'Missing';
 			ELSE
-				CalculatedPayInterval := 'Too Old';
-				CalculatedPayRate := 'Too Old';
+				CalculatedPayRate := CurrentWorker."AnnualHourlyPayRate";
 			END IF;
+		ELSE
+			CalculatedPayRate := 'Missing';
+			CalculatedPayInterval := 'Missing';
 		END IF;
 		
-		
-		IF CurrentWorker."QualificationInSocialCareSavedAt"::DATE >= reportFrom THEN
+		IF CurrentWorker."QualificationInSocialCareValue" IS NOT NULL THEN
 			CalculatedRelevantSocialCareQualification := CurrentWorker."QualificationInSocialCareValue";
-			
+		
 			-- the highest social care qualification level is only relevant if knowing the qualification in social care
-			IF CurrentWorker."QualificationInSocialCareValue" IS NOT NULL AND CurrentWorker."QualificationInSocialCareValue" = 'Yes' THEN
-				IF CurrentWorker."QualificationInSocialCareValue" IS NOT NULL AND CurrentWorker."SocialCareQualificationFKSavedAt"::DATE >= reportFrom THEN
+			IF CurrentWorker."QualificationInSocialCareValue" = 'Yes' THEN
+				IF CurrentWorker."QualificationInSocialCare" IS NOT NULL THEN
 					CalculatedHighestSocialCareQualification := CurrentWorker."QualificationInSocialCare";
 				ELSE
-					IF CurrentWorker."SocialCareQualificationFKSavedAt" IS NULL OR CurrentWorker."QualificationInSocialCareValue" IS NULL THEN
-						CalculatedHighestSocialCareQualification := 'Missing';
-					ELSE
-						CalculatedHighestSocialCareQualification := 'Too Old';
-					END IF;
+					CalculatedHighestSocialCareQualification := 'Missing';
 				END IF;
 			ELSE
 				CalculatedHighestSocialCareQualification := 'n/a';
 			END IF;
 		ELSE
-			IF CurrentWorker."QualificationInSocialCareSavedAt" IS NULL THEN
-				CalculatedRelevantSocialCareQualification := 'Missing';
-				CalculatedHighestSocialCareQualification := 'n/a';
-			ELSE
-				CalculatedRelevantSocialCareQualification := 'Too Old';
-				CalculatedHighestSocialCareQualification := 'n/a';
+			CalculatedRelevantSocialCareQualification := 'Missing';
+			CalculatedHighestSocialCareQualification := 'Missing';
+		END IF;
+
+		-- a social worker (27) and an occupational therapist (16) must both have qualifications relevant to social care - override the default checks
+		IF CurrentWorker."MainJobFKValue" IS NOT NULL and CurrentWorker."MainJobFKValue" in (16,27) THEN
+			IF CurrentWorker."QualificationInSocialCareValue" IS NULL OR CurrentWorker."QualificationInSocialCareValue" <> 'Yes' THEN
+				CalculatedRelevantSocialCareQualification := 'Must be yes';
+			END IF;
+			IF CurrentWorker."QualificationInSocialCare" IS NULL THEN
+				CalculatedRelevantSocialCareQualification := 'Must be yes';
 			END IF;
 		END IF;
 		
-		IF CurrentWorker."OtherQualificationsSavedAt"::DATE >= reportFrom THEN
-			CalculatedNonSocialCareQualification := CurrentWorker."OtherQualificationsValue";			
+		IF CurrentWorker."OtherQualificationsSavedAt" IS NULL THEN
+			CalculatedNonSocialCareQualification := 'Missing';
 		ELSE
-			IF CurrentWorker."OtherQualificationsSavedAt" IS NULL THEN
-				CalculatedNonSocialCareQualification := 'Missing';
-			ELSE
-				CalculatedNonSocialCareQualification := 'Too Old';
-			END IF;
+			CalculatedNonSocialCareQualification := CurrentWorker."OtherQualificationsValue";
 		END IF;
 		
 		-- if contract type is perm/temp contracted hours else average hours
 		IF CurrentWorker."ContractValue" in ('Permanent', 'Temporary') THEN
-			IF CurrentWorker."WeeklyHoursContractedSavedAt"::DATE >= reportFrom THEN
-				CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursContractedValue";			
-			ELSE
-				IF CurrentWorker."WeeklyHoursContractedSavedAt" IS NULL THEN
-					CalculatedContractedAverageHours := 'Missing';
+			-- if zero hours contractor, then use average hours not contracted hours
+			IF CurrentWorker."ZeroHoursContractValue" IS NOT NULL AND CurrentWorker."ZeroHoursContractValue" = 'Yes' THEN
+				IF  CurrentWorker."ZeroHoursContractValue" = 'Yes' AND CurrentWorker."WeeklyHoursAverageHours" IS NOT NULL THEN
+					CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursAverageHours"::TEXT;
+				ELSIF CurrentWorker."ZeroHoursContractValue" = 'No' THEN
+					CalculatedContractedAverageHours := 'Don''t know';
 				ELSE
-					CalculatedContractedAverageHours := 'Too Old';
+					CalculatedContractedAverageHours := 'Missing';
+				END IF;
+			ELSE
+				IF CurrentWorker."WeeklyHoursContractedValue" = 'Yes' AND CurrentWorker."WeeklyHoursContractedHours" IS NOT NULL THEN
+				ELSIF CurrentWorker."WeeklyHoursContractedValue" = 'No' THEN
+					CalculatedContractedAverageHours := 'Don''t know';
+				ELSE
+					CalculatedContractedAverageHours := 'Missing';
 				END IF;
 			END IF;
 		ELSE
-			IF CurrentWorker."WeeklyHoursAverageSavedAt"::DATE >= reportFrom THEN
-				CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursAverageValue";			
-			ELSE
-				IF CurrentWorker."WeeklyHoursAverageSavedAt" IS NULL THEN
-					CalculatedContractedAverageHours := 'Missing';
+				IF  CurrentWorker."WeeklyHoursAverageValue" = 'Yes' AND CurrentWorker."WeeklyHoursAverageHours" IS NOT NULL THEN
+					CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursAverageHours"::TEXT;
+				ELSIF CurrentWorker."WeeklyHoursAverageValue" = 'No' THEN
+					CalculatedContractedAverageHours := 'Don''t know';
 				ELSE
-					CalculatedContractedAverageHours := 'Too Old';
+					CalculatedContractedAverageHours := 'Missing';
 				END IF;
-			END IF;
 		END IF;
+		-- IF CalculatedContractedAverageHours IS NULL THEN
+		-- 	CalculatedContractedAverageHours := 'Missing';
+		-- END IF;
 		
-		-- now calculate worker completion
+		-- now calculate worker completion - which for an agency worker only includes just contracted/average hours, main job and the two salary fields
 		CalculatedStaffComplete := true;
-		IF CalculatedGender in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CurrentWorker.updated::DATE < reportFrom THEN
+			RAISE NOTICE 'Worker record not been updated';
+			CalculatedStaffComplete := false;
+		END IF;
+		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedGender in ('Missing')  THEN
 			RAISE NOTICE 'calculated gender is NOT valid: %', CalculatedGender;
 			CalculatedStaffComplete := false;
 		END IF;
 
-		IF CalculatedDateOfBirth in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedDateOfBirth in ('Missing')  THEN
 			RAISE NOTICE 'calculated date of birth is NOT valid: %', CalculatedDateOfBirth;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedEthnicity in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedEthnicity in ('Missing')  THEN
 			RAISE NOTICE 'calculated ethnicity is NOT valid: %', CalculatedEthnicity;
 			CalculatedStaffComplete := false;
 		END IF;
 
-		IF CalculatedMainJobRole in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedMainJobRole in ('Missing')  THEN
 			RAISE NOTICE 'calculated main job role is NOT valid: %', CalculatedMainJobRole;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedEmploymentStatus in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus in ('Missing')  THEN
 			RAISE NOTICE 'calculated contract is NOT valid: %', CalculatedEmploymentStatus;
 			CalculatedStaffComplete := false;
 		END IF;
 
-		IF CalculatedSickDays in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedSickDays in ('Missing')  THEN
 			RAISE NOTICE 'calculated days sick is NOT valid: %', CalculatedSickDays;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedPayInterval in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedPayInterval in ('Missing')  THEN
 			RAISE NOTICE 'calculated pay interval is NOT valid: %', CalculatedPayInterval;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedPayRate in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedPayRate in ('Missing')  THEN
 			RAISE NOTICE 'calculated pay rate is NOT valid: %', CalculatedPayRate;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedRelevantSocialCareQualification in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedRelevantSocialCareQualification in ('Missing', 'Must be yes')  THEN
 			RAISE NOTICE 'calculated relevant social care qualification is NOT valid: %', CalculatedRelevantSocialCareQualification;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedHighestSocialCareQualification in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedHighestSocialCareQualification in ('Missing', 'Must be yes')  THEN
 			RAISE NOTICE 'calculated highest social care qualification is NOT valid: %', CalculatedHighestSocialCareQualification;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedNonSocialCareQualification in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedNonSocialCareQualification in ('Missing')  THEN
 			RAISE NOTICE 'calculated relevant non-social care qualification is NOT valid: %', CalculatedNonSocialCareQualification;
 			CalculatedStaffComplete := false;
 		END IF;
 		
-		IF CalculatedContractedAverageHours in ('Missing', 'Too Old', 'n/a')  THEN
+		IF CalculatedContractedAverageHours in ('Missing')  THEN
 			RAISE NOTICE 'calculated contracted/average hours is NOT valid: %', CalculatedContractedAverageHours;
 			CalculatedStaffComplete := false;
 		END IF;
 		
 		INSERT INTO cqc."LocalAuthorityReportWorker" (
-			"LocalAuthorityReportEstablishmentFK",
+			"EstablishmentFK",
+			"WorkplaceFK",
 			"WorkerFK",
 			"LocalID",
 			"WorkplaceName",
@@ -701,7 +659,8 @@ BEGIN
 			"LastUpdated",
 			"StaffRecordComplete"
 		) VALUES (
-			CurrentWorker."LocalAuthorityReportEstablishmentFK",
+			EstablishmentID,
+			CurrentWorker."WorkplaceFK",
 			CurrentWorker."WorkerID",
 			CurrentWorker."NameOrIdValue",
 			CurrentWorker."WorkplaceName",
@@ -752,11 +711,11 @@ BEGIN
 	RAISE NOTICE 'localAuthorityReport (%) from % to %', establishmentID, reportFrom, reportTo;
 	
 	-- first delete all Local Authority report data related to this establishment
-	DELETE FROM cqc."LocalAuthorityReportWorker" WHERE "LocalAuthorityReportEstablishmentFK" in (SELECT "ID" FROM cqc."LocalAuthorityReportEstablishment" WHERE "EstablishmentFK"=establishmentID);
+	DELETE FROM cqc."LocalAuthorityReportWorker" WHERE "EstablishmentFK"=establishmentID;
 	DELETE FROM cqc."LocalAuthorityReportEstablishment" WHERE "EstablishmentFK"=establishmentID;
 
-	SELECT cqc.localAuthorityReportEstablishment(establishmentID, reportFrom, reportTo) INTO establishmentReportStatus;
 	SELECT cqc.localAuthorityReportWorker(establishmentID, reportFrom, reportTo) INTO workerReportStatus;
+	SELECT cqc.localAuthorityReportEstablishment(establishmentID, reportFrom, reportTo) INTO establishmentReportStatus;
 	
 	
 	IF NOT (establishmentReportStatus AND workerReportStatus) THEN
@@ -776,4 +735,6 @@ LANGUAGE 'plpgsql';
 
 
 
---select cqc.localAuthorityReport(1::INTEGER, '2019-06-10'::DATE, '2019-08-10'::DATE);
+--select cqc.localAuthorityReport(1::INTEGER, '2019-09-09'::DATE, '2019-10-11'::DATE);
+-- select * from cqc."LocalAuthorityReportEstablishment";
+-- select * from cqc."LocalAuthorityReportWorker";
