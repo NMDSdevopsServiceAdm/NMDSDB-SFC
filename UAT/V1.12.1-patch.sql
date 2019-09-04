@@ -567,9 +567,9 @@ BEGIN
 					CalculatedContractedAverageHours := 'Missing';
 				END IF;
 		END IF;
-		-- IF CalculatedContractedAverageHours IS NULL THEN
-		-- 	CalculatedContractedAverageHours := 'Missing';
-		-- END IF;
+		IF CalculatedContractedAverageHours IS NULL THEN
+			CalculatedContractedAverageHours := 'Missing';
+		END IF;
 		
 		-- now calculate worker completion - which for an agency worker only includes just contracted/average hours, main job and the two salary fields
 		CalculatedStaffComplete := true;

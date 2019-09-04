@@ -205,7 +205,8 @@ BEGIN
 			('Worcestershire','E235582', 1162),
 			('York','J161268', 382),
 			('Wozziland', 'G1001020', 0),
-			('Wozziland2', 'G1001010', 0)
+			('Wozziland2', 'G1001010', 0),
+			('Jackieland', 'J1001074', 111)
 		) AS MyLocalAuthorities ("LocalAuthority", "NmdsID", "LastYears")
 			LEFT JOIN cqc."Establishment" on "Establishment"."NmdsID" = MyLocalAuthorities."NmdsID"
 			LEFT JOIN cqc."LocalAuthorityReportEstablishment" AS "LAEstablishment" on "LAEstablishment"."WorkplaceID" = MyLocalAuthorities."NmdsID";
@@ -230,7 +231,7 @@ BEGIN
 		LAEstablishments."WorkplaceID",
 		LAEstablishments."EstablishmentFK" AS "PrimaryEstablishmentID",
 		MyLocalAuthorities."LastYears",
-		max(LAEstablishments2."LastUpdatedDate") AS "LatestUpdate",
+		CASE WHEN max(LAEstablishments2."LastUpdatedDate") > max(LAWorkers."LastUpdated") THEN max(LAEstablishments2."LastUpdatedDate") ELSE max(LAWorkers."LastUpdated") END AS "LatestUpdate",
 		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."WorkplaceComplete" = true) AS "WorkplacesCompleted",
 		count(LAWorkers."WorkplaceID") FILTER (WHERE LAWorkers."StaffRecordComplete" = true) AS "StaffCompleted",
 		count(LAEstablishments2."WorkplaceID") AS "NumberOfWorkplaces",
@@ -416,7 +417,8 @@ BEGIN
 			('Worcestershire','E235582', 1162),
 			('York','J161268', 382),
 			('Wozziland', 'G1001020', 0),
-			('Wozziland2', 'G1001010', 0)
+			('Wozziland2', 'G1001010', 0),
+			('Jackieland', 'J1001074', 111)
 		) AS MyLocalAuthorities ("LocalAuthority", "NmdsID", "LastYears")
 	INNER JOIN cqc."LocalAuthorityReportEstablishment" LAEstablishments on LAEstablishments."WorkplaceID" = MyLocalAuthorities."NmdsID"
 	INNER JOIN cqc."LocalAuthorityReportEstablishment" LAEstablishments2 on LAEstablishments2."EstablishmentFK" = LAEstablishments."EstablishmentFK"
