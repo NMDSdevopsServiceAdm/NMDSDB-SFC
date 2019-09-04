@@ -217,8 +217,6 @@ BEGIN
 		FETCH AllLaEstablishments INTO CurrentEstablishment;
 		EXIT WHEN NOT FOUND;
 
-		RAISE NOTICE 'Current Establishment: % (%) - %', CurrentEstablishment."LocalAuthority", CurrentEstablishment."NmdsID", CurrentEstablishment."EstablishmentID";
-		
  		IF CurrentEstablishment."EstablishmentID" IS NOT NULL THEN
  			PERFORM cqc.localAuthorityReport(CurrentEstablishment."EstablishmentID", reportFrom, reportTo);
  		END IF;		
