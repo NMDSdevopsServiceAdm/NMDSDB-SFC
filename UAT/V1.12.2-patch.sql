@@ -259,8 +259,8 @@ BEGIN
 		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."EmploymentStatus" <> 'Missing') AS  "CountOfEmploymentStatus",
 		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."ContractedAverageHours" <> 'Missing') AS  "CountOfContractedAverageHours",
 		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."SickDays" <> 'Missing') AS  "CountOfSickness",
-		-1::BIGINT AS  "CountOfPay",
-		-1::BIGINT AS  "CountOfQualification"
+		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."PayInterval" <> 'Missing' AND LAWorkers."RateOfPay" <> 'Missing') AS  "CountOfPay",
+		count(LAWorkers."EmploymentStatus") FILTER (WHERE LAWorkers."RelevantSocialCareQualification" <> 'Missing' AND LAWorkers."HighestSocialCareQualification" <> 'Missing' AND LAWorkers."NonSocialCareQualification" <> 'Missing') AS  "CountOfQualification"
 	FROM (
 		VALUES
 			('Barking & Dagenham','G100283', 394),
