@@ -206,7 +206,8 @@ BEGIN
 			('York','J161268', 382),
 			('Wozziland', 'G1001020', 0),
 			('Wozziland2', 'G1001010', 0),
-			('Jackieland', 'J1001074', 111)
+			('Jackieland', 'J1001074', 111),
+			('Anniland', 'E1001272', 222)
 		) AS MyLocalAuthorities ("LocalAuthority", "NmdsID", "LastYears")
 			LEFT JOIN cqc."Establishment" on "Establishment"."NmdsID" = MyLocalAuthorities."NmdsID"
 			LEFT JOIN cqc."LocalAuthorityReportEstablishment" AS "LAEstablishment" on "LAEstablishment"."WorkplaceID" = MyLocalAuthorities."NmdsID";
@@ -416,7 +417,8 @@ BEGIN
 			('York','J161268', 382),
 			('Wozziland', 'G1001020', 0),
 			('Wozziland2', 'G1001010', 0),
-			('Jackieland', 'J1001074', 111)
+			('Jackieland', 'J1001074', 111),
+			('Anniland', 'E1001272', 222)
 		) AS MyLocalAuthorities ("LocalAuthority", "NmdsID", "LastYears")
 	INNER JOIN cqc."LocalAuthorityReportEstablishment" LAEstablishments on LAEstablishments."WorkplaceID" = MyLocalAuthorities."NmdsID"
 	INNER JOIN cqc."LocalAuthorityReportEstablishment" LAEstablishments2 on LAEstablishments2."EstablishmentFK" = LAEstablishments."EstablishmentFK"
