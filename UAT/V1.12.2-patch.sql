@@ -420,7 +420,7 @@ BEGIN
 		) AS MyLocalAuthorities ("LocalAuthority", "NmdsID", "LastYears")
 	INNER JOIN cqc."LocalAuthorityReportEstablishment" LAEstablishments on LAEstablishments."WorkplaceID" = MyLocalAuthorities."NmdsID"
 	INNER JOIN cqc."LocalAuthorityReportEstablishment" LAEstablishments2 on LAEstablishments2."EstablishmentFK" = LAEstablishments."EstablishmentFK"
-	INNER JOIN (
+	LEFT JOIN (
 		SELECT 
 			"WorkplaceFK",
 			max("LastUpdated") AS "LastUpdated",
