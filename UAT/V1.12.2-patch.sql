@@ -455,4 +455,7 @@ BEGIN
 END; $$
 LANGUAGE 'plpgsql';
 
+-- for sfcdevdb, sfctstdb
+--ALTER FUNCTION cqc.localAuthorityReportAdmin(date, date) OWNER TO sfcadmin;
+
 --select * from cqc.localAuthorityReportAdmin('2019-09-09'::DATE, '2019-08-10'::DATE);

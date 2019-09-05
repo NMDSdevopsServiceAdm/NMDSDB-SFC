@@ -74,6 +74,8 @@ CREATE INDEX LocalAuthorityReportWorker_WorkerFK on cqc."LocalAuthorityReportWor
 -- GRANT INSERT, SELECT, UPDATE ON TABLE cqc."LocalAuthorityReportWorker" TO "Read_Update_Role";
 -- GRANT SELECT ON TABLE cqc."LocalAuthorityReportWorker" TO "Read_Only_Role";
 
+---GRANT SELECT,USAGE ON SEQUENCE cqc."LocalAuthorityReportEstablishment_ID_seq" TO sfcapp;
+-- GRANT SELECT,USAGE ON SEQUENCE cqc."LocalAuthorityReportWorker_ID_seq" TO sfcapp;
 
 DROP FUNCTION IF EXISTS cqc.localAuthorityReportEstablishment;
 CREATE OR REPLACE FUNCTION cqc.localAuthorityReportEstablishment(establishmentID INTEGER, reportFrom DATE, reportTo DATE)
@@ -733,7 +735,12 @@ END; $$
 LANGUAGE 'plpgsql';
 
 
-
+-- for sfcdevdb, sfctstdb
+--ALTER FUNCTION cqc.localAuthorityReportWorker(integer, date, date) OWNER TO sfcadmin;
+--ALTER FUNCTION cqc.localauthorityreportestablishment(integer, date, date) OWNER TO sfcadmin;
+--ALTER FUNCTION cqc.localauthorityreport(integer, date, date) OWNER TO sfcadmin;
+--ALTER SEQUENCE cqc."LocalAuthorityReportEstablishment_ID_seq" OWNER TO sfcadmin;
+--ALTER SEQUENCE cqc."LocalAuthorityReportWorker_ID_seq" OWNER TO sfcadmin;
 
 --select cqc.localAuthorityReport(1::INTEGER, '2019-09-09'::DATE, '2019-10-11'::DATE);
 -- select * from cqc."LocalAuthorityReportEstablishment";
