@@ -145,7 +145,7 @@ BEGIN
 			('Northumberland','B106802', 535),
 			('Nottingham','C100004', 1033),
 			('Nottinghamshire','C31061', 2029),
-					('Oldham','F92140', 237),
+			('Oldham','F92140', 237),
 			('Oxfordshire','H134847', 799),
 			('Peterborough','I161067', 207),
 			('Plymouth','D112677', 157),
@@ -217,9 +217,9 @@ BEGIN
 		FETCH AllLaEstablishments INTO CurrentEstablishment;
 		EXIT WHEN NOT FOUND;
 
- 		IF CurrentEstablishment."EstablishmentID" IS NOT NULL THEN
- 			PERFORM cqc.localAuthorityReport(CurrentEstablishment."EstablishmentID", reportFrom, reportTo);
- 		END IF;		
+  		IF CurrentEstablishment."EstablishmentID" IS NOT NULL THEN
+  			PERFORM cqc.localAuthorityReport(CurrentEstablishment."EstablishmentID", reportFrom, reportTo);
+  		END IF;		
 	END LOOP;
 
 	-- now report against all those generated user reports
@@ -228,38 +228,38 @@ BEGIN
 		LAEstablishments."WorkplaceName",
 		LAEstablishments."WorkplaceID",
 		LAEstablishments."EstablishmentFK" AS "PrimaryEstablishmentID",
-		MyLocalAuthorities."LastYears",
+		MyLocalAuthorities."LastYears",	-- 5
 		CASE WHEN max(LAEstablishments2."LastUpdatedDate") > max(LAWorkers."LastUpdated") THEN max(LAEstablishments2."LastUpdatedDate") ELSE max(LAWorkers."LastUpdated") END AS "LatestUpdate",
 		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."WorkplaceComplete" = true) AS "WorkplacesCompleted",
-		sum(LAWorkers."CountIndividualStaffRecordsCompleted") AS "StaffCompleted",
+		sum(LAWorkers."CountIndividualStaffRecordsCompleted")::BIGINT AS "StaffCompleted",
 		count(LAEstablishments2."WorkplaceID") AS "NumberOfWorkplaces",
-		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."WorkplaceComplete" = true) AS "NumberOfWorkplacesCompleted",
+		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."WorkplaceComplete" = true) AS "NumberOfWorkplacesCompleted",	-- 10
 		count(LAEstablishments2."WorkplaceID") FILTER (WHERE SUBSTRING(LAEstablishments2."EstablishmentType" from 1 for 15) = 'Local Authority') AS "CountEstablishmentType",
 		count(LAEstablishments2."WorkplaceID") AS  "CountMainService",			-- main service is mandatory
 		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."ServiceUserGroups" <> 'Missing') AS  "CountServiceUserGroups",
 		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."CapacityOfMainService" <> 'Missing') AS  "CountCapacity",
-		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."UtilisationOfMainService" <> 'Missing') AS  "CountUiltisation",
+		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."UtilisationOfMainService" <> 'Missing') AS  "CountUiltisation",	-- 15
 		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."NumberOfStaffRecords" <> 'Missing') AS  "CountNumberOfStaff",
 		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."NumberOfVacancies" <> 'Missing') AS  "CountVacancies",
 		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."NumberOfStarters" <> 'Missing') AS  "CountStarters",
 		count(LAEstablishments2."WorkplaceID") FILTER (WHERE LAEstablishments2."NumberOfLeavers" <> 'Missing') AS  "CountLeavers",
-		sum(LAEstablishments2."NumberOfStaffRecords"::INTEGER) FILTER (WHERE LAEstablishments2."NumberOfStaffRecords" <> 'Missing') AS  "SumStaff",
-		sum(LAWorkers."CountIndividualStaffRecords") AS "CountIndividualStaffRecords",
-		sum(LAWorkers."CountOfIndividualStaffRecordsNotAgency") AS "CountOfIndividualStaffRecordsNotAgency",
-		sum(LAWorkers."CountOfIndividualStaffRecordsNotAgencyComplete") AS "CountOfIndividualStaffRecordsNotAgencyComplete",
-		sum(LAWorkers."PercentageNotAgencyComplete") AS "PercentageNotAgencyComplete",
-		sum(LAWorkers."CountOfIndividualStaffRecordsAgency") AS "CountOfIndividualStaffRecordsAgency",
-		sum(LAWorkers."CountOfIndividualStaffRecordsAgencyComplete") AS "CountOfIndividualStaffRecordsAgencyComplete",
-		sum(LAWorkers."PercentageAgencyComplete") AS "PercentageAgencyComplete",
-		sum(LAWorkers."CountOfGender") AS "CountOfGender",
-		sum(LAWorkers."CountOfDateOfBirth") AS "CountOfDateOfBirth",
-		sum(LAWorkers."CountOfEthnicity") AS "CountOfEthnicity",
-		sum(LAWorkers."CountOfMainJobRole") AS "CountOfMainJobRole",
-		sum(LAWorkers."CountOfEmploymentStatus") AS "CountOfEmploymentStatus",
-		sum(LAWorkers."CountOfContractedAverageHours") AS "CountOfContractedAverageHours",
-		sum(LAWorkers."CountOfSickness") AS "CountOfSickness",
-		sum(LAWorkers."CountOfPay") AS "CountOfPay",
-		sum(LAWorkers."CountOfQualification") AS "CountOfQualification"
+		sum(LAEstablishments2."NumberOfStaffRecords"::INTEGER) FILTER (WHERE LAEstablishments2."NumberOfStaffRecords" <> 'Missing') AS  "SumStaff",	-- 20
+		sum(LAWorkers."CountIndividualStaffRecords")::BIGINT AS "CountIndividualStaffRecords",
+		sum(LAWorkers."CountOfIndividualStaffRecordsNotAgency")::BIGINT AS "CountOfIndividualStaffRecordsNotAgency",
+		sum(LAWorkers."CountOfIndividualStaffRecordsNotAgencyComplete")::BIGINT AS "CountOfIndividualStaffRecordsNotAgencyComplete",
+		sum(LAWorkers."PercentageNotAgencyComplete")::NUMERIC AS "PercentageNotAgencyComplete",
+		sum(LAWorkers."CountOfIndividualStaffRecordsAgency")::BIGINT AS "CountOfIndividualStaffRecordsAgency",	-- 25
+		sum(LAWorkers."CountOfIndividualStaffRecordsAgencyComplete")::BIGINT AS "CountOfIndividualStaffRecordsAgencyComplete",
+		sum(LAWorkers."PercentageAgencyComplete")::NUMERIC AS "PercentageAgencyComplete",
+		sum(LAWorkers."CountOfGender")::BIGINT AS "CountOfGender",
+		sum(LAWorkers."CountOfDateOfBirth")::BIGINT AS "CountOfDateOfBirth",
+		sum(LAWorkers."CountOfEthnicity")::BIGINT AS "CountOfEthnicity",	-- 30
+		sum(LAWorkers."CountOfMainJobRole")::BIGINT AS "CountOfMainJobRole",
+		sum(LAWorkers."CountOfEmploymentStatus")::BIGINT AS "CountOfEmploymentStatus",
+		sum(LAWorkers."CountOfContractedAverageHours")::BIGINT AS "CountOfContractedAverageHours",
+		sum(LAWorkers."CountOfSickness")::BIGINT AS "CountOfSickness",
+		sum(LAWorkers."CountOfPay")::BIGINT AS "CountOfPay",	-- 35
+		sum(LAWorkers."CountOfQualification")::BIGINT AS "CountOfQualification"
 	FROM (
 		VALUES
 			('Barking & Dagenham','G100283', 394),
@@ -449,7 +449,8 @@ BEGIN
  		LAEstablishments."WorkplaceName",
  		LAEstablishments."WorkplaceID",
  		LAEstablishments."EstablishmentFK",
-		MyLocalAuthorities."LastYears";
+		MyLocalAuthorities."LastYears"
+	ORDER BY MyLocalAuthorities."LocalAuthority", LAEstablishments."WorkplaceName";
 
 END; $$
 LANGUAGE 'plpgsql';
