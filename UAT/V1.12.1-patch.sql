@@ -74,6 +74,8 @@ CREATE INDEX LocalAuthorityReportWorker_WorkerFK on cqc."LocalAuthorityReportWor
 -- GRANT INSERT, SELECT, UPDATE ON TABLE cqc."LocalAuthorityReportWorker" TO "Read_Update_Role";
 -- GRANT SELECT ON TABLE cqc."LocalAuthorityReportWorker" TO "Read_Only_Role";
 
+---GRANT SELECT,USAGE ON SEQUENCE cqc."LocalAuthorityReportEstablishment_ID_seq" TO sfcapp;
+-- GRANT SELECT,USAGE ON SEQUENCE cqc."LocalAuthorityReportWorker_ID_seq" TO sfcapp;
 
 DROP FUNCTION IF EXISTS cqc.localAuthorityReportEstablishment;
 CREATE OR REPLACE FUNCTION cqc.localAuthorityReportEstablishment(establishmentID INTEGER, reportFrom DATE, reportTo DATE)
@@ -164,14 +166,14 @@ BEGIN
 		FETCH AllEstablishments INTO CurrentEstablishment;
 		EXIT WHEN NOT FOUND;
 		
-		RAISE NOTICE 'localAuthorityReportEstablishment: %, %, %, %, %, % %',
-			CurrentEstablishment."EstablishmentID",
-			CurrentEstablishment."NmdsID",
-			CurrentEstablishment."NameValue",
-			CurrentEstablishment.lastupdateddate,
-			CurrentEstablishment."EmployerTypeValue",
-			CurrentEstablishment."MainServiceFKValue",
-			CurrentEstablishment."MainService";
+		-- RAISE NOTICE 'localAuthorityReportEstablishment: %, %, %, %, %, % %',
+		-- 	CurrentEstablishment."EstablishmentID",
+		-- 	CurrentEstablishment."NmdsID",
+		-- 	CurrentEstablishment."NameValue",
+		-- 	CurrentEstablishment.lastupdateddate,
+		-- 	CurrentEstablishment."EmployerTypeValue",
+		-- 	CurrentEstablishment."MainServiceFKValue",
+		-- 	CurrentEstablishment."MainService";
 		
 		-- 16 is Head ofice services
 		IF CurrentEstablishment."MainServiceFKValue" = 16 THEN
@@ -247,45 +249,45 @@ BEGIN
 		-- 9. If leavers is not -99 (0 or more is acceptable)
 		CalculatedWorkplaceComplete := true;
 		IF CurrentEstablishment.updated::DATE < reportFrom THEN
-			RAISE NOTICE 'Establishment record not been updated';
+			-- RAISE NOTICE 'Establishment record not been updated';
 			CalculatedWorkplaceComplete := false;
 		END IF;
 
 		IF SUBSTRING(CalculatedEmployerType::text from 1 for 15) <> 'Local Authority' THEN
-			RAISE NOTICE 'employer type is NOT local authority: %', SUBSTRING(CalculatedEmployerType::text from 1 for 15);
+			-- RAISE NOTICE 'employer type is NOT local authority: %', SUBSTRING(CalculatedEmployerType::text from 1 for 15);
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
 		IF CalculatedServiceUserGroups = 'Missing' THEN
-			RAISE NOTICE 'calculated service groups is NOT valid: %', CalculatedServiceUserGroups;
+			-- RAISE NOTICE 'calculated service groups is NOT valid: %', CalculatedServiceUserGroups;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
 		IF CalculatedCapacity = 'Missing' THEN
-			RAISE NOTICE 'calculated capacity is NOT valid: %', CalculatedCapacity;
+			-- RAISE NOTICE 'calculated capacity is NOT valid: %', CalculatedCapacity;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
 		IF CalculatedUtilisation = 'Missing' THEN
-			RAISE NOTICE 'calculated utilisation is NOT valid: %', CalculatedUtilisation;
+			-- RAISE NOTICE 'calculated utilisation is NOT valid: %', CalculatedUtilisation;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
 		IF CalculatedNumberOfStaff = 'Missing' THEN
-			RAISE NOTICE 'calculated number of staff is NOT valid: %', CalculatedNumberOfStaff;
+			-- RAISE NOTICE 'calculated number of staff is NOT valid: %', CalculatedNumberOfStaff;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		
 		IF CalculatedVacancies = 'Missing' THEN
-			RAISE NOTICE 'calculated vacancies is NOT valid: %', CalculatedVacancies;
+			-- RAISE NOTICE 'calculated vacancies is NOT valid: %', CalculatedVacancies;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		IF CalculatedStarters = 'Missing' THEN
-			RAISE NOTICE 'calculated starters is NOT valid: %', CalculatedStarters;
+			-- RAISE NOTICE 'calculated starters is NOT valid: %', CalculatedStarters;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 		IF CalculatedLeavers = 'Missing' THEN
-			RAISE NOTICE 'calculated leavers is NOT valid: %', CalculatedLeavers;
+			-- RAISE NOTICE 'calculated leavers is NOT valid: %', CalculatedLeavers;
 			CalculatedWorkplaceComplete := false;
 		END IF;
 
@@ -334,7 +336,7 @@ BEGIN
 			CalculatedNumberOfStaff,
 			CalculatedWorkplaceComplete,
 			CASE WHEN CurrentEstablishment."NumberOfIndividualStaffRecords" IS NOT NULL THEN CurrentEstablishment."NumberOfIndividualStaffRecords" ELSE 0 END,
-			CASE WHEN CalculatedNumberOfStaff <> 'Missing' AND CurrentEstablishment."NumberOfIndividualStaffRecords" IS NOT NULL THEN ((CurrentEstablishment."NumberOfIndividualStaffRecords"::NUMERIC / CalculatedNumberOfStaffInt::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 0.00::DECIMAL(4,1) END,
+			CASE WHEN CalculatedNumberOfStaff <> 'Missing' AND CurrentEstablishment."NumberOfIndividualStaffRecords" IS NOT NULL AND CalculatedNumberOfStaffInt::NUMERIC > 0 THEN ((CurrentEstablishment."NumberOfIndividualStaffRecords"::NUMERIC / CalculatedNumberOfStaffInt::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 0.00::DECIMAL(4,1) END,
 			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" IS NOT NULL THEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" ELSE 0 END,
 			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted" IS NOT NULL THEN CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted" ELSE 0 END,
 			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" > 0 AND CurrentEstablishment."NumberOfStaffRecordsNotAgency" IS NOT NULL AND CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted" IS NOT NULL THEN ((CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted"::NUMERIC / CurrentEstablishment."NumberOfStaffRecordsNotAgency"::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 0.0::DECIMAL(4,1) END,
@@ -437,14 +439,14 @@ BEGIN
 		FETCH AllWorkers INTO CurrentWorker;
 		EXIT WHEN NOT FOUND;
 		
-		RAISE NOTICE 'localAuthorityReportWorker: %, %, %, %, %, % %',
-			CurrentWorker."NameOrIdValue",
-			CurrentWorker."Ethnicity",
-			CurrentWorker."GenderValue",
-			CurrentWorker.updated,
-			CurrentWorker."ContractValue",
-			CurrentWorker."AnnualHourlyPayRate",
-			CurrentWorker."AnnualHourlyPayRate";
+		-- RAISE NOTICE 'localAuthorityReportWorker: %, %, %, %, %, % %',
+		-- 	CurrentWorker."NameOrIdValue",
+		-- 	CurrentWorker."Ethnicity",
+		-- 	CurrentWorker."GenderValue",
+		-- 	CurrentWorker.updated,
+		-- 	CurrentWorker."ContractValue",
+		-- 	CurrentWorker."AnnualHourlyPayRate",
+		-- 	CurrentWorker."AnnualHourlyPayRate";
 		
 		IF CurrentWorker."GenderSavedAt" IS NULL THEN
 			CalculatedGender := 'Missing';
@@ -567,73 +569,73 @@ BEGIN
 					CalculatedContractedAverageHours := 'Missing';
 				END IF;
 		END IF;
-		-- IF CalculatedContractedAverageHours IS NULL THEN
-		-- 	CalculatedContractedAverageHours := 'Missing';
-		-- END IF;
+		IF CalculatedContractedAverageHours IS NULL THEN
+			CalculatedContractedAverageHours := 'Missing';
+		END IF;
 		
 		-- now calculate worker completion - which for an agency worker only includes just contracted/average hours, main job and the two salary fields
 		CalculatedStaffComplete := true;
 		IF CurrentWorker.updated::DATE < reportFrom THEN
-			RAISE NOTICE 'Worker record not been updated';
+			-- RAISE NOTICE 'Worker record not been updated';
 			CalculatedStaffComplete := false;
 		END IF;
 		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedGender in ('Missing')  THEN
-			RAISE NOTICE 'calculated gender is NOT valid: %', CalculatedGender;
+			-- RAISE NOTICE 'calculated gender is NOT valid: %', CalculatedGender;
 			CalculatedStaffComplete := false;
 		END IF;
 
 		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedDateOfBirth in ('Missing')  THEN
-			RAISE NOTICE 'calculated date of birth is NOT valid: %', CalculatedDateOfBirth;
+			-- RAISE NOTICE 'calculated date of birth is NOT valid: %', CalculatedDateOfBirth;
 			CalculatedStaffComplete := false;
 		END IF;
 		
 		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedEthnicity in ('Missing')  THEN
-			RAISE NOTICE 'calculated ethnicity is NOT valid: %', CalculatedEthnicity;
+			-- RAISE NOTICE 'calculated ethnicity is NOT valid: %', CalculatedEthnicity;
 			CalculatedStaffComplete := false;
 		END IF;
 
 		IF CalculatedMainJobRole in ('Missing')  THEN
-			RAISE NOTICE 'calculated main job role is NOT valid: %', CalculatedMainJobRole;
+			-- RAISE NOTICE 'calculated main job role is NOT valid: %', CalculatedMainJobRole;
 			CalculatedStaffComplete := false;
 		END IF;
 		
 		IF CalculatedEmploymentStatus in ('Missing')  THEN
-			RAISE NOTICE 'calculated contract is NOT valid: %', CalculatedEmploymentStatus;
+			-- RAISE NOTICE 'calculated contract is NOT valid: %', CalculatedEmploymentStatus;
 			CalculatedStaffComplete := false;
 		END IF;
 
 		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedSickDays in ('Missing')  THEN
-			RAISE NOTICE 'calculated days sick is NOT valid: %', CalculatedSickDays;
+			-- RAISE NOTICE 'calculated days sick is NOT valid: %', CalculatedSickDays;
 			CalculatedStaffComplete := false;
 		END IF;
 		
 		IF CalculatedPayInterval in ('Missing')  THEN
-			RAISE NOTICE 'calculated pay interval is NOT valid: %', CalculatedPayInterval;
+			-- RAISE NOTICE 'calculated pay interval is NOT valid: %', CalculatedPayInterval;
 			CalculatedStaffComplete := false;
 		END IF;
 		
 		IF CalculatedPayRate in ('Missing')  THEN
-			RAISE NOTICE 'calculated pay rate is NOT valid: %', CalculatedPayRate;
+			-- RAISE NOTICE 'calculated pay rate is NOT valid: %', CalculatedPayRate;
 			CalculatedStaffComplete := false;
 		END IF;
 		
 		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedRelevantSocialCareQualification in ('Missing', 'Must be yes')  THEN
-			RAISE NOTICE 'calculated relevant social care qualification is NOT valid: %', CalculatedRelevantSocialCareQualification;
+			-- RAISE NOTICE 'calculated relevant social care qualification is NOT valid: %', CalculatedRelevantSocialCareQualification;
 			CalculatedStaffComplete := false;
 		END IF;
 		
 		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedHighestSocialCareQualification in ('Missing', 'Must be yes')  THEN
-			RAISE NOTICE 'calculated highest social care qualification is NOT valid: %', CalculatedHighestSocialCareQualification;
+			-- RAISE NOTICE 'calculated highest social care qualification is NOT valid: %', CalculatedHighestSocialCareQualification;
 			CalculatedStaffComplete := false;
 		END IF;
 		
 		IF CalculatedEmploymentStatus <> 'Agency' AND CalculatedNonSocialCareQualification in ('Missing')  THEN
-			RAISE NOTICE 'calculated relevant non-social care qualification is NOT valid: %', CalculatedNonSocialCareQualification;
+			-- RAISE NOTICE 'calculated relevant non-social care qualification is NOT valid: %', CalculatedNonSocialCareQualification;
 			CalculatedStaffComplete := false;
 		END IF;
 		
 		IF CalculatedContractedAverageHours in ('Missing')  THEN
-			RAISE NOTICE 'calculated contracted/average hours is NOT valid: %', CalculatedContractedAverageHours;
+			-- RAISE NOTICE 'calculated contracted/average hours is NOT valid: %', CalculatedContractedAverageHours;
 			CalculatedStaffComplete := false;
 		END IF;
 		
@@ -733,7 +735,12 @@ END; $$
 LANGUAGE 'plpgsql';
 
 
-
+-- for sfcdevdb, sfctstdb
+--ALTER FUNCTION cqc.localAuthorityReportWorker(integer, date, date) OWNER TO sfcadmin;
+--ALTER FUNCTION cqc.localauthorityreportestablishment(integer, date, date) OWNER TO sfcadmin;
+--ALTER FUNCTION cqc.localauthorityreport(integer, date, date) OWNER TO sfcadmin;
+--ALTER SEQUENCE cqc."LocalAuthorityReportEstablishment_ID_seq" OWNER TO sfcadmin;
+--ALTER SEQUENCE cqc."LocalAuthorityReportWorker_ID_seq" OWNER TO sfcadmin;
 
 --select cqc.localAuthorityReport(1::INTEGER, '2019-09-09'::DATE, '2019-10-11'::DATE);
 -- select * from cqc."LocalAuthorityReportEstablishment";
