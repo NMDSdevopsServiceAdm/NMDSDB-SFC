@@ -554,6 +554,7 @@ BEGIN
 				END IF;
 			ELSE
 				IF CurrentWorker."WeeklyHoursContractedValue" = 'Yes' AND CurrentWorker."WeeklyHoursContractedHours" IS NOT NULL THEN
+					CalculatedContractedAverageHours := CurrentWorker."WeeklyHoursContractedHours" ;
 				ELSIF CurrentWorker."WeeklyHoursContractedValue" = 'No' THEN
 					CalculatedContractedAverageHours := 'Don''t know';
 				ELSE
