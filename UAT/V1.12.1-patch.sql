@@ -525,8 +525,8 @@ BEGIN
 			CalculatedHighestSocialCareQualification := 'Missing';
 		END IF;
 
-		-- a social worker (27) and an occupational therapist (16) must both have qualifications relevant to social care - override the default checks
-		IF CurrentWorker."MainJobFKValue" IS NOT NULL and CurrentWorker."MainJobFKValue" in (16,27) THEN
+		-- a social worker (27) and an occupational therapist (18) must both have qualifications relevant to social care - override the default checks
+		IF CurrentWorker."MainJobFKValue" IS NOT NULL and CurrentWorker."MainJobFKValue" in (18,27) THEN
 			IF CurrentWorker."QualificationInSocialCareValue" IS NULL OR CurrentWorker."QualificationInSocialCareValue" <> 'Yes' THEN
 				CalculatedRelevantSocialCareQualification := 'Must be yes';
 			END IF;
