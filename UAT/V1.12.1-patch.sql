@@ -126,7 +126,7 @@ BEGIN
 		"NumberOfStaffValue",
 		"NumberOfStaffSavedAt",
 		"EstablishmentMainServicesWithCapacitiesVW"."CAPACITY" AS "Capacities",
-		"EstablishmentMainServicesWithCapacitiesVW"."CAPACITY" AS "Utilisations",
+		"EstablishmentMainServicesWithCapacitiesVW"."UTILISATION" AS "Utilisations",
 		"CapacityServicesSavedAt",
 		"NumberOfStaffValue",
 		"NumberOfStaffSavedAt",
