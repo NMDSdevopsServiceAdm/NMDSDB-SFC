@@ -22,6 +22,11 @@ BEGIN
       "WorkerFK"
   ) AllQuals INTO MAX_QUALS;
 
+  -- a minimum always of 3
+  IF MAX_QUALS < 3 THEN
+    MAX_QUALS := 3;
+  END IF;
+
   return MAX_QUALS;
 
 END; $$
