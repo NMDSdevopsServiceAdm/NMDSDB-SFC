@@ -442,7 +442,7 @@ BEGIN
 			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."ContractedAverageHours" <> 'Missing') AS  "CountOfContractedAverageHours",
 			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."SickDays" <> 'Missing') AS  "CountOfSickness",
 			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."PayInterval" <> 'Missing' AND LAWorkers2."RateOfPay" <> 'Missing') AS  "CountOfPay",
-			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."RelevantSocialCareQualification" <> 'Missing' AND LAWorkers2."HighestSocialCareQualification" <> 'Missing' AND LAWorkers2."NonSocialCareQualification" <> 'Missing') AS  "CountOfQualification"
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."RelevantSocialCareQualification" NOT IN ('Missing', 'Must be yes') AND LAWorkers2."HighestSocialCareQualification" <> 'Missing' AND LAWorkers2."NonSocialCareQualification" <> 'Missing') AS  "CountOfQualification"
 		FROM cqc."LocalAuthorityReportWorker" LAWorkers2
 		group by LAWorkers2."WorkplaceFK"
 	) LAWorkers ON LAWorkers."WorkplaceFK" = LAEstablishments2."WorkplaceFK"
