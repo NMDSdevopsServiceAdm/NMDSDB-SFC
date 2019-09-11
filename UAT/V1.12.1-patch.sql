@@ -740,8 +740,6 @@ LANGUAGE 'plpgsql';
 --ALTER FUNCTION cqc.localAuthorityReportWorker(integer, date, date) OWNER TO sfcadmin;
 --ALTER FUNCTION cqc.localauthorityreportestablishment(integer, date, date) OWNER TO sfcadmin;
 --ALTER FUNCTION cqc.localauthorityreport(integer, date, date) OWNER TO sfcadmin;
---ALTER SEQUENCE cqc."LocalAuthorityReportEstablishment_ID_seq" OWNER TO sfcadmin;
---ALTER SEQUENCE cqc."LocalAuthorityReportWorker_ID_seq" OWNER TO sfcadmin;
 
 --select cqc.localAuthorityReport(1::INTEGER, '2019-09-09'::DATE, '2019-10-11'::DATE);
 -- select * from cqc."LocalAuthorityReportEstablishment";
