@@ -21,13 +21,13 @@ CREATE TABLE cqc."LocalAuthorityReportEstablishment" (
 	"NumberOfStaffRecords" TEXT NOT NULL,
 	"WorkplaceComplete" BOOLEAN NULL,							-- a null value is equivalent to N/A
 	"NumberOfIndividualStaffRecords" TEXT NOT NULL,
-	"PercentageOfStaffRecords" NUMERIC(4,1) NOT NULL,	-- a number of 100.4 has a precision of 4 (digits in total) and a scale of 1 (decimal place)
+	"PercentageOfStaffRecords" NUMERIC NOT NULL,
 	"NumberOfStaffRecordsNotAgency" INTEGER NOT NULL,
 	"NumberOfCompleteStaffNotAgency" INTEGER NOT NULL,
-	"PercentageOfCompleteStaffRecords" NUMERIC(4,1) NOT NULL,
+	"PercentageOfCompleteStaffRecords" NUMERIC NOT NULL,
 	"NumberOfAgencyStaffRecords" INTEGER NOT NULL,
 	"NumberOfCompleteAgencyStaffRecords" INTEGER NOT NULL,
-	"PercentageOfCompleteAgencyStaffRecords" NUMERIC(4,1) NOT NULL,
+	"PercentageOfCompleteAgencyStaffRecords" NUMERIC NOT NULL,
 	CONSTRAINT "EstablishmentFK_WorkplaceID" UNIQUE ("EstablishmentFK", "WorkplaceID")
 );
 CREATE INDEX LocalAuthorityReportEstablishment_EstablishmentFK on cqc."LocalAuthorityReportEstablishment" ("EstablishmentFK");
@@ -336,13 +336,13 @@ BEGIN
 			CalculatedNumberOfStaff,
 			CalculatedWorkplaceComplete,
 			CASE WHEN CurrentEstablishment."NumberOfIndividualStaffRecords" IS NOT NULL THEN CurrentEstablishment."NumberOfIndividualStaffRecords" ELSE 0 END,
-			CASE WHEN CalculatedNumberOfStaff <> 'Missing' AND CurrentEstablishment."NumberOfIndividualStaffRecords" IS NOT NULL AND CalculatedNumberOfStaffInt::NUMERIC > 0 THEN ((CurrentEstablishment."NumberOfIndividualStaffRecords"::NUMERIC / CalculatedNumberOfStaffInt::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 0.00::DECIMAL(4,1) END,
+			CASE WHEN CalculatedNumberOfStaff <> 'Missing' AND CurrentEstablishment."NumberOfIndividualStaffRecords" IS NOT NULL AND CalculatedNumberOfStaffInt::NUMERIC > 0 THEN ((CurrentEstablishment."NumberOfIndividualStaffRecords"::NUMERIC / CalculatedNumberOfStaffInt::NUMERIC) * 100.0)::NUMERIC ELSE 0.00::NUMERIC END,
 			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" IS NOT NULL THEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" ELSE 0 END,
 			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted" IS NOT NULL THEN CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted" ELSE 0 END,
-			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" > 0 AND CurrentEstablishment."NumberOfStaffRecordsNotAgency" IS NOT NULL AND CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted" IS NOT NULL THEN ((CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted"::NUMERIC / CurrentEstablishment."NumberOfStaffRecordsNotAgency"::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 0.0::DECIMAL(4,1) END,
+			CASE WHEN CurrentEstablishment."NumberOfStaffRecordsNotAgency" > 0 AND CurrentEstablishment."NumberOfStaffRecordsNotAgency" IS NOT NULL AND CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted" IS NOT NULL THEN ((CurrentEstablishment."NumberOfStaffRecordsNotAgencyCompleted"::NUMERIC / CurrentEstablishment."NumberOfStaffRecordsNotAgency"::NUMERIC) * 100.0)::NUMERIC ELSE 0.0::NUMERIC END,
 			CASE WHEN CurrentEstablishment."NumberOfAgencyStaffRecords" IS NOT NULL THEN CurrentEstablishment."NumberOfAgencyStaffRecords" ELSE 0 END,
 			CASE WHEN CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted" IS NOT NULL THEN CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted" ELSE 0 END,
-			CASE WHEN CurrentEstablishment."NumberOfAgencyStaffRecords" > 0 AND CurrentEstablishment."NumberOfAgencyStaffRecords" IS NOT NULL AND CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted" IS NOT NULL THEN ((CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted"::NUMERIC / CurrentEstablishment."NumberOfAgencyStaffRecords"::NUMERIC) * 100.0)::DECIMAL(4,1) ELSE 0.0::DECIMAL(4,1) END
+			CASE WHEN CurrentEstablishment."NumberOfAgencyStaffRecords" > 0 AND CurrentEstablishment."NumberOfAgencyStaffRecords" IS NOT NULL AND CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted" IS NOT NULL THEN ((CurrentEstablishment."NumberOfAgencyStaffRecordsCompleted"::NUMERIC / CurrentEstablishment."NumberOfAgencyStaffRecords"::NUMERIC) * 100.0)::NUMERIC ELSE 0.0::NUMERIC END
 		);
 		
 	END LOOP;

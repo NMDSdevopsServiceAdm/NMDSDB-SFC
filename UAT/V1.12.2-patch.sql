@@ -24,10 +24,10 @@ CREATE OR REPLACE FUNCTION cqc.localAuthorityReportAdmin(reportFrom DATE, report
 		"CountIndividualStaffRecords" BIGINT,
 		"CountOfIndividualStaffRecordsNotAgency" BIGINT,
 		"CountOfIndividualStaffRecordsNotAgencyComplete" BIGINT,
-		"PercentageNotAgencyComplete" DECIMAL(4,1),
+		"PercentageNotAgencyComplete" NUMERIC,
 		"CountOfIndividualStaffRecordsAgency" BIGINT,
 		"CountOfIndividualStaffRecordsAgencyComplete" BIGINT,
-		"PercentageAgencyComplete" DECIMAL(4,1),
+		"PercentageAgencyComplete" NUMERIC,
 		"CountOfGender" BIGINT,
 		"CountOfDateOfBirth" BIGINT,
 		"CountOfEthnicity" BIGINT,
@@ -430,10 +430,10 @@ BEGIN
 			count(LAWorkers2."MainJob") FILTER (WHERE LAWorkers2."StaffRecordComplete" = true)  AS  "CountIndividualStaffRecordsCompleted",
 			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."EmploymentStatus" <> 'Agency') AS  "CountOfIndividualStaffRecordsNotAgency",
 			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."EmploymentStatus" <> 'Agency' AND LAWorkers2."StaffRecordComplete" = true) AS  "CountOfIndividualStaffRecordsNotAgencyComplete",
-			0.00::DECIMAL(4,1) AS "PercentageNotAgencyComplete",
+			0.00::NUMERIC AS "PercentageNotAgencyComplete",
 			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."EmploymentStatus" = 'Agency') AS  "CountOfIndividualStaffRecordsAgency",
 			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."EmploymentStatus" = 'Agency'  AND LAWorkers2."StaffRecordComplete" = true) AS  "CountOfIndividualStaffRecordsAgencyComplete",
-			0.00::DECIMAL(4,1) AS "PercentageAgencyComplete",
+			0.00::NUMERIC AS "PercentageAgencyComplete",
 			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."Gender" <> 'Missing') AS  "CountOfGender",
 			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."DateOfBirth" <> 'Missing') AS  "CountOfDateOfBirth",
 			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."Ethnicity" <> 'Missing') AS  "CountOfEthnicity",
@@ -442,7 +442,7 @@ BEGIN
 			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."ContractedAverageHours" <> 'Missing') AS  "CountOfContractedAverageHours",
 			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."SickDays" <> 'Missing') AS  "CountOfSickness",
 			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."PayInterval" <> 'Missing' AND LAWorkers2."RateOfPay" <> 'Missing') AS  "CountOfPay",
-			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."RelevantSocialCareQualification" NOT IN ('Missing', 'Must be yes') AND LAWorkers2."HighestSocialCareQualification" <> 'Missing' AND LAWorkers2."NonSocialCareQualification" <> 'Missing') AS  "CountOfQualification"
+			count(LAWorkers2."EmploymentStatus") FILTER (WHERE LAWorkers2."RelevantSocialCareQualification" <> 'Missing' AND LAWorkers2."HighestSocialCareQualification" <> 'Missing' AND LAWorkers2."NonSocialCareQualification" <> 'Missing') AS  "CountOfQualification"
 		FROM cqc."LocalAuthorityReportWorker" LAWorkers2
 		group by LAWorkers2."WorkplaceFK"
 	) LAWorkers ON LAWorkers."WorkplaceFK" = LAEstablishments2."WorkplaceFK"
