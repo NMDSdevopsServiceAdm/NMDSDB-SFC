@@ -226,7 +226,7 @@ BEGIN
 	-- now report against all those generated user reports
 	RETURN QUERY SELECT
 		MyLocalAuthorities."LocalAuthority",
-		LAEstablishments."WorkplaceName",
+		regexp_replace(LAEstablishments."WorkplaceName", ',', '', 'g') AS "WorkplaceName",
 		LAEstablishments."WorkplaceID",
 		LAEstablishments."EstablishmentFK" AS "PrimaryEstablishmentID",
 		MyLocalAuthorities."LastYears",	-- 5
