@@ -24,7 +24,7 @@ DECLARE
   NewEmployerType VARCHAR(40);
   NewIsCqcRegistered BOOLEAN;
   Owner VARCHAR(10);
-  ParentAccess VARCHAR(20);
+  DataAccess VARCHAR(20);
 BEGIN
   NotMapped := 'Not Mapped';
   MappedEmpty := 'Was empty';
@@ -38,19 +38,20 @@ BEGIN
       e.address3,
       e.town,
       e.nonownerviewrights,
-	  e.ismyparentallowedtoedit,
-	  e.isparent,
-      p.locationid,
-	  p.registrationid,
+      e.ismyparentallowedtoedit,
+      e.isparent,
+      case when ms.sfcid = 16 THEN NULL ELSE p.locationid END as locationid,    -- if main service is head office, the location id needs to be null
+      p.registrationid,
+      p.registrationtype,
       e.postcode,
-	  e.localidentifier,
+	    e.localidentifier,
       e.type as employertypeid,
       p.totalstaff as numberofstaff,
       e.nmdsid,
       e.createddate,
-	  e.updateddate,
+	    e.updateddate,
       e.visiblecsci,
-	  e.source,
+	    e.source,
       ms.sfcid as sfc_tribal_mainserviceid,
       "Establishment"."EstablishmentID" as newestablishmentid
     from establishment e
@@ -70,10 +71,10 @@ BEGIN
 	RAISE NOTICE 'Processing tribal establishment: % (%)', CurrentEstablishment.id, CurrentEstablishment.newestablishmentid;
 
     CASE 
-	  WHEN CurrentEstablishment.locationid IS NULL THEN
-	    NewIsRegulated = false;
-	  ELSE
+	  WHEN CurrentEstablishment.registrationtype = 2 THEN
 	    NewIsRegulated = true;
+	  ELSE
+	    NewIsRegulated = false;
     END CASE;
 
     IF CurrentEstablishment.newestablishmentid IS NOT NULL THEN
@@ -95,11 +96,11 @@ BEGIN
 
 	  CASE CurrentEstablishment.nonownerviewrights
         WHEN 1 THEN
-          ParentAccess = 'Workplace';
+          DataAccess = 'Workplace';
         WHEN 3 THEN
-          ParentAccess = 'Workplace and Staff';
+          DataAccess = 'Workplace and Staff';
         ELSE
-          ParentAccess = NULL;
+          DataAccess = 'None';
       END CASE;
 
       CASE CurrentEstablishment.ismyparentallowedtoedit
@@ -164,7 +165,7 @@ BEGIN
 		"IsParent",
 		"DataSource",
 		"Owner",
-		"ParentAccess",
+		"DataAccess",
 		"LastBulkUploaded",
         "created",
         "updated",
@@ -191,7 +192,7 @@ BEGIN
 		CurrentEstablishment.isparent::boolean,
 		DataSource::cqc."DataSource",
 		Owner::cqc.establishment_owner,
-		ParentAccess::cqc.establishment_parent_access_permission,
+		DataAccess::cqc.establishment_parent_access_permission,
 		CurrentEstablishment.updateddate,
         CurrentEstablishment.createddate,
 		CurrentEstablishment.updateddate,

@@ -95,6 +95,7 @@ BEGIN
     Disability = 'Yes';
   END IF;
 
+  RAISE NOTICE 'Gender 3';
   Gender = NULL;
   IF (_workerRecord.gender=1) THEN
     Gender = 'Male';
@@ -353,36 +354,61 @@ BEGIN
     END IF;
   END IF;
 
-  -- contracted/average hours
+  -- contracted/average hours - special handling for zero contract hour workers
   WeeklyHoursContractedValue = NULL;
   WeeklyHoursContractedHours = NULL;
-  IF (_workerRecord.contractedhours IS NOT NULL) THEN
+  IF (_workerRecord.ZeroHourContract=1) THEN
+    -- on zero hour contracts, contracted hours are always 0
+    WeeklyHoursContractedValue = 'Yes';
+    WeeklyHoursContractedHours = 0;
 
-    -- 190 = permanent, 191 = temp
-    IF (_workerRecord.employmentstatus IS NULL OR _workerRecord.employmentstatus = 190 OR _workerRecord.employmentstatus = 191) THEN
-      IF (_workerRecord.contractedhours = -1) THEN
-        WeeklyHoursContractedValue = NULL;
-        WeeklyHoursContractedHours = NULL;
-      ELSIF (_workerRecord.contractedhours = 0) THEN
-        WeeklyHoursContractedValue = 'No';
-        WeeklyHoursContractedHours = NULL;
-      ELSIF (_workerRecord.contractedhours > 0) THEN
-        WeeklyHoursContractedValue = 'Yes';
-        WeeklyHoursContractedHours = _workerRecord.contractedhours;
-      END IF;
-    ELSE
-      IF (_workerRecord.contractedhours = -1) THEN
-        WeeklyHoursAverageValue = NULL;
-        WeeklyHoursAverageHours = NULL;
-      ELSIF (_workerRecord.contractedhours = 0) THEN
-        WeeklyHoursAverageValue = 'No';
-        WeeklyHoursAverageHours = NULL;
-      ELSIF (_workerRecord.contractedhours > 0) THEN
+    -- on zero hour contracts, typically, the average hours comes from worker.additionalhours
+    --  BUT - the additionalhours can be null, 0 or -1 - in which case try to use the contracted hours
+    IF (_workerRecord.additionalhours IS NULL or _workerRecord.additionalhours <= 0) THEN
+      -- try contracted hours
+      IF (_workerRecord.contractedhours > 0) THEN
         WeeklyHoursAverageValue = 'Yes';
         WeeklyHoursAverageHours = _workerRecord.contractedhours;
+      ELSE
+        -- neither additional nor contracted hours
+        WeeklyHoursAverageValue = NULL;
+        WeeklyHoursAverageHours = NULL;
       END IF;
+    ELSE
+      WeeklyHoursAverageValue = 'Yes';
+      WeeklyHoursAverageHours = _workerRecord.additionalhours;
     END IF;
-  END IF;
+    
+  ELSE
+    IF (_workerRecord.contractedhours IS NOT NULL) THEN
+
+      -- 190 = permanent, 191 = temp
+      IF (_workerRecord.employmentstatus IS NULL OR _workerRecord.employmentstatus = 190 OR _workerRecord.employmentstatus = 191) THEN
+        IF (_workerRecord.contractedhours = -1) THEN
+          WeeklyHoursContractedValue = NULL;
+          WeeklyHoursContractedHours = NULL;
+        ELSIF (_workerRecord.contractedhours = 0) THEN
+          WeeklyHoursContractedValue = 'No';
+          WeeklyHoursContractedHours = NULL;
+        ELSIF (_workerRecord.contractedhours > 0) THEN
+          WeeklyHoursContractedValue = 'Yes';
+          WeeklyHoursContractedHours = _workerRecord.contractedhours;
+        END IF;
+      ELSE
+        IF (_workerRecord.contractedhours = -1) THEN
+          WeeklyHoursAverageValue = NULL;
+          WeeklyHoursAverageHours = NULL;
+        ELSIF (_workerRecord.contractedhours = 0) THEN
+          WeeklyHoursAverageValue = 'No';
+          WeeklyHoursAverageHours = NULL;
+        ELSIF (_workerRecord.contractedhours > 0) THEN
+          WeeklyHoursAverageValue = 'Yes';
+          WeeklyHoursAverageHours = _workerRecord.contractedhours;
+        END IF;
+      END IF; -- end _workerRecord.employmentstatus
+    END IF; -- end _workerRecord.contractedhours
+
+  END IF;   -- end ZeroHourContract=1
 
   -- annual/hourly pay rate
   AnnualHourlyPayValue = NULL;
@@ -391,7 +417,7 @@ BEGIN
     IF (_workerRecord.salaryinterval = 253) THEN    -- unpaid
       AnnualHourlyPayValue = NULL;
       AnnualHourlyPayRate = NULL;
-    ELSIF (_workerRecord.salaryinterval = 250 AND _workerRecord.hourlyrate IS NOT NULL) THEN
+    ELSIF (_workerRecord.salaryinterval = 250 AND _workerRecord.salary IS NOT NULL) THEN
       AnnualHourlyPayValue = 'Annually';
       AnnualHourlyPayRate = _workerRecord.salary;
     ELSIF (_workerRecord.salaryinterval = 252 AND _workerRecord.hourlyrate IS NOT NULL) THEN
